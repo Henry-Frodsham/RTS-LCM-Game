@@ -1,0 +1,12 @@
+{
+  "name": "dissertation",
+  "version": "0.0.0",
+  "description": "RTS LCM game",
+  "builtin-baseline": "f7423ee180c4b7f40d43402c2feb3859161ef625",
+  "dependencies": [
+    "nlohmann-json",
+    "entt",
+    "ogre",
+    "doctest"
+  ]
+}
