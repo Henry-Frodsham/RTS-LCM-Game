@@ -1,0 +1,100 @@
+stages:
+  - setup
+  - build
+
+variables:
+  PRODUCT_DIR: "product"
+  VCPKG_ROOT: "${CI_PROJECT_DIR}/${PRODUCT_DIR}/vcpkg"
+  VCPKG_BINARY_CACHE: "${CI_PROJECT_DIR}/${PRODUCT_DIR}/.vcpkg-cache"
+  VCPKG_BINARY_SOURCES: "clear;files,${CI_PROJECT_DIR}/${PRODUCT_DIR}/.vcpkg-cache,readwrite"
+  BUILD_DIR: "build"
+  VCPKG_DISABLE_METRICS: "1"
+
+.windows:
+  tags:
+    - windows
+  cache:
+    key:
+      files:
+        - ${PRODUCT_DIR}/vcpkg.json
+      prefix: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - ${PRODUCT_DIR}/vcpkg/
+      - ${PRODUCT_DIR}/.vcpkg-cache/
+    policy: pull-push
+  before_script:
+    - cd ${PRODUCT_DIR}
+
+setup:
+  extends: .windows
+  stage: setup
+  script:
+    - |
+      if (!(Test-Path "vcpkg\.git")) {
+        git clone https://github.com/microsoft/vcpkg.git
+      } else {
+        cd vcpkg
+        git pull
+        cd ..
+      }
+    - cd vcpkg
+    - .\bootstrap-vcpkg.bat -disableMetrics
+    - cd ..
+    - New-Item -ItemType Directory -Force -Path .vcpkg-cache
+    - |
+      .\vcpkg\vcpkg.exe install `
+        --x-manifest-root=. `
+        --x-install-root=.\vcpkg_installed `
+        --binarysource="$env:VCPKG_BINARY_SOURCES"
+  artifacts:
+    paths:
+      - ${PRODUCT_DIR}/vcpkg/
+      - ${PRODUCT_DIR}/vcpkg_installed/
+      - ${PRODUCT_DIR}/.vcpkg-cache/
+    expire_in: 1 week
+
+build_debug:
+  extends: .windows
+  stage: build
+  needs:
+    - setup
+  variables:
+    CMAKE_BUILD_TYPE: "Debug"
+  script:
+    - $vsPath = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+    - Import-Module "$vsPath\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+    - Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments "-arch=x64"
+    - |
+      cmake -B ${env:BUILD_DIR} `
+        -DCMAKE_BUILD_TYPE=${env:CMAKE_BUILD_TYPE} `
+        -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_ROOT}\scripts\buildsystems\vcpkg.cmake" `
+        -G "Visual Studio 17 2022" `
+        -A x64
+    - cmake --build ${env:BUILD_DIR} --config ${env:CMAKE_BUILD_TYPE} -j ${env:NUMBER_OF_PROCESSORS}
+  artifacts:
+    paths:
+      - ${PRODUCT_DIR}/${BUILD_DIR}/
+    expire_in: 1 day
+
+build_release:
+  extends: .windows
+  stage: build
+  needs:
+    - setup
+  variables:
+    CMAKE_BUILD_TYPE: "Release"
+  script:
+    - $vsPath = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+    - Import-Module "$vsPath\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+    - Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments "-arch=x64"
+    - |
+      cmake -B ${env:BUILD_DIR} `
+        -DCMAKE_BUILD_TYPE=${env:CMAKE_BUILD_TYPE} `
+        -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_ROOT}\scripts\buildsystems\vcpkg.cmake" `
+        -G "Visual Studio 17 2022" `
+        -A x64
+    - cmake --build ${env:BUILD_DIR} --config ${env:CMAKE_BUILD_TYPE} -j ${env:NUMBER_OF_PROCESSORS}
+  artifacts:
+    paths:
+      - ${PRODUCT_DIR}/${BUILD_DIR}/
+    expire_in: 1 week
