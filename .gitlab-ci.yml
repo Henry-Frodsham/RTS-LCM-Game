@@ -9,43 +9,36 @@ variables:
   VCPKG_BINARY_SOURCES: "clear;files,${CI_PROJECT_DIR}/${PRODUCT_DIR}/.vcpkg-cache,readwrite"
   BUILD_DIR: "build"
   VCPKG_DISABLE_METRICS: "1"
+  VCPKG_DEFAULT_TRIPLET: "x64-linux"
+  DEBIAN_FRONTEND: "noninteractive"
 
-.windows:
-  tags:
-    - windows
+.linux:
+  image: ubuntu:22.04
   cache:
-    key:
-      files:
-        - ${PRODUCT_DIR}/vcpkg.json
-      prefix: ${CI_COMMIT_REF_SLUG}
+    key: vcpkg-${CI_COMMIT_REF_SLUG}
     paths:
       - ${PRODUCT_DIR}/vcpkg/
       - ${PRODUCT_DIR}/.vcpkg-cache/
-    policy: pull-push
   before_script:
-    - cd ${PRODUCT_DIR}
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends build-essential git curl zip unzip tar pkg-config cmake ninja-build ca-certificates
+    - apt-get clean
+    - rm -rf /var/lib/apt/lists/*
 
 setup:
-  extends: .windows
+  extends: .linux
   stage: setup
   script:
+    - cd ${PRODUCT_DIR}
     - |
-      if (!(Test-Path "vcpkg\.git")) {
+      if [ ! -d "vcpkg/.git" ]; then
         git clone https://github.com/microsoft/vcpkg.git
-      } else {
-        cd vcpkg
-        git pull
-        cd ..
-      }
-    - cd vcpkg
-    - .\bootstrap-vcpkg.bat -disableMetrics
-    - cd ..
-    - New-Item -ItemType Directory -Force -Path .vcpkg-cache
-    - |
-      .\vcpkg\vcpkg.exe install `
-        --x-manifest-root=. `
-        --x-install-root=.\vcpkg_installed `
-        --binarysource="$env:VCPKG_BINARY_SOURCES"
+      else
+        cd vcpkg && git pull && cd ..
+      fi
+    - cd vcpkg && ./bootstrap-vcpkg.sh -disableMetrics && cd ..
+    - mkdir -p .vcpkg-cache
+    - ./vcpkg/vcpkg install --x-manifest-root=. --x-install-root=./vcpkg_installed --binarysource="${VCPKG_BINARY_SOURCES}"
   artifacts:
     paths:
       - ${PRODUCT_DIR}/vcpkg/
@@ -54,46 +47,26 @@ setup:
     expire_in: 1 week
 
 build_debug:
-  extends: .windows
+  extends: .linux
   stage: build
-  needs:
-    - setup
-  variables:
-    CMAKE_BUILD_TYPE: "Debug"
+  needs: [setup]
   script:
-    - $vsPath = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-    - Import-Module "$vsPath\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-    - Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments "-arch=x64"
-    - |
-      cmake -B ${env:BUILD_DIR} `
-        -DCMAKE_BUILD_TYPE=${env:CMAKE_BUILD_TYPE} `
-        -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_ROOT}\scripts\buildsystems\vcpkg.cmake" `
-        -G "Visual Studio 17 2022" `
-        -A x64
-    - cmake --build ${env:BUILD_DIR} --config ${env:CMAKE_BUILD_TYPE} -j ${env:NUMBER_OF_PROCESSORS}
+    - cd ${PRODUCT_DIR}
+    - cmake -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" -G "Ninja"
+    - cmake --build ${BUILD_DIR} --config Debug -j $(nproc)
   artifacts:
     paths:
       - ${PRODUCT_DIR}/${BUILD_DIR}/
     expire_in: 1 day
 
 build_release:
-  extends: .windows
+  extends: .linux
   stage: build
-  needs:
-    - setup
-  variables:
-    CMAKE_BUILD_TYPE: "Release"
+  needs: [setup]
   script:
-    - $vsPath = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-    - Import-Module "$vsPath\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-    - Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments "-arch=x64"
-    - |
-      cmake -B ${env:BUILD_DIR} `
-        -DCMAKE_BUILD_TYPE=${env:CMAKE_BUILD_TYPE} `
-        -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_ROOT}\scripts\buildsystems\vcpkg.cmake" `
-        -G "Visual Studio 17 2022" `
-        -A x64
-    - cmake --build ${env:BUILD_DIR} --config ${env:CMAKE_BUILD_TYPE} -j ${env:NUMBER_OF_PROCESSORS}
+    - cd ${PRODUCT_DIR}
+    - cmake -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" -G "Ninja"
+    - cmake --build ${BUILD_DIR} --config Release -j $(nproc)
   artifacts:
     paths:
       - ${PRODUCT_DIR}/${BUILD_DIR}/
