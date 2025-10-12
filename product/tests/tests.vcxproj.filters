@@ -8,6 +8,9 @@
     <ClCompile Include="ECSRegistryTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="EventQueueTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
