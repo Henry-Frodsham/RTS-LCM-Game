@@ -103,6 +103,10 @@
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+for /r "$(SolutionDir)" %%f in (*.cpp *.h *.cc *.hpp) do @echo %%f | findstr /i /v "\\vcpkg_installed\\" &gt;nul &amp;&amp; cpplint "%%f" 2&gt;&amp;1</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -124,6 +128,10 @@
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+for /r "$(SolutionDir)" %%f in (*.cpp *.h *.cc *.hpp) do @echo %%f | findstr /i /v "\\vcpkg_installed\\" &gt;nul &amp;&amp; cpplint "%%f" 2&gt;&amp;1</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -143,6 +151,10 @@
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+for /r "$(SolutionDir)" %%f in (*.cpp *.h *.cc *.hpp) do @echo %%f | findstr /i /v "\\vcpkg_installed\\" &gt;nul &amp;&amp; cpplint "%%f" 2&gt;&amp;1</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -164,10 +176,19 @@
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+for /r "$(SolutionDir)" %%f in (*.cpp *.h *.cc *.hpp) do @echo %%f | findstr /i /v "\\vcpkg_installed\\" &gt;nul &amp;&amp; cpplint "%%f" 2&gt;&amp;1</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ECSRegistry.cpp" />
     <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ECSRegistry.h" />
+    <ClInclude Include="EventBus.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
