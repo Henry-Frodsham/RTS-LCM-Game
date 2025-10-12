@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="EventBus.cpp">
+      <Filter>Event</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Event">
+      <UniqueIdentifier>{ec10c790-953f-4cd1-bdca-efa6942e0d28}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
