@@ -97,8 +97,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\$(Configuration)\;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,8 +115,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\$(Configuration)\;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,8 +131,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\$(Configuration)\;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -149,14 +149,19 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\$(Configuration)\;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EventBusTests.cpp" />
     <ClCompile Include="EventQueueTests.cpp" />
     <ClCompile Include="TestsMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\product.vcxproj">
+      <Project>{89fe2e65-12a8-4708-8020-3165ef922488}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,9 +4,6 @@
     <ClCompile Include="EventBus.cpp">
       <Filter>Source\Event</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="ECSRegistry.cpp">
       <Filter>Source\ECS</Filter>
     </ClCompile>
