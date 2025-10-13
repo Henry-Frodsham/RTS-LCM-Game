@@ -154,7 +154,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ECSRegistryTests.cpp" />
     <ClCompile Include="EventBusTests.cpp" />
     <ClCompile Include="EventQueueTests.cpp" />
     <ClCompile Include="TestsMain.cpp" />

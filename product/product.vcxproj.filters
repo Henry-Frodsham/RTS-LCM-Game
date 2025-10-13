@@ -30,16 +30,10 @@
     <Filter Include="Headers\Event">
       <UniqueIdentifier>{7c645c7e-0af5-4358-94d6-17be56975dcf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\ECS">
-      <UniqueIdentifier>{b1632699-6a28-4c0b-a8c4-2a681a8cd87a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
       <Filter>Headers\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="ECSRegistry.h">
-      <Filter>Headers\ECS</Filter>
     </ClInclude>
     <ClInclude Include="EventQueue.h">
       <Filter>Headers\Event</Filter>

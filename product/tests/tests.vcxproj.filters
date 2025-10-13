@@ -5,9 +5,6 @@
     <ClCompile Include="EventBusTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="ECSRegistryTests.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="EventQueueTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
