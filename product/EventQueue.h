@@ -4,6 +4,7 @@
 #include <iostream>
 #include "EventBus.h"
 
+//queues events using FIFO before passing off to event bus
 class EventQueue {
 public:
 	EventQueue() {}

@@ -10,6 +10,12 @@
     <ClCompile Include="EventQueue.cpp">
       <Filter>Source\Event</Filter>
     </ClCompile>
+    <ClCompile Include="RenderSystem.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewPortController.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -27,6 +33,15 @@
     <Filter Include="Headers\Event">
       <UniqueIdentifier>{7c645c7e-0af5-4358-94d6-17be56975dcf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Render">
+      <UniqueIdentifier>{defd3213-dead-487f-a605-6c996f804168}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Render">
+      <UniqueIdentifier>{cbe34255-5e16-4794-87bf-1cd1f5348fd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Assets">
+      <UniqueIdentifier>{c5d550c6-804e-489a-9abc-c1e3a1cc81ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
@@ -34,6 +49,12 @@
     </ClInclude>
     <ClInclude Include="EventQueue.h">
       <Filter>Headers\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderSystem.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewPortController.h">
+      <Filter>Headers\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

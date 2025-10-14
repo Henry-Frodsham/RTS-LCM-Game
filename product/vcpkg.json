@@ -7,6 +7,7 @@
     "nlohmann-json",
     "entt",
     "ogre",
-    "doctest"
+    "doctest",
+    "imgui"
   ]
 }

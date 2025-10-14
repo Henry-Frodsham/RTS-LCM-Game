@@ -8,6 +8,12 @@
     <ClCompile Include="EventQueueTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="RenderSystemTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewPortTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

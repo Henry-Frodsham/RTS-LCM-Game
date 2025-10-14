@@ -229,10 +229,14 @@ exit /b 0</Command>
     <ClCompile Include="ECSRegistry.cpp" />
     <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="EventQueue.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="ViewPortController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h" />
     <ClInclude Include="EventQueue.h" />
+    <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="ViewPortController.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

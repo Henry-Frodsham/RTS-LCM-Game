@@ -3,3 +3,6 @@
 12/10/25 - configured cpplint to check c++ google standard
 12/10/25 - designed general structure of ECS Registry and Event bus
 12/10/25 - created initial test templates
+12/10/25 - created EventBus and EventQueue tests
+13/10/25 - researched ogre render system patterns
+13/10/25 - initial ViewPortController and RenderSystem classes and tests

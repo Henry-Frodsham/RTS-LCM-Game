@@ -156,7 +156,9 @@
   <ItemGroup>
     <ClCompile Include="EventBusTests.cpp" />
     <ClCompile Include="EventQueueTests.cpp" />
+    <ClCompile Include="RenderSystemTests.cpp" />
     <ClCompile Include="TestsMain.cpp" />
+    <ClCompile Include="ViewPortTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\product.vcxproj">

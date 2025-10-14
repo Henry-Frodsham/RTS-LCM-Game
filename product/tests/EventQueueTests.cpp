@@ -7,7 +7,7 @@ struct TestEvent {
 };
 
 TEST_CASE("EventQueue - constructor") {
-	CHECK_NOTHROW(EventQueue Obj);
+	CHECK_NOTHROW(EventQueue Obj());
 }
 
 TEST_CASE("EventQueue - event schedule and dispatch") {
