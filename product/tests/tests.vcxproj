@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="EventBusTests.cpp" />
     <ClCompile Include="EventQueueTests.cpp" />
+    <ClCompile Include="InputListenerTests.cpp" />
     <ClCompile Include="RenderSystemTests.cpp" />
     <ClCompile Include="TestsMain.cpp" />
     <ClCompile Include="ViewPortTests.cpp" />

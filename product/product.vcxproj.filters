@@ -4,9 +4,6 @@
     <ClCompile Include="EventBus.cpp">
       <Filter>Source\Event</Filter>
     </ClCompile>
-    <ClCompile Include="ECSRegistry.cpp">
-      <Filter>Source\ECS</Filter>
-    </ClCompile>
     <ClCompile Include="EventQueue.cpp">
       <Filter>Source\Event</Filter>
     </ClCompile>
@@ -15,6 +12,12 @@
     </ClCompile>
     <ClCompile Include="ViewPortController.cpp">
       <Filter>Source\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="InputListener.cpp">
+      <Filter>Source\input</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -27,9 +30,6 @@
     <Filter Include="Source\Event">
       <UniqueIdentifier>{ec10c790-953f-4cd1-bdca-efa6942e0d28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\ECS">
-      <UniqueIdentifier>{23c8b864-7c16-462c-964d-678f1be43380}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headers\Event">
       <UniqueIdentifier>{7c645c7e-0af5-4358-94d6-17be56975dcf}</UniqueIdentifier>
     </Filter>
@@ -39,8 +39,17 @@
     <Filter Include="Headers\Render">
       <UniqueIdentifier>{cbe34255-5e16-4794-87bf-1cd1f5348fd3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Assets">
+    <Filter Include="Source\input">
       <UniqueIdentifier>{c5d550c6-804e-489a-9abc-c1e3a1cc81ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\input">
+      <UniqueIdentifier>{397acb03-ca75-4b0a-b0ae-98c59a650b2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Player">
+      <UniqueIdentifier>{12f8c0eb-6d14-4b91-b097-d0e65495aee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Player">
+      <UniqueIdentifier>{83ac41d8-ac7e-447d-a17a-dab50adc1d96}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +64,15 @@
     </ClInclude>
     <ClInclude Include="ViewPortController.h">
       <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="InputListener.h">
+      <Filter>Headers\input</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevice.h">
+      <Filter>Headers\input</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Headers\Player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

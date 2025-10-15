@@ -226,15 +226,19 @@ exit /b 0</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ECSRegistry.cpp" />
     <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="EventQueue.cpp" />
+    <ClCompile Include="InputListener.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ViewPortController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h" />
     <ClInclude Include="EventQueue.h" />
+    <ClInclude Include="InputDevice.h" />
+    <ClInclude Include="InputListener.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ViewPortController.h" />
   </ItemGroup>
