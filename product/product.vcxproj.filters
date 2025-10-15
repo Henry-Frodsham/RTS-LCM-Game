@@ -51,6 +51,9 @@
     <Filter Include="Source\Player">
       <UniqueIdentifier>{83ac41d8-ac7e-447d-a17a-dab50adc1d96}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Event Templates">
+      <UniqueIdentifier>{bb7f04de-1eb8-4378-a0bd-88941c0ffd14}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
@@ -73,6 +76,15 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Headers\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="InputEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="GameAction.h">
+      <Filter>Headers\input</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderEvent.h">
+      <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

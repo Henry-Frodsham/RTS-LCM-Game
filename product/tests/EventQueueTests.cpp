@@ -22,3 +22,7 @@ TEST_CASE("EventQueue - event schedule and dispatch") {
 	CHECK(HandlerCalled);
 }
 
+TEST_CASE("EventQueue - homogenous event delay") {
+
+}
+

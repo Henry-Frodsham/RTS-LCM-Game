@@ -236,9 +236,12 @@ exit /b 0</Command>
   <ItemGroup>
     <ClInclude Include="EventBus.h" />
     <ClInclude Include="EventQueue.h" />
+    <ClInclude Include="GameAction.h" />
     <ClInclude Include="InputDevice.h" />
+    <ClInclude Include="InputEvent.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ViewPortController.h" />
   </ItemGroup>
