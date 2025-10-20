@@ -10,7 +10,7 @@
 // responsible for attaching models to the main game map
 class RenderSystem {
 private:
-	Ogre::Root* OgreRoot;
+	std::unique_ptr<Ogre::Root> OgreRoot;
 	Ogre::RenderWindow* PrimaryWindow;
 	
 	EventBus RenderBus;
@@ -22,7 +22,10 @@ private:
 
 
 public:
-	static RenderSystem& getInstance();
+	static RenderSystem& GetInstance();
+
+	void Init();
+
 	RenderSystem(const RenderSystem&) = delete;
 	RenderSystem& operator=(const RenderSystem&) = delete;
 
