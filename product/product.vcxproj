@@ -27,26 +27,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -89,7 +89,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -103,6 +103,21 @@
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+setlocal enabledelayedexpansion
+
+set "PROJECT_DIR=$(ProjectDir)"
+set "EXTENSIONS=*.cpp *.h *.cc *.hpp"
+
+for %%E in (%EXTENSIONS%) do (
+    for /f "delims=" %%f in ('dir /b /s "%PROJECT_DIR%%%E" 2^&gt;nul ^| findstr /v /i "vcpkg_installed"') do (
+        cpplint "%%f" 2&gt;&amp;1
+    )
+)
+
+exit /b 0</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -110,7 +125,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -124,12 +139,27 @@
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+setlocal enabledelayedexpansion
+
+set "PROJECT_DIR=$(ProjectDir)"
+set "EXTENSIONS=*.cpp *.h *.cc *.hpp"
+
+for %%E in (%EXTENSIONS%) do (
+    for /f "delims=" %%f in ('dir /b /s "%PROJECT_DIR%%%E" 2^&gt;nul ^| findstr /v /i "vcpkg_installed"') do (
+        cpplint "%%f" 2&gt;&amp;1
+    )
+)
+
+exit /b 0</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -143,6 +173,21 @@
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+setlocal enabledelayedexpansion
+
+set "PROJECT_DIR=$(ProjectDir)"
+set "EXTENSIONS=*.cpp *.h *.cc *.hpp"
+
+for %%E in (%EXTENSIONS%) do (
+    for /f "delims=" %%f in ('dir /b /s "%PROJECT_DIR%%%E" 2^&gt;nul ^| findstr /v /i "vcpkg_installed"') do (
+        cpplint "%%f" 2&gt;&amp;1
+    )
+)
+
+exit /b 0</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -150,7 +195,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -164,9 +209,44 @@
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(ProjectDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>@echo off
+setlocal enabledelayedexpansion
+
+set "PROJECT_DIR=$(ProjectDir)"
+set "EXTENSIONS=*.cpp *.h *.cc *.hpp"
+
+for %%E in (%EXTENSIONS%) do (
+    for /f "delims=" %%f in ('dir /b /s "%PROJECT_DIR%%%E" 2^&gt;nul ^| findstr /v /i "vcpkg_installed"') do (
+        cpplint "%%f" 2&gt;&amp;1
+    )
+)
+
+exit /b 0</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="EventBus.cpp" />
+    <ClCompile Include="EventQueue.cpp" />
+    <ClCompile Include="InputListener.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="ViewPortController.cpp" />
+    <ClCompile Include="WorldManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BaseComponents.h" />
+    <ClInclude Include="EventBus.h" />
+    <ClInclude Include="EventQueue.h" />
+    <ClInclude Include="GameAction.h" />
+    <ClInclude Include="InputDevice.h" />
+    <ClInclude Include="InputEvent.h" />
+    <ClInclude Include="InputListener.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="RenderEvent.h" />
+    <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="ViewPortController.h" />
+    <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

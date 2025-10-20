@@ -1,18 +1,108 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <ClCompile Include="EventBus.cpp">
+      <Filter>Source\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="EventQueue.cpp">
+      <Filter>Source\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderSystem.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewPortController.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="InputListener.cpp">
+      <Filter>Source\input</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldManager.cpp">
+      <Filter>Source\World</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{207b13a7-6e9c-4b97-a1f6-8b314cdfb4ae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="Source">
+      <UniqueIdentifier>{feb8d488-6db5-441d-a4dc-53b1a4407532}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Event">
+      <UniqueIdentifier>{ec10c790-953f-4cd1-bdca-efa6942e0d28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Event">
+      <UniqueIdentifier>{7c645c7e-0af5-4358-94d6-17be56975dcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Render">
+      <UniqueIdentifier>{defd3213-dead-487f-a605-6c996f804168}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Render">
+      <UniqueIdentifier>{cbe34255-5e16-4794-87bf-1cd1f5348fd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\input">
+      <UniqueIdentifier>{c5d550c6-804e-489a-9abc-c1e3a1cc81ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\input">
+      <UniqueIdentifier>{397acb03-ca75-4b0a-b0ae-98c59a650b2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Player">
+      <UniqueIdentifier>{12f8c0eb-6d14-4b91-b097-d0e65495aee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Player">
+      <UniqueIdentifier>{83ac41d8-ac7e-447d-a17a-dab50adc1d96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Event Templates">
+      <UniqueIdentifier>{bb7f04de-1eb8-4378-a0bd-88941c0ffd14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\World">
+      <UniqueIdentifier>{26c86f86-1bd8-48ee-ac2e-aee60ada0ab1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\World">
+      <UniqueIdentifier>{076b773a-4d60-49b4-a957-8d90e158675d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entity Components">
+      <UniqueIdentifier>{41518b02-fe16-4795-8d07-cd39785e2073}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="EventBus.h">
+      <Filter>Headers\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="EventQueue.h">
+      <Filter>Headers\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderSystem.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewPortController.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="InputListener.h">
+      <Filter>Headers\input</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevice.h">
+      <Filter>Headers\input</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Headers\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="InputEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="GameAction.h">
+      <Filter>Headers\input</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldManager.h">
+      <Filter>Headers\World</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseComponents.h">
+      <Filter>Entity Components</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
