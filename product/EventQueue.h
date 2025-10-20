@@ -5,7 +5,11 @@
 #include <iostream>
 #include "EventBus.h"
 
-//queues events using FIFO before passing off to event bus
+// queues events using FIFO before passing off to event bus, prevents race conditions
+// example usage for queuing events:
+// NewEventQueue.enqueue(std::make_unique<std::any>(SomeEvent()))
+// example usage for processing events onto an event bus:
+// NewEventQueue.dispatch(&SomeEventBus)
 class EventQueue {
 public:
 	EventQueue() {}

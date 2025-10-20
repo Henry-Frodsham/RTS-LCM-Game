@@ -12,6 +12,7 @@ struct ButtonEvent {
 	std::chrono::system_clock::time_point TimeStamp;
 };
 
+// mouse movement event, only generated when theres a change
 struct CursorEvent {
 	float Pitch,Yaw;
 	std::chrono::system_clock::time_point TimeStamp;

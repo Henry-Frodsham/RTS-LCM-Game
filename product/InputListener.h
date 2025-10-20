@@ -3,7 +3,7 @@
 #include "InputDevice.h"
 #include "EventBus.h"
 
-// reads input states
+// reads input states, each device has a unique listener and is queued onto an event bus to stop SDL events being read at the same time
 class InputListener {
 public:
 	void update();

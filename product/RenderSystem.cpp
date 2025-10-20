@@ -1,6 +1,7 @@
 //Copyright © 2025 Henry Frodsham
 #include "RenderSystem.h"
 
+// main render loop, run regardless of state to maintain responsiveness
 void RenderSystem::RenderLoop() {
 
 }
@@ -20,10 +21,13 @@ void RenderSystem::Init() {
 
 
 }
+
+// add a new camera to the game world, usually indicates a new split screen instance but isnt exclusive
 ViewPortController* RenderSystem::CreateViewPort() {
 	return NULL;
 }
 
+// singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {
 	static RenderSystem Instance;
 	return Instance;

@@ -3,7 +3,7 @@
 #include <string>
 #include <array>
 
-// 5 level system
+// 5 level system, stores how "serious" an error is
 const enum ErrorLevel : uint16_t {
 	TRACE = 0,
 	DEBUG = 1,
@@ -13,6 +13,7 @@ const enum ErrorLevel : uint16_t {
 	FATAL = 5 // unexpected event and unrecoverable
 };
 
+// general information on an error
 const struct Error {
 	ErrorLevel Level;
 	ErrorCode Code;
@@ -20,7 +21,7 @@ const struct Error {
 	std::string Origin;
 };
 
-// 0000 - 5000
+// codes unique to an error, first digit denotes severity. from range 0000 - 5000
 const enum class ErrorCode : uint32_t {
 	//trace
 	//debug
@@ -28,10 +29,11 @@ const enum class ErrorCode : uint32_t {
 	//warning
 	//error
 	//fatal
-	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 50001
+	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001
 };
 
 
+//stores a list of known potential errors, along with information for the end user
 namespace ErrorDetail {
 	Error ErrorManifest[] = {
 		//trace

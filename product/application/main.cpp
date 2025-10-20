@@ -2,6 +2,7 @@
 #include "Application.h"
 #include <doctest/doctest.h>
 
+// startup function, delegates responsibility to the application class
 int main(int argc, char** argv) {
     Application* MainApp = new Application();
 
