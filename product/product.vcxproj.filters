@@ -19,6 +19,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source\Player</Filter>
     </ClCompile>
+    <ClCompile Include="WorldManager.cpp">
+      <Filter>Source\World</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -54,6 +57,15 @@
     <Filter Include="Event Templates">
       <UniqueIdentifier>{bb7f04de-1eb8-4378-a0bd-88941c0ffd14}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\World">
+      <UniqueIdentifier>{26c86f86-1bd8-48ee-ac2e-aee60ada0ab1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\World">
+      <UniqueIdentifier>{076b773a-4d60-49b4-a957-8d90e158675d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entity Components">
+      <UniqueIdentifier>{41518b02-fe16-4795-8d07-cd39785e2073}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
@@ -85,6 +97,12 @@
     </ClInclude>
     <ClInclude Include="RenderEvent.h">
       <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldManager.h">
+      <Filter>Headers\World</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseComponents.h">
+      <Filter>Entity Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

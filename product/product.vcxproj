@@ -232,8 +232,10 @@ exit /b 0</Command>
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ViewPortController.cpp" />
+    <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseComponents.h" />
     <ClInclude Include="EventBus.h" />
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="GameAction.h" />
@@ -244,6 +246,7 @@ exit /b 0</Command>
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ViewPortController.h" />
+    <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

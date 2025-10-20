@@ -17,6 +17,9 @@
     <ClCompile Include="InputListenerTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="WorldManagerTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

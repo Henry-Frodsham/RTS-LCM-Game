@@ -154,12 +154,24 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="ApplicationStateManager.cpp" />
+    <ClCompile Include="GamePlayState.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuState.cpp" />
+    <ClCompile Include="PausedState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\product.vcxproj">
       <Project>{89fe2e65-12a8-4708-8020-3165ef922488}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="ApplicationStateManager.h" />
+    <ClInclude Include="GamePlayState.h" />
+    <ClInclude Include="MenuState.h" />
+    <ClInclude Include="PausedState.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

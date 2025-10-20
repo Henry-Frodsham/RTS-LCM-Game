@@ -160,6 +160,7 @@
     <ClCompile Include="RenderSystemTests.cpp" />
     <ClCompile Include="TestsMain.cpp" />
     <ClCompile Include="ViewPortTests.cpp" />
+    <ClCompile Include="WorldManagerTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\product.vcxproj">

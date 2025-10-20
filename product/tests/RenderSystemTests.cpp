@@ -1,7 +1,7 @@
 #include "RenderSystem.h"
 #include <doctest/doctest.h>
 
-TEST_CASE("RenderSystem - constructor") {
+TEST_CASE("RenderSystem - singleton behaviour") {
 	CHECK_NOTHROW(RenderSystem Obj());
 }
 
