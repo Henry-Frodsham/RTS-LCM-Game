@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #pragma once
 #include <unordered_map>
 #include <vector>

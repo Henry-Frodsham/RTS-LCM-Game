@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #include "ViewPortController.h"
 #include <doctest/doctest.h>
 

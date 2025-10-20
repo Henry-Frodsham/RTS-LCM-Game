@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #include "Application.h"
 #include <doctest/doctest.h>
 

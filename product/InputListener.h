@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #pragma once
 #include "InputDevice.h"
 #include "EventBus.h"

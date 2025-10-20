@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #include "RenderSystem.h"
 
 void RenderSystem::RenderLoop() {

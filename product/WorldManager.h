@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #pragma once
 #include "EventBus.h"
 #include "EventQueue.h"

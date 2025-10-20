@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #include "ViewPortController.h"
 
 void ViewPortController::MoveCamera(float Pitch, float Yaw) {

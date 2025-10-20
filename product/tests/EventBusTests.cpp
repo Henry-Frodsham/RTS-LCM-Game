@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #include <doctest/doctest.h>
 #include <string>
 #include "EventBus.h"

@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #include "EventQueue.h"
 #include "EventBus.h"
 #include <chrono>
