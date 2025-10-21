@@ -3,11 +3,11 @@
 #include <doctest/doctest.h>
 
 TEST_CASE("RenderSystem - singleton behaviour") {
-	CHECK_NOTHROW(RenderSystem Obj());
+	CHECK_NOTHROW(RenderSystem::GetInstance());
 }
 
 TEST_CASE("RenderSystem - new viewport") {
-	RenderSystem Obj{};
+	RenderSystem &Obj = RenderSystem::GetInstance();
 	CHECK(Obj.CreateViewPort() != NULL);
 }
 

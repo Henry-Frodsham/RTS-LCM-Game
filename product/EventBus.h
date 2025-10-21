@@ -6,7 +6,7 @@
 #include <typeindex>
 #include <functional>
 
-// notifies stored handlers when an event is published
+// notifies stored handlers when an event is published, instant and without race condition checking
 class EventBus {
 private:
 	std::unordered_map<std::type_index, std::vector<std::function<void(std::any)>>> handlers;

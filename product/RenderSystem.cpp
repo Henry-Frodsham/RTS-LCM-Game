@@ -1,9 +1,21 @@
 //Copyright © 2025 Henry Frodsham
 #include "RenderSystem.h"
 
+RenderSystem::RenderSystem()
+	: OgreRoot(nullptr)
+	, SceneManager(nullptr)
+	, RenderBus(nullptr)
+	, RenderQueue(nullptr)
+	, PrimaryWindow(nullptr)
+	, ViewPorts(NULL)
+{}
+RenderSystem::~RenderSystem()
+{
+	//shutdown, destroy root and SceneMgr
+}
 // main render loop, run regardless of state to maintain responsiveness
 void RenderSystem::RenderLoop() {
-
+	OgreRoot->renderOneFrame();
 }
 
 // creates Ogre3d root and creates primary render window
@@ -18,7 +30,13 @@ void RenderSystem::Init() {
 
 	// delegation to Config system for fsaa and fullscreen
 
+	//for now, use the first render system (set to OpenGL in plugins.cfg)
+	OgreRoot->setRenderSystem(RenderSystems[0]);
 
+	//create scene manager
+	SceneManager = OgreRoot->createSceneManager();
+
+	//delegate ambient light and background to lighting manager (future)
 
 }
 

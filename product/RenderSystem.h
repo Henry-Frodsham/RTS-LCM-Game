@@ -6,15 +6,24 @@
 #include "EventBus.h"
 #include "EventQueue.h"
 
+
 // base rendering system in singleton pattern
-// responsible for attaching models to the main game map
+// responsible for attaching models to the main game map, and for creating viewports
 class RenderSystem {
 private:
+	RenderSystem();
+	~RenderSystem();
+
+	// direct ownership of root, we dont want multiple of these
 	std::unique_ptr<Ogre::Root> OgreRoot;
+	Ogre::SceneManager* SceneManager;
+
 	Ogre::RenderWindow* PrimaryWindow;
+
 	
-	EventBus RenderBus;
-	EventQueue RenderQueue;
+
+	std::unique_ptr <EventBus> RenderBus;
+	std::unique_ptr <EventQueue> RenderQueue;
 
 	//direct ownership of viewports 
 	std::vector<std::unique_ptr<ViewPortController>> ViewPorts;
@@ -23,6 +32,8 @@ private:
 
 public:
 	static RenderSystem& GetInstance();
+	//RenderSystem(const RenderSystem&) = delete;
+	//RenderSystem& operator=(const RenderSystem&) = delete;
 
 	void Init();
 
@@ -33,6 +44,5 @@ public:
 
 	void RenderLoop();
 
-	RenderSystem() {}
-	~RenderSystem() {}
+
 };

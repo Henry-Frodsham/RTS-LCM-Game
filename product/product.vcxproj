@@ -236,6 +236,8 @@ exit /b 0</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseComponents.h" />
+    <ClInclude Include="ErrorManifest.h" />
+    <ClInclude Include="ErrorReporter.h" />
     <ClInclude Include="EventBus.h" />
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="GameAction.h" />

@@ -66,6 +66,9 @@
     <Filter Include="Entity Components">
       <UniqueIdentifier>{41518b02-fe16-4795-8d07-cd39785e2073}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\ErrorReporter">
+      <UniqueIdentifier>{b38c83b5-4bf3-490e-8b8e-e360310f4379}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
@@ -103,6 +106,12 @@
     </ClInclude>
     <ClInclude Include="BaseComponents.h">
       <Filter>Entity Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorReporter.h">
+      <Filter>Headers\ErrorReporter</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorManifest.h">
+      <Filter>Headers\ErrorReporter</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
