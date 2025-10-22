@@ -8,6 +8,9 @@ void Application::Start() {
 
 // sets up rendering engine and input system
 bool Application::Init() {
+	// get singleton to force init
+	RenderSystem &RenderSingleton = RenderSystem::GetInstance();
+
 
 	return false;
 }

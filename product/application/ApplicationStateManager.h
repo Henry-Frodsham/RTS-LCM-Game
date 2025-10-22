@@ -14,8 +14,10 @@ enum AppState {
 // controls the state of the application by controlling which update function to call
 class ApplicationStateManager {
 public:
-	ApplicationStateManager() {};
+	ApplicationStateManager();
 	~ApplicationStateManager() {};
 
+	AppState CurrentState;
 private:
+	
 };

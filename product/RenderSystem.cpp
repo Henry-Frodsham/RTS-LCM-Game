@@ -33,6 +33,11 @@ void RenderSystem::Init() {
 	//for now, use the first render system (set to OpenGL in plugins.cfg)
 	OgreRoot->setRenderSystem(RenderSystems[0]);
 
+	//root init
+	OgreRoot->initialise(true, "RTS LCM GAME");
+
+	//create primary window (use auto create for now until settings manager is implemented)
+
 	//create scene manager
 	SceneManager = OgreRoot->createSceneManager();
 
