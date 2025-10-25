@@ -4,7 +4,7 @@
 #include "EventBus.h"
 
 struct TestEvent {
-	std::string data = "test";
+
 };
 
 void TestHandler(TestEvent) {

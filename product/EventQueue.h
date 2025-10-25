@@ -1,27 +1,28 @@
 //Copyright © 2025 Henry Frodsham
 #pragma once
 #include <queue>
-#include <any>
-#include <iostream>
+#include <memory>
+#include <functional>
 #include "EventBus.h"
 
-// queues events using FIFO before passing off to event bus, prevents race conditions
-// example usage for queuing events:
-// NewEventQueue.enqueue(std::make_unique<std::any>(SomeEvent()))
-// example usage for processing events onto an event bus:
-// NewEventQueue.dispatch(&SomeEventBus)
 class EventQueue {
 public:
-	EventQueue() {}
-	~EventQueue() {};
+    EventQueue() {}
+    ~EventQueue() {}
 
-	void enqueue(std::unique_ptr<std::any> Event);
-	
-	void dispatch(EventBus& Bus);
+    //template function implementation needs to be here
+    //add an event to the queue
+    template<typename EventType>
+    void Enqueue(EventType&& Event) {
+        Queue.push([Event = std::forward<EventType>(Event)](EventBus& Bus) mutable {
+            Bus.Publish(std::move(Event));
+            });
+    }
 
-	void reset();
+    void Dispatch(EventBus& bus);
+
+    void Reset();
 
 private:
-	std::queue<std::unique_ptr<std::any>> Queue;
-	
+    std::queue<std::function<void(EventBus&)>> Queue;
 };

@@ -11,3 +11,6 @@
 15/10/25 - shifted focus to ECS storage, researched how entt registry should be managed and who should own it. decided on a WorldManager singleton
 16/10/25 to 19/10/25 - modeling runtime scripts and researching other ogre3d projects
 20/10/25 - race condition tests, initial implementation of runtime scripts using app states
+21/10/25 - write base renderSystem class, designed error and logging system 
+22/10/25 - wrote EventBus and EventQueue class as prequisite to error and logging system 
+22/10/25 - realised EventQueue class erases type information, redesigned and placed queue items in a wrapper class
