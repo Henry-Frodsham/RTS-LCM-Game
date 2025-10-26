@@ -1,6 +1,7 @@
 //Copyright © 2025 Henry Frodsham
 #include "RenderSystem.h"
 
+
 RenderSystem::RenderSystem()
 	: OgreRoot(nullptr)
 	, SceneManager(nullptr)
@@ -20,34 +21,46 @@ void RenderSystem::RenderLoop() {
 
 // creates Ogre3d root and creates primary render window
 void RenderSystem::Init() {
-	// create ogre root with OpenGL config file
-	OgreRoot = std::make_unique<Ogre::Root>("plugins.cfg", "ogre.cfg", "ogre.log");
 
-	// configure render system
+	if (IsInit) {
+		return;
+	}
+
+	
+	
+
+	
+	#ifdef _DEBUG
+		OgreRoot = new Ogre::Root("plugins_d.cfg", "", "ogre.log");
+	#else
+		OgreRoot = new Ogre::Root("plugins.cfg", "", "ogre.log");
+	#endif
+
 	const Ogre::RenderSystemList& RenderSystems = OgreRoot->getAvailableRenderers();
 
-	// error event when no Renderer is available
-
-	// delegation to Config system for fsaa and fullscreen
-
-	//for now, use the first render system (set to OpenGL in plugins.cfg)
 	OgreRoot->setRenderSystem(RenderSystems[0]);
 
-	//root init
-	OgreRoot->initialise(true, "RTS LCM GAME");
+	PrimaryWindow = OgreRoot->initialise(true, "RTS LCM GAME");
 
-	//create primary window (use auto create for now until settings manager is implemented)
-
-	//create scene manager
 	SceneManager = OgreRoot->createSceneManager();
 
-	//delegate ambient light and background to lighting manager (future)
-
+	IsInit = true;
 }
 
 // add a new camera to the game world, usually indicates a new split screen instance but isnt exclusive
 ViewPortController* RenderSystem::CreateViewPort() {
-	return NULL;
+
+	Ogre::SceneManager::CameraList CameraList = SceneManager->getCameras();
+
+	Ogre::Camera* Camera = SceneManager->createCamera(std::to_string(CameraList.size()));
+
+	Ogre::Viewport* AddedViewPort = PrimaryWindow->addViewport(Camera);
+
+	ViewPortController* newController = new ViewPortController(AddedViewPort);
+
+	ViewPorts.push_back(newController);
+
+	return newController;
 }
 
 // singleton access to prevent 2 Ogre roots being made

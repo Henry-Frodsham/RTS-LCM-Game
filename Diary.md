@@ -14,3 +14,5 @@
 21/10/25 - write base renderSystem class, designed error and logging system 
 22/10/25 - wrote EventBus and EventQueue class as prequisite to error and logging system 
 22/10/25 - realised EventQueue class erases type information, redesigned and placed queue items in a wrapper class
+24/10/25 - wrote passing tests for eventQueue
+25/10/25 - when doing ogre runtime tests i realised that the vcpkg version of ogre is incorrect, porting fully to a manual build

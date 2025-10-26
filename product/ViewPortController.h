@@ -7,8 +7,7 @@
 // view port (camera) for each split screen instance
 class ViewPortController {
 private:
-	ViewPortController* ViewPort;
-	Ogre::Camera* Camera;
+	Ogre::Viewport* ViewPort;
 
 public:
 	bool ToggleAutomaticRendering(bool Val);
@@ -28,7 +27,12 @@ public:
 	// destroys the frame buffer
 	void Clear();
 
-	ViewPortController(){}
+	// Copy constructor - required for vector storage
+	ViewPortController(const ViewPortController&) = default;
+	// Move constructor
+	ViewPortController(ViewPortController&&) noexcept = default;
+
+	ViewPortController(Ogre::Viewport* NewVP);
 	~ViewPortController(){}
 
 	std::vector<float> GetCameraAngle();

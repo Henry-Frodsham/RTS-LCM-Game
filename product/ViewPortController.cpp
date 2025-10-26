@@ -1,6 +1,11 @@
 //Copyright © 2025 Henry Frodsham
 #include "ViewPortController.h"
 
+// constructor
+ViewPortController::ViewPortController(Ogre::Viewport* NewVP){
+	ViewPort = NewVP;
+}
+
 // adjust camera viewing angle
 void ViewPortController::MoveCamera(float Pitch, float Yaw) {
 

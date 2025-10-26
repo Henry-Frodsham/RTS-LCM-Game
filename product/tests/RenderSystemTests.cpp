@@ -7,8 +7,11 @@ TEST_CASE("RenderSystem - singleton behaviour") {
 }
 
 TEST_CASE("RenderSystem - new viewport") {
-	RenderSystem &Obj = RenderSystem::GetInstance();
-	CHECK(Obj.CreateViewPort() != NULL);
+	
+	RenderSystem* Obj = &RenderSystem::GetInstance();
+	Obj->Init();
+	CHECK(Obj->CreateViewPort() != NULL);
+	
 }
 
 TEST_CASE("RenderSystem - attach model to scene") {

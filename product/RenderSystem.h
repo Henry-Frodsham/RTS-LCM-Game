@@ -2,10 +2,11 @@
 #pragma once
 #include <OGRE/Ogre.h>
 #include <vector>
+#include <iostream>
 #include "ViewPortController.h"
 #include "EventBus.h"
 #include "EventQueue.h"
-
+#include <Windows.h>
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating viewports
@@ -14,8 +15,9 @@ private:
 	RenderSystem();
 	~RenderSystem();
 
-	// direct ownership of root, we dont want multiple of these
-	std::unique_ptr<Ogre::Root> OgreRoot;
+	bool IsInit = false;
+
+	Ogre::Root* OgreRoot;
 	Ogre::SceneManager* SceneManager;
 
 	Ogre::RenderWindow* PrimaryWindow;
@@ -25,8 +27,8 @@ private:
 	std::unique_ptr <EventBus> RenderBus;
 	std::unique_ptr <EventQueue> RenderQueue;
 
-	//direct ownership of viewports 
-	std::vector<std::unique_ptr<ViewPortController>> ViewPorts;
+	// ogre has direct ownership of the viewport so cant use direct ownership
+	std::vector<ViewPortController*> ViewPorts;
 
 
 
