@@ -8,6 +8,7 @@
 class ViewPortController {
 private:
 	Ogre::Viewport* ViewPort;
+	
 
 public:
 	bool ToggleAutomaticRendering(bool Val);

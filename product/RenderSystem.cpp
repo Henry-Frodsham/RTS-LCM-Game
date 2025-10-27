@@ -54,7 +54,7 @@ ViewPortController* RenderSystem::CreateViewPort() {
 
 	Ogre::Camera* Camera = SceneManager->createCamera(std::to_string(CameraList.size()));
 
-	Ogre::Viewport* AddedViewPort = PrimaryWindow->addViewport(Camera);
+	Ogre::Viewport* AddedViewPort = PrimaryWindow->addViewport(Camera, CameraList.size());
 
 	ViewPortController* newController = new ViewPortController(AddedViewPort);
 
