@@ -29,7 +29,8 @@ const enum class ErrorCode : uint32_t {
 	//warning
 	//error
 	//fatal
-	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001
+	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
+	SDL_FAILED_INIT = 5002
 };
 
 
@@ -44,5 +45,6 @@ namespace ErrorDetail {
 		//fatal
 		{ErrorLevel::FATAL, ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, 
 			"No available renders found/accessible", "RenderSystem"},
+		{ErrorLevel::FATAL, ErrorCode::SDL_FAILED_INIT, "SDL init failed", "RenderSystem"}
 	};
 }

@@ -8,12 +8,12 @@ ViewPortController::ViewPortController(Ogre::Viewport* NewVP){
 
 // adjust camera viewing angle
 void ViewPortController::MoveCamera(float Pitch, float Yaw) {
-
+	ViewPort->getCamera();
 }
 
 // change the size of a split screen portion
-void ViewPortController::ChangeCameraDimensions(int X, int Y) {
-
+void ViewPortController::ChangeViewPortDimensions(float Left, float Top, float Width, float Height) {
+	ViewPort->setDimensions(Left,Top,Width,Height);
 }
 
 // set the mask used by the camera, controls visibility of meshes with certain masks
@@ -43,6 +43,10 @@ std::vector<float> ViewPortController::GetCameraAngle() {
 }
 
 // get the dimensions of a specific split screen instance
-std::vector<int> ViewPortController::GetCameraDimensions() {
-	return { 1,1 };
+std::vector<int> ViewPortController::GetViewPortDimensions() {
+	return std::vector<int> { ViewPort->getActualLeft(),
+		ViewPort->getActualTop(),
+		ViewPort->getActualWidth(),
+		ViewPort->getActualHeight()
+		};
 }

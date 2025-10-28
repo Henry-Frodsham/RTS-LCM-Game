@@ -20,7 +20,7 @@ public:
 	void MoveCamera(float Pitch, float Yaw);
 
 	//change portion of the screen taken up by split screen
-	void ChangeCameraDimensions(int X, int Y);
+	void ChangeViewPortDimensions(float Left, float Top, float Width, float Height);
 
 	// only required when viewport is set to not automatically update in the main render loop
 	void Update();
@@ -37,5 +37,5 @@ public:
 	~ViewPortController(){}
 
 	std::vector<float> GetCameraAngle();
-	std::vector<int> GetCameraDimensions();
+	std::vector<int> GetViewPortDimensions();
 };

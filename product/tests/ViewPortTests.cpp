@@ -22,7 +22,7 @@ TEST_CASE("ViewPortController - change dimensions") {
 	RenderSystem* RS = &RenderSystem::GetInstance();
 	RS->Init();
 	ViewPortController* Obj = RS->CreateViewPort();
-	Obj->ChangeCameraDimensions(0, 0);
-	CHECK(Obj->GetCameraDimensions() == std::vector<int> {0, 0});
+	Obj->ChangeViewPortDimensions(1.f, 1.f,1.f,1.f);
+	CHECK(Obj->GetViewPortDimensions() == std::vector<int> {1, 1, 1, 1});
 	
 }
