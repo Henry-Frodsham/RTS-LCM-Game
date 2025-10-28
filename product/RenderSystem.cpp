@@ -15,7 +15,8 @@ RenderSystem::~RenderSystem()
 	//shutdown, destroy root and SceneMgr
 }
 // main render loop, run regardless of state to maintain responsiveness
-void RenderSystem::RenderLoop() {
+void RenderSystem::RenderFrame() {
+	Ogre::WindowEventUtilities::messagePump();
 	OgreRoot->renderOneFrame();
 }
 

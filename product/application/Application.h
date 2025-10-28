@@ -2,15 +2,18 @@
 #pragma once
 #include "ApplicationStateManager.h"
 #include <iostream>
+#include <thread>
 
 class Application {
 public:
-	Application() {};
+	Application();
 	~Application() {};
 	void Start();
 
 private:
 	bool Init();
 
-	std::unique_ptr<ApplicationStateManager> StateManager;
+	void Loop();
+
+	ApplicationStateManager StateManager;
 };

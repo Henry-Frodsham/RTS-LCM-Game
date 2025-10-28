@@ -4,7 +4,7 @@
 #include <array>
 
 // 5 level system, stores how "serious" an error is
-const enum ErrorLevel : uint16_t {
+enum ErrorLevel : uint16_t {
 	TRACE = 0,
 	DEBUG = 1,
 	INFO = 2,
@@ -13,16 +13,8 @@ const enum ErrorLevel : uint16_t {
 	FATAL = 5 // unexpected event and unrecoverable
 };
 
-// general information on an error
-const struct Error {
-	ErrorLevel Level;
-	ErrorCode Code;
-	std::string Message;
-	std::string Origin;
-};
-
 // codes unique to an error, first digit denotes severity. from range 0000 - 5000
-const enum class ErrorCode : uint32_t {
+enum ErrorCode : uint32_t {
 	//trace
 	//debug
 	//info
@@ -33,10 +25,26 @@ const enum class ErrorCode : uint32_t {
 	SDL_FAILED_INIT = 5002
 };
 
+// general information on an error
+struct Error {
+	ErrorLevel Level;
+	ErrorCode Code;
+	std::string Message;
+	std::string Origin;
+
+	Error(ErrorLevel ELevel, ErrorCode ECode, 
+		std::string EMessage, std::string EOrigin)
+		: Level(ELevel), Code(ECode), 
+		Message(EMessage), Origin(EOrigin){
+	}
+};
+
+
+
 
 //stores a list of known potential errors, along with information for the end user
 namespace ErrorDetail {
-	Error ErrorManifest[] = {
+	const Error ErrorManifest[] = {
 		//trace
 		//debug
 		//info

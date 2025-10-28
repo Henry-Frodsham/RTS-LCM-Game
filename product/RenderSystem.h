@@ -1,12 +1,14 @@
 //Copyright © 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
-#include <vector>
 #include <iostream>
+#include <vector>
+#include <Windows.h>
+#include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include "ViewPortController.h"
 #include "EventBus.h"
 #include "EventQueue.h"
-#include <Windows.h>
+
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating viewports
@@ -44,7 +46,7 @@ public:
 
 	ViewPortController* CreateViewPort();
 
-	void RenderLoop();
+	void RenderFrame();
 
 
 };

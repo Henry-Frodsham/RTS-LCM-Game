@@ -22,6 +22,9 @@
     <ClCompile Include="WorldManager.cpp">
       <Filter>Source\World</Filter>
     </ClCompile>
+    <ClCompile Include="ErrorReporter.cpp">
+      <Filter>Source\ErrorReporter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -68,6 +71,9 @@
     </Filter>
     <Filter Include="Headers\ErrorReporter">
       <UniqueIdentifier>{b38c83b5-4bf3-490e-8b8e-e360310f4379}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ErrorReporter">
+      <UniqueIdentifier>{67cfc9c1-8b92-41e8-8d93-7a92bbff233c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
