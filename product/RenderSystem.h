@@ -23,6 +23,8 @@ private:
 	Ogre::Root* OgreRoot;
 	Ogre::SceneManager* SceneManager;
 
+	SDL_Window* SDLWindow;
+
 	Ogre::RenderWindow* PrimaryWindow;
 
 	ErrorReporter RenderErrorReporter;

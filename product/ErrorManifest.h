@@ -24,7 +24,8 @@ enum ErrorCode : uint32_t {
 	//error
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
-	SDL_FAILED_INIT = 5002
+	SDL_FAILED_INIT = 5002,
+	SDL_FAILED_BIND = 5003
 };
 
 // general information on an error
@@ -61,6 +62,11 @@ namespace ErrorDetail {
 			 "No available renders found/accessible", "RenderSystem"}},
 		{ErrorCode::SDL_FAILED_INIT,
 			{ErrorCode::SDL_FAILED_INIT, ErrorLevel::FATAL,
-			 "SDL init failed", "RenderSystem"}}
+			 "SDL init failed", "RenderSystem"}},
+		
+		{ErrorCode::SDL_FAILED_BIND,
+			{ErrorCode::SDL_FAILED_BIND, ErrorLevel::FATAL,
+			 "SDL failed bind to primary window", "RenderSystem"}}
+		
 	};
 }

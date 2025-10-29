@@ -8,12 +8,18 @@ RenderSystem::RenderSystem()
 	, RenderBus(nullptr)
 	, RenderQueue(nullptr)
 	, PrimaryWindow(nullptr)
+	, SDLWindow(nullptr)
 	, ViewPorts(NULL)
 	, RenderErrorReporter(ErrorReporter())
 {
 }
 RenderSystem::~RenderSystem()
 {
+	if (SDLWindow) {
+		SDL_DestroyWindow(SDLWindow);
+	}
+	SDL_Quit();
+
 	//shutdown, destroy root and SceneMgr
 }
 // main render loop, run regardless of state to maintain responsiveness
@@ -55,11 +61,21 @@ void RenderSystem::Init() {
 	if (RenderSystems.size() == 0) {
 		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM));
 	}
-
 	OgreRoot->setRenderSystem(RenderSystems[0]);
 
+	// use the auto created window for now, delegate to RenderSettings in future
 	PrimaryWindow = OgreRoot->initialise(true, "RTS LCM GAME");
 
+	//get the window handle to bind with SDL
+	size_t WindowHandle = 0;
+	PrimaryWindow->getCustomAttribute("WINDOW", &WindowHandle);
+
+	SDLWindow = SDL_CreateWindowFrom(reinterpret_cast<void*>(WindowHandle));
+	if (!SDLWindow) {
+		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_FAILED_BIND));
+	}
+
+	
 	SceneManager = OgreRoot->createSceneManager();
 
 	IsInit = true;
