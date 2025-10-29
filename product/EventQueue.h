@@ -7,7 +7,7 @@
 
 class EventQueue {
 public:
-    EventQueue() {}
+    EventQueue(EventBus* DefaultBus = nullptr);
     ~EventQueue() {}
 
     //template function implementation needs to be here
@@ -20,9 +20,12 @@ public:
     }
 
     void Dispatch(EventBus& bus);
+    void Dispatch();
 
     void Reset();
 
 private:
     std::queue<std::function<void(EventBus&)>> Queue;
+
+    EventBus* AssumedBus;
 };

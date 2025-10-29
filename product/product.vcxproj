@@ -90,7 +90,8 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_CRT_SECURE_NO_WARNINGS
+;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -129,7 +130,8 @@ exit /b 0</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_CRT_SECURE_NO_WARNINGS
+;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -166,7 +168,8 @@ exit /b 0</Command>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_CRT_SECURE_NO_WARNINGS
+;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -205,7 +208,8 @@ exit /b 0</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_CRT_SECURE_NO_WARNINGS
+;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

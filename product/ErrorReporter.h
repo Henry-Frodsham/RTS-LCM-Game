@@ -7,14 +7,15 @@
 #include <functional>
 
 class ErrorReporter {
+private:
+
+	void ErrorOutput(Error ErrorToReport);
+	EventBus ErrorBus;
+
 public:
 	ErrorReporter();
 	~ErrorReporter(){}
 
 	EventQueue ErrorQueue;
 
-private:
-
-	void ErrorOutput(Error ErrorToReport);
-	EventBus ErrorBus;
 };

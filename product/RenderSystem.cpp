@@ -9,15 +9,26 @@ RenderSystem::RenderSystem()
 	, RenderQueue(nullptr)
 	, PrimaryWindow(nullptr)
 	, ViewPorts(NULL)
-{}
+	, RenderErrorReporter(ErrorReporter())
+{
+}
 RenderSystem::~RenderSystem()
 {
 	//shutdown, destroy root and SceneMgr
 }
 // main render loop, run regardless of state to maintain responsiveness
 void RenderSystem::RenderFrame() {
-	Ogre::WindowEventUtilities::messagePump();
-	OgreRoot->renderOneFrame();
+	//dispatch internal queue aswell
+	RenderErrorReporter.ErrorQueue.Dispatch();
+
+	if (PrimaryWindow && !PrimaryWindow->isClosed()) {
+		Ogre::WindowEventUtilities::messagePump();
+		OgreRoot->renderOneFrame();
+	}
+	else {
+		//window closed, shutdown app
+		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::RENDER_WINDOW_CLOSED));
+	}
 }
 
 // creates Ogre3d root and creates primary render window
@@ -27,8 +38,10 @@ void RenderSystem::Init() {
 		return;
 	}
 
-	
-	
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		//sdl failed init, throw fatal
+		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_FAILED_INIT));
+	}
 
 	
 	#ifdef _DEBUG
@@ -38,6 +51,10 @@ void RenderSystem::Init() {
 	#endif
 
 	const Ogre::RenderSystemList& RenderSystems = OgreRoot->getAvailableRenderers();
+
+	if (RenderSystems.size() == 0) {
+		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM));
+	}
 
 	OgreRoot->setRenderSystem(RenderSystems[0]);
 

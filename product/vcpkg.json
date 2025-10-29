@@ -6,7 +6,10 @@
   "dependencies": [
     "nlohmann-json",
     "entt",
-    "ogre",
+    {
+	"name": "ogre",
+	"features": ["overlay"]
+    },
     "doctest",
     "imgui"
   ]

@@ -5,10 +5,11 @@
 #include <vector>
 #include <Windows.h>
 #include <OGRE/Bites/OgreWindowEventUtilities.h>
+#include <SDL2/SDL.h>
 #include "ViewPortController.h"
 #include "EventBus.h"
 #include "EventQueue.h"
-
+#include "ErrorReporter.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating viewports
@@ -24,6 +25,7 @@ private:
 
 	Ogre::RenderWindow* PrimaryWindow;
 
+	ErrorReporter RenderErrorReporter;
 	
 
 	std::unique_ptr <EventBus> RenderBus;

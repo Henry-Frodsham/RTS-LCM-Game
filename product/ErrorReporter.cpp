@@ -1,11 +1,11 @@
 //Copyright © 2025 Henry Frodsham
 #include "ErrorReporter.h"
 
+#define BRIGHT_RED     "\033[91m"
+#define RESET   "\033[0m"
 
-ErrorReporter::ErrorReporter() {
-	ErrorBus = EventBus();
-	ErrorQueue = EventQueue();
-
+ErrorReporter::ErrorReporter(): ErrorBus(),
+	ErrorQueue(&ErrorBus){
 
 	// every error logged automatically
 	// errors that can be handled have other handlers bound
@@ -14,9 +14,9 @@ ErrorReporter::ErrorReporter() {
 
 // main handler for errors, unless resolution is possible and another function is used
 void ErrorReporter::ErrorOutput(Error ErrorToReport) {
-	std::cout << "[ERROR " << uint32_t(ErrorToReport.Code)
-		<< " ] AT" << ErrorToReport.Origin << " \n SEVERITY: "
-		<< uint16_t(ErrorToReport.Level) << "\n"
-		<< "OUTPUT: " << ErrorToReport.Message;
+	std::cout << BRIGHT_RED << "[ERROR " << uint32_t(ErrorToReport.Code)
+		<< "]" << RESET << " At " << ErrorToReport.Origin << ", Severity: "
+		<< uint16_t(ErrorToReport.Level)
+		<< " Details: " << ErrorToReport.Message;
 }
 

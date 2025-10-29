@@ -13,13 +13,13 @@ private:
 	std::unordered_map<std::type_index, std::vector<std::function<void(std::any)>>> Handlers;
 
 public:
-	EventBus() {}
+	EventBus() = default;
 	~EventBus() {}
 
 	//template functions must be written in a header, thus keeping here
 	template<typename EventType>
 	void Subscribe(std::function<void(const EventType&)> Handler) {
-		std::type_index TypeIndex = std::type_index(typeid(EventType));
+		std::type_index TypeIndex = std::type_index(typeid(std::decay_t<EventType>));
 		auto WrappedHandler = [Handler](std::any EventData) {
 			const EventType& TypedEvent = std::any_cast<const EventType&>(EventData);
 			Handler(TypedEvent);
@@ -29,7 +29,7 @@ public:
 
 	template<typename EventType>
 	void Publish(const EventType& Event) {
-		std::type_index TypeIndex = std::type_index(typeid(EventType));
+		std::type_index TypeIndex = std::type_index(typeid(std::decay_t<EventType>));
 		auto It = Handlers.find(TypeIndex);
 		if (It != Handlers.end()) {
 			std::any EventData = Event;
