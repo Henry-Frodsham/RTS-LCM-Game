@@ -26,6 +26,8 @@ enum ErrorCode : uint32_t {
 	SDL_HANDLER_ID_SUCCESS = 2003,
 	SDL_HANDLER_NEW_REG = 2004,
 	SDL_NO_CONNECTED_CONTROLLERS = 2005,
+	SDL_CONTROLLER_DISCONNECT = 2006,
+	SDL_CONTOLLER_CONNECT = 2007,
 	//warning
 	BAD_SDL_ID_ON_REQUEST = 3001,
 	//error
@@ -94,6 +96,13 @@ namespace ErrorDetail {
 			{ErrorCode::SDL_NO_CONNECTED_CONTROLLERS, ErrorLevel::INFO,
 			 "there currently arent any controllers recognised by SDL.", "InputListener"}},
 
+		{ErrorCode::SDL_CONTROLLER_DISCONNECT,
+			{ErrorCode::SDL_CONTROLLER_DISCONNECT, ErrorLevel::INFO,
+			 "a controller was disconnected.", "InputListener"}},
+
+		{ErrorCode::SDL_CONTOLLER_CONNECT,
+			{ErrorCode::SDL_CONTOLLER_CONNECT, ErrorLevel::INFO,
+			 "a new controller was connected", "InputListener"}},
 
 		//warning
 		{ErrorCode::BAD_SDL_ID_ON_REQUEST,

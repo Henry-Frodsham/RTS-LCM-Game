@@ -21,8 +21,14 @@ InputListener::InputListener(SDL_Window* SdlWindow)
 		}
 
 		//additionally, add these to the managed devices
-		InputErrorReporter.EnqueueError(DeadDeviceIdError{ J, i });
+		InputErrorReporter.EnqueueError(DeadDeviceIdError{ J, i});
 	}
+
+	//force KB creation at device id -1
+	InputErrorReporter.EnqueueError(DeadDeviceIdError{{0}, -1});
+
+	//force Mouse creation at device id -1
+	InputErrorReporter.EnqueueError(DeadDeviceIdError{ {0}, -2 });
 
 }
 
@@ -36,13 +42,21 @@ void InputListener::Update() {
 
 		//discern which method to use when finding the device
 		switch (Event.type) {
+			case SDL_CONTROLLERDEVICEADDED:
+				InputErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_CONTOLLER_CONNECT));
+				//init the controller
+				SDL_JoystickOpen(Event.cdevice.which);
+				break;
+			case SDL_CONTROLLERDEVICEREMOVED:
+				InputErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_CONTROLLER_DISCONNECT));
+				break;
 			case SDL_KEYDOWN:
-				// SDL2 doesnt have any device index for KBM so just use 0
-				SdlDeviceIndex = 0;
+				// SDL2 doesnt have any device index for KBM so just use -1
+				SdlDeviceIndex = -1;
 				break;
 			case SDL_KEYUP:
-				// SDL2 doesnt have any device index for KBM so just use 0
-				SdlDeviceIndex = 0;
+				// SDL2 doesnt have any device index for KBM so just use -1
+				SdlDeviceIndex = -1;
 				break;
 			case SDL_CONTROLLERBUTTONDOWN:
 				SdlDeviceIndex = Event.cbutton.which;
@@ -51,7 +65,8 @@ void InputListener::Update() {
 				SdlDeviceIndex = Event.cbutton.which;
 				break;
 			case SDL_MOUSEMOTION:
-				SdlDeviceIndex = Event.motion.which;
+				// for simplicity, just keep KB -1 and mouse -2 
+				SdlDeviceIndex = -2;
 				break;
 			case SDL_JOYAXISMOTION:
 				SdlDeviceIndex = Event.jaxis.which;

@@ -31,7 +31,8 @@ void Application::Loop() {
 	InputListener Input = InputListener(RenderSingleton.GetSDLWindow());
 	InputTranslator Translator = InputTranslator{};
 	Input.Update();
-	Input.AddListenerQueue(Input.GetDeviceFromSDLId(0), &Translator.WaitingEvents);
+	Input.AddListenerQueue(Input.GetDeviceFromSDLId(-1), &Translator.WaitingEvents);
+	Input.AddListenerQueue(Input.GetDeviceFromSDLId(-2), &Translator.WaitingEvents);
 
 	while (true) {
 		RenderSingleton.RenderFrame(); //render thread func, here for now but delegate in future
