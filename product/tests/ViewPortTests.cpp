@@ -13,7 +13,7 @@ TEST_CASE("ViewPortController - move camera") {
 	RS->Init();
 	ViewPortController* Obj = RS->CreateViewPort();
 	Obj->MoveCamera(0.f, 0.f);
-	CHECK(Obj->GetCameraAngle() == std::vector<float> {0.f, 0.f});
+	CHECK(Obj->GetCameraAngle() == std::vector<float> {0.f, 0.f, 0.f});
 	
 }
 

@@ -16,3 +16,9 @@
 22/10/25 - realised EventQueue class erases type information, redesigned and placed queue items in a wrapper class
 24/10/25 - wrote passing tests for eventQueue
 25/10/25 - when doing ogre runtime tests i realised that the vcpkg version of ogre is incorrect, porting fully to a manual build
+26/10/25 - identified that the issue was due to string corruption of the package name, ported back to vcpkg and fixed by linking debug libraries when neccessary
+27/10/25 - wrote passing viewport tests (apart from an unidentified issue regarding viewport z-orders)
+28/10/25 - passing tests across the board (bar 2 viewport tests), created a responsive ogre render window
+29/10/25 - integrated and initialised SDL2 and Dear Imgui
+30/10/25 - partial implementation of error reporting (without handling yet)
+30/10/25 - looked at sample programs in the ogre and sdl doc, realised input listener cant be on a per instance basis, redesigned such that a singular input handler dispatches to each instance

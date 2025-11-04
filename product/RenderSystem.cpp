@@ -25,7 +25,7 @@ RenderSystem::~RenderSystem()
 // main render loop, run regardless of state to maintain responsiveness
 void RenderSystem::RenderFrame() {
 	//dispatch internal queue aswell
-	RenderErrorReporter.ErrorQueue.Dispatch();
+	RenderErrorReporter.Dispatch();
 
 	if (PrimaryWindow && !PrimaryWindow->isClosed()) {
 		Ogre::WindowEventUtilities::messagePump();
@@ -33,7 +33,7 @@ void RenderSystem::RenderFrame() {
 	}
 	else {
 		//window closed, shutdown app
-		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::RENDER_WINDOW_CLOSED));
+		RenderErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::RENDER_WINDOW_CLOSED));
 	}
 }
 
@@ -46,7 +46,7 @@ void RenderSystem::Init() {
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		//sdl failed init, throw fatal
-		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_FAILED_INIT));
+		RenderErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_FAILED_INIT));
 	}
 
 	
@@ -59,7 +59,7 @@ void RenderSystem::Init() {
 	const Ogre::RenderSystemList& RenderSystems = OgreRoot->getAvailableRenderers();
 
 	if (RenderSystems.size() == 0) {
-		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM));
+		RenderErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM));
 	}
 	OgreRoot->setRenderSystem(RenderSystems[0]);
 
@@ -72,11 +72,21 @@ void RenderSystem::Init() {
 
 	SDLWindow = SDL_CreateWindowFrom(reinterpret_cast<void*>(WindowHandle));
 	if (!SDLWindow) {
-		RenderErrorReporter.ErrorQueue.Enqueue(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_FAILED_BIND));
+		RenderErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_FAILED_BIND));
 	}
 
 	
 	SceneManager = OgreRoot->createSceneManager();
+
+	OverlaySystem = new Ogre::OverlaySystem();
+	SceneManager->addRenderQueueListener(OverlaySystem);
+
+	ImGuiOverlay = new Ogre::ImGuiOverlay();
+	
+	ImGuiOverlay->setZOrder(300);
+
+	ImGuiOverlay->show();
+
 
 	IsInit = true;
 }
@@ -97,6 +107,9 @@ ViewPortController* RenderSystem::CreateViewPort() {
 	return newController;
 }
 
+SDL_Window* RenderSystem::GetSDLWindow() {
+	return SDLWindow;
+}
 // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {
 	static RenderSystem Instance;

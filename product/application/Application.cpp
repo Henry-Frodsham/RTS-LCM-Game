@@ -1,6 +1,7 @@
 //Copyright © 2025 Henry Frodsham
 #include "Application.h"
 #include "RenderSystem.h"
+#include "InputListener.h"
 
 Application::Application() {
 	StateManager = ApplicationStateManager();
@@ -18,14 +19,18 @@ bool Application::Init() {
 	RenderSystem &RenderSingleton = RenderSystem::GetInstance();
 	RenderSingleton.Init();
 
+
 	return false;
 }
 
 //state reactive loop
 void Application::Loop() {
 	RenderSystem& RenderSingleton = RenderSystem::GetInstance();
+	//temporary test
+	InputListener Input = InputListener(RenderSingleton.GetSDLWindow());
 	while (true) {
 		RenderSingleton.RenderFrame(); //render thread func, here for now but delegate in future
+		Input.update();
 		if (StateManager.CurrentState == AppState::GAME) {
 		}
 		else if (StateManager.CurrentState == AppState::MENU){

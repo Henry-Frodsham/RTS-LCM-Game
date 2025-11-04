@@ -39,7 +39,15 @@ void ViewPortController::Clear() {
 
 // get the view angles of a specific camera
 std::vector<float> ViewPortController::GetCameraAngle() {
-	return { 1.f,1.f };
+    Ogre::Camera* Camera = ViewPort->getCamera();
+    const Ogre::Quaternion& Q = Camera->getDerivedOrientation();
+
+    std::vector<float> Angles = {
+        Q.getPitch().valueRadians(),
+        Q.getYaw().valueRadians(),
+        Q.getRoll().valueRadians()
+    };
+    return Angles;
 }
 
 // get the dimensions of a specific split screen instance

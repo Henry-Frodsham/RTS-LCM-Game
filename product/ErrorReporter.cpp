@@ -17,6 +17,10 @@ void ErrorReporter::ErrorOutput(Error ErrorToReport) {
 	std::cout << BRIGHT_RED << "[ERROR " << uint32_t(ErrorToReport.Code)
 		<< "]" << RESET << " At " << ErrorToReport.Origin << ", Severity: "
 		<< uint16_t(ErrorToReport.Level)
-		<< " Details: " << ErrorToReport.Message;
+		<< " Details: " << ErrorToReport.Message << std::endl;
+}
+
+void ErrorReporter::Dispatch() {
+	ErrorQueue.Dispatch();
 }
 

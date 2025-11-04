@@ -3,6 +3,7 @@
 #include <string>
 #include <array>
 #include <unordered_map>
+#include <SDL2/SDL.h>
 
 // 5 level system, stores how "serious" an error is
 enum ErrorLevel : uint16_t {
@@ -20,8 +21,12 @@ enum ErrorCode : uint32_t {
 	//debug
 	//info
 	RENDER_WINDOW_CLOSED = 2001,
+	SDL_DEAD_DEVICE_ID = 2002,
+	SDL_HANDLER_ID_SUCCESS = 2003,
+	SDL_HANDLER_NEW_REG = 2004,
 	//warning
 	//error
+	UNSET_INPUT_LISTENER_QUEUE = 4001,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
@@ -42,6 +47,24 @@ struct Error {
 	}
 };
 
+// handleable errors
+// inherit from Error to still allow logging 
+// but contains extra information for error handling
+
+struct DeadDeviceIdError : Error {
+	SDL_Joystick* JoyStick;
+	Sint32 SupposedId;
+
+	DeadDeviceIdError(SDL_Joystick* Joy, Sint32 ID)
+		: Error(ErrorCode::SDL_DEAD_DEVICE_ID,
+			    ErrorLevel::INFO,
+			    "SDL picked up an unregistered device ID. handling...",
+			    "InputListener")
+		,JoyStick(Joy)
+		,SupposedId(ID){
+	}
+};
+
 
 
 
@@ -54,8 +77,20 @@ namespace ErrorDetail {
 		{ErrorCode::RENDER_WINDOW_CLOSED,
 			{ErrorCode::RENDER_WINDOW_CLOSED, ErrorLevel::INFO,
 			 "The render window has closed, exiting.", "RenderSystem"}},
+
+		{ErrorCode::SDL_HANDLER_ID_SUCCESS,
+			{ErrorCode::SDL_HANDLER_ID_SUCCESS, ErrorLevel::INFO,
+			 "device succesfully reconnected", "InputListener"}},
+
+		{ErrorCode::SDL_HANDLER_NEW_REG,
+			{ErrorCode::SDL_HANDLER_NEW_REG, ErrorLevel::INFO,
+			 "A new controller has succesfully be registered", "InputListener"}},
 		//warning
 		//error
+		{ErrorCode::UNSET_INPUT_LISTENER_QUEUE,
+		   {ErrorCode::UNSET_INPUT_LISTENER_QUEUE, ErrorLevel::ERR,
+			"An input device has no associated listener Queue", "InputListener"}},
+
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
 			{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,
@@ -68,5 +103,6 @@ namespace ErrorDetail {
 			{ErrorCode::SDL_FAILED_BIND, ErrorLevel::FATAL,
 			 "SDL failed bind to primary window", "RenderSystem"}}
 		
+
 	};
 }

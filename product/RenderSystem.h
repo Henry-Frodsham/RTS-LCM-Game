@@ -1,6 +1,8 @@
 //Copyright © 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
+#include <OGRE/Overlay/OgreImGuiOverlay.h>
+#include <OGRE/Overlay/OgreOverlaySystem.h>
 #include <iostream>
 #include <vector>
 #include <Windows.h>
@@ -24,6 +26,9 @@ private:
 	Ogre::SceneManager* SceneManager;
 
 	SDL_Window* SDLWindow;
+
+	Ogre::OverlaySystem* OverlaySystem;
+	Ogre::ImGuiOverlay* ImGuiOverlay;
 
 	Ogre::RenderWindow* PrimaryWindow;
 
@@ -51,6 +56,8 @@ public:
 	ViewPortController* CreateViewPort();
 
 	void RenderFrame();
+
+	SDL_Window* GetSDLWindow();
 
 
 };

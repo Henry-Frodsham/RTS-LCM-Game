@@ -1,16 +1,39 @@
 //Copyright © 2025 Henry Frodsham
 #pragma once
+#include <SDL2/SDL.h>
+#include <vector>
+#include <unordered_map>
+#include <stdexcept>
+#include "ErrorReporter.h"
 #include "InputDevice.h"
-#include "EventBus.h"
+#include "InputEvent.h"
+#include "EventQueue.h"
 
-// reads input states, each device has a unique listener and is queued onto an event bus to stop SDL events being read at the same time
+
+// reads input states, dispatches events to seperate game instances on a per device basis
 class InputListener {
 public:
+	InputListener(SDL_Window* SdlWindow);
+
 	void update();
+	
+	void addListenerQueue(InputDevice* DeviceToListen, EventQueue* QueueToNotify);
 
+	ErrorReporter InputErrorReporter;
 private:
-	// event queue unnecessary since input will only control local UI and viewport
-	EventBus* InputBus;
+	//seperate each listening queue by their device
+	std::unordered_map<InputDevice*,EventQueue*> ListeningQueues;
 
-	InputDevice* Device;
+	//map the id of the Device to the SDL device id
+	//reconnecting a controller changes the id so this needs to be rechecked in update
+	std::unordered_map<Sint32, InputDevice*> Devices;
+
+	//non owning pointer, Ogre owns this since i bound to the main render window
+	SDL_Window* SdlWindow;
+	//std::vector<InputDevice*> Device;
+
+
+	//Handlers
+	void RemapOrCreateDevice(DeadDeviceIdError Context);
+
 };
