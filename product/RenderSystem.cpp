@@ -44,7 +44,7 @@ void RenderSystem::Init() {
 		return;
 	}
 
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
 		//sdl failed init, throw fatal
 		RenderErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_FAILED_INIT));
 	}

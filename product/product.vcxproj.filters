@@ -25,6 +25,9 @@
     <ClCompile Include="ErrorReporter.cpp">
       <Filter>Source\ErrorReporter</Filter>
     </ClCompile>
+    <ClCompile Include="InputTranslator.cpp">
+      <Filter>Source\input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -118,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="ErrorManifest.h">
       <Filter>Headers\ErrorReporter</Filter>
+    </ClInclude>
+    <ClInclude Include="InputTranslator.h">
+      <Filter>Headers\input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

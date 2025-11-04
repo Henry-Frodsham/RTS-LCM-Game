@@ -247,6 +247,7 @@ exit /b 0</Command>
     <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="InputListener.cpp" />
+    <ClCompile Include="InputTranslator.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ViewPortController.cpp" />
@@ -262,6 +263,7 @@ exit /b 0</Command>
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="InputEvent.h" />
     <ClInclude Include="InputListener.h" />
+    <ClInclude Include="InputTranslator.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />

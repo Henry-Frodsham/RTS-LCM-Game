@@ -8,15 +8,57 @@ InputListener::InputListener(SDL_Window* SdlWindow)
 	// configure handlers
 	InputErrorReporter.AddHandler<DeadDeviceIdError>(std::bind(&InputListener::RemapOrCreateDevice, this, std::placeholders::_1));
 
+	// additional warnings
+	if (SDL_NumJoysticks() < 1) {
+		InputErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_NO_CONNECTED_CONTROLLERS));
+	}
+
+	// initialise currently plugged in controllers, if a new one is plugged in while the game is running then thats handled dynamically
+	for (int i = 0; i < SDL_NumJoysticks(); i++) {
+		SDL_Joystick* J = SDL_JoystickOpen(i);
+		if (!J) {
+			InputErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_CONTROLLER_FAILED_INIT));
+		}
+
+		//additionally, add these to the managed devices
+		InputErrorReporter.EnqueueError(DeadDeviceIdError{ J, i });
+	}
+
 }
 
 // read new key/button information
-void InputListener::update() {
+void InputListener::Update() {
 	InputErrorReporter.Dispatch();
 	SDL_Event Event;
 	while (SDL_PollEvent(&Event)) {
 		// first, class which device it is then read which key/button
-		Sint32 SdlDeviceIndex = Event.cdevice.which;
+		Sint32 SdlDeviceIndex = -1;
+
+		//discern which method to use when finding the device
+		switch (Event.type) {
+			case SDL_KEYDOWN:
+				// SDL2 doesnt have any device index for KBM so just use 0
+				SdlDeviceIndex = 0;
+				break;
+			case SDL_KEYUP:
+				// SDL2 doesnt have any device index for KBM so just use 0
+				SdlDeviceIndex = 0;
+				break;
+			case SDL_CONTROLLERBUTTONDOWN:
+				SdlDeviceIndex = Event.cbutton.which;
+				break;
+			case SDL_CONTROLLERBUTTONUP:
+				SdlDeviceIndex = Event.cbutton.which;
+				break;
+			case SDL_MOUSEMOTION:
+				SdlDeviceIndex = Event.motion.which;
+				break;
+			case SDL_JOYAXISMOTION:
+				SdlDeviceIndex = Event.jaxis.which;
+				break;
+			default:
+				continue;
+		}
 
 		InputDevice* Device = nullptr;
 		try {
@@ -43,13 +85,21 @@ void InputListener::update() {
 
 		switch (Event.type) {
 			case SDL_KEYDOWN:
-				QueueToNotify->Enqueue(RawKBEvent{ Event.key });
+				QueueToNotify->Enqueue(RawKBEvent{ Event.key, false });
+				break;
+
+			case SDL_KEYUP:
+				QueueToNotify->Enqueue(RawKBEvent{ Event.key, true });
 				break;
 
 			case SDL_CONTROLLERBUTTONDOWN:
-				QueueToNotify->Enqueue(RawButtonEvent{ Event.cbutton });
+				QueueToNotify->Enqueue(RawButtonEvent{ Event.cbutton, false });
 				break;
-			
+
+			case SDL_CONTROLLERBUTTONUP:
+				QueueToNotify->Enqueue(RawButtonEvent{ Event.cbutton, true });
+				break;
+
 			case SDL_MOUSEMOTION:
 				QueueToNotify->Enqueue(RawCursorEvent{ Event.motion });
 				break;
@@ -61,7 +111,7 @@ void InputListener::update() {
 	}
 }
 
-void InputListener::addListenerQueue(InputDevice* DeviceToListen, EventQueue* QueueToNotify) {
+void InputListener::AddListenerQueue(InputDevice* DeviceToListen, EventQueue* QueueToNotify) {
 	ListeningQueues.emplace(DeviceToListen, QueueToNotify);
 }
 
@@ -130,5 +180,14 @@ void InputListener::RemapOrCreateDevice(DeadDeviceIdError Context) {
 		Devices[Key] = NewDevice;
 
 		InputErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::SDL_HANDLER_NEW_REG));
+	}
+}
+
+InputDevice* InputListener::GetDeviceFromSDLId(Sint32 ID) {
+	try {
+		return Devices.at(ID);
+	}
+	catch (const std::out_of_range& e) {
+		InputErrorReporter.EnqueueError(ErrorDetail::ErrorManifest.at(ErrorCode::BAD_SDL_ID_ON_REQUEST));
 	}
 }

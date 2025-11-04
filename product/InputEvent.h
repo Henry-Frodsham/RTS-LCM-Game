@@ -6,18 +6,21 @@
 // only used for text prompts since actual game input is unified between KBM and controller
 struct RawKBEvent {
 	SDL_KeyboardEvent Key;
+	bool KeyUp;
 
-	RawKBEvent(SDL_KeyboardEvent KBKey)
-		: Key(KBKey) { }
+	RawKBEvent(SDL_KeyboardEvent KBKey, bool UpState)
+		: Key(KBKey)
+		, KeyUp(UpState){ }
 
 };
 
 // unified event for controller button input and key input
 struct RawButtonEvent {
 	SDL_ControllerButtonEvent Button;
-
-	RawButtonEvent(SDL_ControllerButtonEvent RawButton)
-		: Button(RawButton) { }
+	bool ButtonUp;
+	RawButtonEvent(SDL_ControllerButtonEvent RawButton, bool UpState)
+		: Button(RawButton) 
+		, ButtonUp(UpState){ }
 };
 
 // mouse movement event

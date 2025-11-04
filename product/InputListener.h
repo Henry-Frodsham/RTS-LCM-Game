@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <stdexcept>
+#include <iostream>
 #include "ErrorReporter.h"
 #include "InputDevice.h"
 #include "InputEvent.h"
@@ -15,9 +16,11 @@ class InputListener {
 public:
 	InputListener(SDL_Window* SdlWindow);
 
-	void update();
+	void Update();
 	
-	void addListenerQueue(InputDevice* DeviceToListen, EventQueue* QueueToNotify);
+	void AddListenerQueue(InputDevice* DeviceToListen, EventQueue* QueueToNotify);
+
+	InputDevice* GetDeviceFromSDLId(Sint32 ID);
 
 	ErrorReporter InputErrorReporter;
 private:

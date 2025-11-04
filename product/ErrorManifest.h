@@ -4,6 +4,7 @@
 #include <array>
 #include <unordered_map>
 #include <SDL2/SDL.h>
+#include <format>
 
 // 5 level system, stores how "serious" an error is
 enum ErrorLevel : uint16_t {
@@ -24,9 +25,12 @@ enum ErrorCode : uint32_t {
 	SDL_DEAD_DEVICE_ID = 2002,
 	SDL_HANDLER_ID_SUCCESS = 2003,
 	SDL_HANDLER_NEW_REG = 2004,
+	SDL_NO_CONNECTED_CONTROLLERS = 2005,
 	//warning
+	BAD_SDL_ID_ON_REQUEST = 3001,
 	//error
 	UNSET_INPUT_LISTENER_QUEUE = 4001,
+	SDL_CONTROLLER_FAILED_INIT = 4002,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
@@ -84,13 +88,26 @@ namespace ErrorDetail {
 
 		{ErrorCode::SDL_HANDLER_NEW_REG,
 			{ErrorCode::SDL_HANDLER_NEW_REG, ErrorLevel::INFO,
-			 "A new controller has succesfully be registered", "InputListener"}},
+			 "A new device has succesfully be registered", "InputListener"}},
+
+		{ErrorCode::SDL_NO_CONNECTED_CONTROLLERS,
+			{ErrorCode::SDL_NO_CONNECTED_CONTROLLERS, ErrorLevel::INFO,
+			 "there currently arent any controllers recognised by SDL.", "InputListener"}},
+
+
 		//warning
+		{ErrorCode::BAD_SDL_ID_ON_REQUEST,
+			{ErrorCode::BAD_SDL_ID_ON_REQUEST, ErrorLevel::WARNING,
+			 "a dead SDL ID was used when requesting an input device", "InputListener"}},
+
 		//error
 		{ErrorCode::UNSET_INPUT_LISTENER_QUEUE,
 		   {ErrorCode::UNSET_INPUT_LISTENER_QUEUE, ErrorLevel::ERR,
 			"An input device has no associated listener Queue", "InputListener"}},
 
+		{ErrorCode::SDL_CONTROLLER_FAILED_INIT,
+			{ErrorCode::SDL_CONTROLLER_FAILED_INIT, ErrorLevel::ERR,
+			 "a controller failed init", "InputListener"}},
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
 			{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

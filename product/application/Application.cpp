@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "RenderSystem.h"
 #include "InputListener.h"
+#include "InputTranslator.h"
 
 Application::Application() {
 	StateManager = ApplicationStateManager();
@@ -28,9 +29,17 @@ void Application::Loop() {
 	RenderSystem& RenderSingleton = RenderSystem::GetInstance();
 	//temporary test
 	InputListener Input = InputListener(RenderSingleton.GetSDLWindow());
+	InputTranslator Translator = InputTranslator{};
+	Input.Update();
+	Input.AddListenerQueue(Input.GetDeviceFromSDLId(0), &Translator.WaitingEvents);
+
 	while (true) {
 		RenderSingleton.RenderFrame(); //render thread func, here for now but delegate in future
-		Input.update();
+		Input.Update();
+		Translator.WaitingEvents.Dispatch();
+		if (Translator.getKeyState('G')) {
+			std::cout << "g";
+		}
 		if (StateManager.CurrentState == AppState::GAME) {
 		}
 		else if (StateManager.CurrentState == AppState::MENU){
