@@ -55,7 +55,7 @@ void InputTranslator::TranslateRawKB(RawKBEvent Event){
 
 		// check state of shift and capslock
 		// if pressed then convert to upper case
-		if (C >= 'a' && C <= 'z' && (modifiers & KMOD_SHIFT)) {
+		if (C >= 'a' && C <= 'z' && ((modifiers & KMOD_SHIFT) || (modifiers & KMOD_CAPS))) {
 			C = C - 32;
 		}
 
