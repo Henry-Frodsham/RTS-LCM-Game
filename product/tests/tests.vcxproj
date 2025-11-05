@@ -108,6 +108,9 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
 xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\plugins\ogre\*.dll" "$(OutDir)"
 xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug\plugins\ogre\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -133,6 +136,9 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
 xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\plugins\ogre\*.dll" "$(OutDir)"
 xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug\plugins\ogre\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -156,6 +162,9 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
 xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\plugins\ogre\*.dll" "$(OutDir)"
 xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug\plugins\ogre\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -181,6 +190,9 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
 xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\plugins\ogre\*.dll" "$(OutDir)"
 xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug\plugins\ogre\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EventBusTests.cpp" />

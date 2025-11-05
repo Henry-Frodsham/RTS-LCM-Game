@@ -121,7 +121,8 @@ for %%E in (%EXTENSIONS%) do (
     )
 )
 
-exit /b 0</Command>
+exit /b 0
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -161,7 +162,8 @@ for %%E in (%EXTENSIONS%) do (
     )
 )
 
-exit /b 0</Command>
+exit /b 0
+xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -199,7 +201,8 @@ for %%E in (%EXTENSIONS%) do (
     )
 )
 
-exit /b 0</Command>
+exit /b 0
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -239,7 +242,8 @@ for %%E in (%EXTENSIONS%) do (
     )
 )
 
-exit /b 0</Command>
+exit /b 0
+xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
