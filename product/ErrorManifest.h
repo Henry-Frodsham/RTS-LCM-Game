@@ -3,8 +3,8 @@
 #include <string>
 #include <array>
 #include <unordered_map>
+#include <fmt/format.h>
 #include <SDL2/SDL.h>
-#include <format>
 
 // 5 level system, stores how "serious" an error is
 enum ErrorLevel : uint16_t {
@@ -131,4 +131,15 @@ namespace ErrorDetail {
 		
 
 	};
+
+	// get default error from manifest
+	inline Error CreateError(ErrorCode ECode) {
+		return ErrorManifest.at(ECode);
+	}
+
+	// create error with custom message
+	inline Error CreateError(ErrorCode ECode, std::string CustomMessage) {
+		const Error& DefaultErr = ErrorManifest.at(ECode);
+		return Error(ECode, DefaultErr.Level, std::move(CustomMessage), DefaultErr.Origin);
+	}
 }

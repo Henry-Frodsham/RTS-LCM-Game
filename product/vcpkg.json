@@ -11,6 +11,7 @@
 	"features": ["overlay"]
     },
     "doctest",
-    "imgui"
+    "imgui",
+    "fmt"
   ]
 }

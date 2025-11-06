@@ -99,7 +99,7 @@ NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitio
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>OgreMain_d.lib;OgreBites_d.lib;OgreOverlay.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain_d.lib;OgreBites_d.lib;OgreOverlay.lib;fmtd.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib\manual-link;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib;$(SolutionDir)x64\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -127,7 +127,7 @@ NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitio
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;fmt.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib;$(SolutionDir)x64\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -153,7 +153,7 @@ NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>OgreMain_d.lib;OgreBites_d.lib;OgreOverlay.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain_d.lib;OgreBites_d.lib;OgreOverlay.lib;fmtd.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib\manual-link;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib;$(SolutionDir)x64\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -181,7 +181,7 @@ NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain.lib;OgreBites.lib;OgreOverlay.lib;fmt.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib;$(SolutionDir)x64\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>

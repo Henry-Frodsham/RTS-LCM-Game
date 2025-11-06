@@ -36,7 +36,12 @@ private:
 	//std::vector<InputDevice*> Device;
 
 
+	//init
+	void InitialDeviceSetup();
+
 	//Handlers
 	void RemapOrCreateDevice(DeadDeviceIdError Context);
+
+
 
 };
