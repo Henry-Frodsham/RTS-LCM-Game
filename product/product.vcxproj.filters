@@ -22,6 +22,12 @@
     <ClCompile Include="WorldManager.cpp">
       <Filter>Source\World</Filter>
     </ClCompile>
+    <ClCompile Include="ErrorReporter.cpp">
+      <Filter>Source\ErrorReporter</Filter>
+    </ClCompile>
+    <ClCompile Include="InputTranslator.cpp">
+      <Filter>Source\input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -66,6 +72,12 @@
     <Filter Include="Entity Components">
       <UniqueIdentifier>{41518b02-fe16-4795-8d07-cd39785e2073}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\ErrorReporter">
+      <UniqueIdentifier>{b38c83b5-4bf3-490e-8b8e-e360310f4379}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ErrorReporter">
+      <UniqueIdentifier>{67cfc9c1-8b92-41e8-8d93-7a92bbff233c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
@@ -103,6 +115,15 @@
     </ClInclude>
     <ClInclude Include="BaseComponents.h">
       <Filter>Entity Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorReporter.h">
+      <Filter>Headers\ErrorReporter</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorManifest.h">
+      <Filter>Headers\ErrorReporter</Filter>
+    </ClInclude>
+    <ClInclude Include="InputTranslator.h">
+      <Filter>Headers\input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

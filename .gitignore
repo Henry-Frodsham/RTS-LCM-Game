@@ -45,3 +45,4 @@ CMakeUserPresets.json
 *.dll
 *.lib
 *.exp
+*.tmp

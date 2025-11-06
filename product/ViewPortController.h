@@ -1,3 +1,4 @@
+//Copyright © 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 #include <OGRE/OgrePrerequisites.h>
@@ -6,8 +7,8 @@
 // view port (camera) for each split screen instance
 class ViewPortController {
 private:
-	ViewPortController* ViewPort;
-	Ogre::Camera* Camera;
+	Ogre::Viewport* ViewPort;
+	
 
 public:
 	bool ToggleAutomaticRendering(bool Val);
@@ -19,7 +20,7 @@ public:
 	void MoveCamera(float Pitch, float Yaw);
 
 	//change portion of the screen taken up by split screen
-	void ChangeCameraDimensions(int X, int Y);
+	void ChangeViewPortDimensions(float Left, float Top, float Width, float Height);
 
 	// only required when viewport is set to not automatically update in the main render loop
 	void Update();
@@ -27,9 +28,14 @@ public:
 	// destroys the frame buffer
 	void Clear();
 
-	ViewPortController(){}
+	// Copy constructor - required for vector storage
+	ViewPortController(const ViewPortController&) = default;
+	// Move constructor
+	ViewPortController(ViewPortController&&) noexcept = default;
+
+	ViewPortController(Ogre::Viewport* NewVP);
 	~ViewPortController(){}
 
 	std::vector<float> GetCameraAngle();
-	std::vector<int> GetCameraDimensions();
+	std::vector<int> GetViewPortDimensions();
 };

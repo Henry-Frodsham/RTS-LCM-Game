@@ -11,3 +11,14 @@
 15/10/25 - shifted focus to ECS storage, researched how entt registry should be managed and who should own it. decided on a WorldManager singleton
 16/10/25 to 19/10/25 - modeling runtime scripts and researching other ogre3d projects
 20/10/25 - race condition tests, initial implementation of runtime scripts using app states
+21/10/25 - write base renderSystem class, designed error and logging system 
+22/10/25 - wrote EventBus and EventQueue class as prequisite to error and logging system 
+22/10/25 - realised EventQueue class erases type information, redesigned and placed queue items in a wrapper class
+24/10/25 - wrote passing tests for eventQueue
+25/10/25 - when doing ogre runtime tests i realised that the vcpkg version of ogre is incorrect, porting fully to a manual build
+26/10/25 - identified that the issue was due to string corruption of the package name, ported back to vcpkg and fixed by linking debug libraries when neccessary
+27/10/25 - wrote passing viewport tests (apart from an unidentified issue regarding viewport z-orders)
+28/10/25 - passing tests across the board (bar 2 viewport tests), created a responsive ogre render window
+29/10/25 - integrated and initialised SDL2 and Dear Imgui
+30/10/25 - partial implementation of error reporting (without handling yet)
+30/10/25 - looked at sample programs in the ogre and sdl doc, realised input listener cant be on a per instance basis, redesigned such that a singular input handler dispatches to each instance

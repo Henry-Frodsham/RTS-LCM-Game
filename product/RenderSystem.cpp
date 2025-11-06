@@ -1,13 +1,117 @@
+//Copyright © 2025 Henry Frodsham
 #include "RenderSystem.h"
 
-void RenderSystem::RenderLoop() {
 
+RenderSystem::RenderSystem()
+	: OgreRoot(nullptr)
+	, SceneManager(nullptr)
+	, RenderBus(nullptr)
+	, RenderQueue(nullptr)
+	, PrimaryWindow(nullptr)
+	, SDLWindow(nullptr)
+	, ViewPorts(NULL)
+	, RenderErrorReporter(ErrorReporter())
+{
 }
+RenderSystem::~RenderSystem()
+{
+	if (SDLWindow) {
+		SDL_DestroyWindow(SDLWindow);
+	}
+	SDL_Quit();
+
+	//shutdown, destroy root and SceneMgr
+}
+// main render loop, run regardless of state to maintain responsiveness
+void RenderSystem::RenderFrame() {
+	//dispatch internal queue aswell
+	RenderErrorReporter.Dispatch();
+
+	if (PrimaryWindow && !PrimaryWindow->isClosed()) {
+		Ogre::WindowEventUtilities::messagePump();
+		OgreRoot->renderOneFrame();
+	}
+	else {
+		//window closed, shutdown app
+		RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::RENDER_WINDOW_CLOSED));
+	}
+}
+
+// creates Ogre3d root and creates primary render window
+void RenderSystem::Init() {
+
+	if (IsInit) {
+		return;
+	}
+
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
+		//sdl failed init, throw fatal
+		RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::SDL_FAILED_INIT));
+	}
+
+	
+	#ifdef _DEBUG
+		OgreRoot = new Ogre::Root("plugins_d.cfg", "", "ogre.log");
+	#else
+		OgreRoot = new Ogre::Root("plugins.cfg", "", "ogre.log");
+	#endif
+
+	const Ogre::RenderSystemList& RenderSystems = OgreRoot->getAvailableRenderers();
+
+	if (RenderSystems.size() == 0) {
+		RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM));
+	}
+	OgreRoot->setRenderSystem(RenderSystems[0]);
+
+	// use the auto created window for now, delegate to RenderSettings in future
+	PrimaryWindow = OgreRoot->initialise(true, "RTS LCM GAME");
+
+	//get the window handle to bind with SDL
+	size_t WindowHandle = 0;
+	PrimaryWindow->getCustomAttribute("WINDOW", &WindowHandle);
+
+	SDLWindow = SDL_CreateWindowFrom(reinterpret_cast<void*>(WindowHandle));
+	if (!SDLWindow) {
+		RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::SDL_FAILED_BIND));
+	}
+
+	
+	SceneManager = OgreRoot->createSceneManager();
+
+	OverlaySystem = new Ogre::OverlaySystem();
+	SceneManager->addRenderQueueListener(OverlaySystem);
+
+	ImGuiOverlay = new Ogre::ImGuiOverlay();
+	
+	ImGuiOverlay->setZOrder(300);
+
+	ImGuiOverlay->show();
+
+
+	IsInit = true;
+}
+
+// add a new camera to the game world, usually indicates a new split screen instance but isnt exclusive
 ViewPortController* RenderSystem::CreateViewPort() {
-	return NULL;
+
+	Ogre::SceneManager::CameraList CameraList = SceneManager->getCameras();
+
+	Ogre::Camera* Camera = SceneManager->createCamera(std::to_string(CameraList.size()));
+
+	Ogre::Viewport* AddedViewPort = PrimaryWindow->addViewport(Camera, CameraList.size()); // temporary Z order
+
+	ViewPortController* newController = new ViewPortController(AddedViewPort);
+
+	ViewPorts.push_back(newController);
+
+	return newController;
 }
 
-RenderSystem& RenderSystem::getInstance() {
+SDL_Window* RenderSystem::GetSDLWindow() {
+	return SDLWindow;
+}
+// singleton access to prevent 2 Ogre roots being made
+RenderSystem& RenderSystem::GetInstance() {
 	static RenderSystem Instance;
 	return Instance;
 }
