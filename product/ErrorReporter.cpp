@@ -19,32 +19,40 @@ ErrorReporter::ErrorReporter(): ErrorBus(),
 // main handler for errors, unless resolution is possible and another function is used
 void ErrorReporter::ErrorOutput(Error ErrorToReport) {
 	std::string LogColour = "";
+	std::string CallCode = "";
 
 	switch (ErrorToReport.Level) {
 		case ErrorLevel::TRACE:
 			LogColour = WHITE;
+			CallCode = "TRACE";
 			break;
 		case ErrorLevel::DEBUG:
 			LogColour = WHITE;
+			CallCode = "DEBUG";
 			break;
 		case ErrorLevel::INFO:
 			LogColour = YELLOW;
+			CallCode = "INFO";
 			break;
 		case ErrorLevel::WARNING:
 			LogColour = ORANGE;
+			CallCode = "WARNING";
 			break;
 		case ErrorLevel::ERR:
 			LogColour = LIGHT_RED;
+			CallCode = "ERROR";
 			break;
 		case ErrorLevel::FATAL:
 			LogColour = BRIGHT_RED;
+			CallCode = "FATAL";
 			break;
 		default:
 			LogColour = WHITE;
+			CallCode = "UNKNOWN";
 			break;
 	}
 
-	std::cout << LogColour << "[ERROR " << uint32_t(ErrorToReport.Code)
+	std::cout << LogColour << "[" << CallCode << " " << uint32_t(ErrorToReport.Code)
 		<< "]" << RESET << " At " << ErrorToReport.Origin << ", Severity: "
 		<< uint16_t(ErrorToReport.Level)
 		<< " Details: " << ErrorToReport.Message << std::endl;

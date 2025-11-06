@@ -53,23 +53,6 @@ struct Error {
 	}
 };
 
-// handleable errors
-// inherit from Error to still allow logging 
-// but contains extra information for error handling
-
-struct DeadDeviceIdError : Error {
-	SDL_Joystick* JoyStick;
-	Sint32 SupposedId;
-
-	DeadDeviceIdError(SDL_Joystick* Joy, Sint32 ID)
-		: Error(ErrorCode::SDL_DEAD_DEVICE_ID,
-			    ErrorLevel::INFO,
-			    "SDL picked up an unregistered device ID. handling...",
-			    "InputListener")
-		,JoyStick(Joy)
-		,SupposedId(ID){
-	}
-};
 
 
 
@@ -109,6 +92,9 @@ namespace ErrorDetail {
 			{ErrorCode::BAD_SDL_ID_ON_REQUEST, ErrorLevel::WARNING,
 			 "a dead SDL ID was used when requesting an input device", "InputListener"}},
 
+		{ErrorCode::SDL_DEAD_DEVICE_ID,
+			{ErrorCode::SDL_DEAD_DEVICE_ID, ErrorLevel::WARNING,
+			 "a dead SDL ID was used when requesting an input device", "InputListener"}},
 		//error
 		{ErrorCode::UNSET_INPUT_LISTENER_QUEUE,
 		   {ErrorCode::UNSET_INPUT_LISTENER_QUEUE, ErrorLevel::ERR,
@@ -143,3 +129,23 @@ namespace ErrorDetail {
 		return Error(ECode, DefaultErr.Level, std::move(CustomMessage), DefaultErr.Origin);
 	}
 }
+
+// handleable errors
+// inherit from Error to still allow logging 
+// but contains extra information for error handling
+
+struct DeadDeviceIdError : Error {
+	SDL_Joystick* JoyStick;
+	Sint32 SupposedId;
+
+	DeadDeviceIdError(SDL_Joystick* Joy, Sint32 ID)
+		: Error(ErrorDetail::CreateError(ErrorCode::SDL_DEAD_DEVICE_ID))
+		, JoyStick(Joy)
+		, SupposedId(ID) {
+	}
+	DeadDeviceIdError(SDL_Joystick* Joy, Sint32 ID, std::string CustomMessage)
+		: Error(ErrorDetail::CreateError(ErrorCode::SDL_DEAD_DEVICE_ID, CustomMessage))
+		, JoyStick(Joy)
+		, SupposedId(ID) {
+	}
+};

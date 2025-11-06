@@ -45,7 +45,7 @@ void InputListener::Update() {
 				break;
 			case SDL_MOUSEMOTION:
 				// for simplicity, just keep KB -1 and mouse -2 
-				SdlDeviceIndex = -2;
+				SdlDeviceIndex = -1;
 				break;
 			case SDL_JOYAXISMOTION:
 				SdlDeviceIndex = Event.jaxis.which;
@@ -60,7 +60,7 @@ void InputListener::Update() {
 		}
 		catch (const std::out_of_range& e) {
 			//throws when the sdl id has changed, so pass to the handler
-			InputErrorReporter.EnqueueError(DeadDeviceIdError{ SDL_JoystickOpen(Event.jdevice.which), SdlDeviceIndex });
+			InputErrorReporter.EnqueueError(DeadDeviceIdError{ SDL_JoystickOpen(Event.jdevice.which), SdlDeviceIndex, fmt::format("unrecognised device id {}", SdlDeviceIndex) });
 
 			// exit to allow the handler to register/edit the device then revisit next event poll
 			return;
@@ -205,8 +205,5 @@ void InputListener::InitialDeviceSetup() {
 
 	//force KB creation at device id -1
 	InputErrorReporter.EnqueueError(DeadDeviceIdError{ {0}, -1 });
-
-	//force Mouse creation at device id -1
-	InputErrorReporter.EnqueueError(DeadDeviceIdError{ {0}, -2 });
 
 }
