@@ -15,8 +15,9 @@ void OverlayController::AddBox(OverlayAddBoxEvent Event) {
 	Ogre::Overlay* NewOverlay = OverlayMngr->create(Event.Name);
 
 	Ogre::OverlayContainer* Panel = static_cast<Ogre::OverlayContainer*>(
-		OverlayMngr->createOverlayElement("Panel", "ColoredBox"));
+		OverlayMngr->createOverlayElement("Panel", Event.Name + "_ColoredBox"));
 
+	//relative coordinate mode, avoids manual scaling with different screen sizes
 	Panel->setMetricsMode(Ogre::GMM_RELATIVE);
 	Panel->setPosition(Event.Position[0], Event.Position[1]);
 	Panel->setDimensions(Event.Dimensions[0], Event.Dimensions[1]);
