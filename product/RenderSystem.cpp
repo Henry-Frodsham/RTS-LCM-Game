@@ -5,13 +5,16 @@
 RenderSystem::RenderSystem()
 	: OgreRoot(nullptr)
 	, SceneManager(nullptr)
-	, RenderBus(nullptr)
-	, RenderQueue(nullptr)
 	, PrimaryWindow(nullptr)
+	, OverlaySystem(nullptr)
+	, OverlayControl(nullptr)
 	, SDLWindow(nullptr)
 	, ViewPorts(NULL)
 	, RenderErrorReporter(ErrorReporter())
 {
+	RenderBus = new EventBus();
+	// only publishes to render bus so why bother specifying the bus each time
+	RenderQueue = new EventQueue(RenderBus);
 }
 RenderSystem::~RenderSystem()
 {
@@ -26,9 +29,12 @@ RenderSystem::~RenderSystem()
 void RenderSystem::RenderFrame() {
 	//dispatch internal queue aswell
 	RenderErrorReporter.Dispatch();
+	//dispatch overlay controller... etc
+	UpdateExclusiveHandlers();
 
 	if (PrimaryWindow && !PrimaryWindow->isClosed()) {
 		Ogre::WindowEventUtilities::messagePump();
+		RenderQueue->Dispatch();
 		OgreRoot->renderOneFrame();
 	}
 	else {
@@ -81,12 +87,14 @@ void RenderSystem::Init() {
 	OverlaySystem = new Ogre::OverlaySystem();
 	SceneManager->addRenderQueueListener(OverlaySystem);
 
-	ImGuiOverlay = new Ogre::ImGuiOverlay();
-	
-	ImGuiOverlay->setZOrder(300);
+	OverlayControl = new OverlayController();
 
-	ImGuiOverlay->show();
+	InitBasicResourceGroups();
+	InitRenderResponsibility();
 
+	RenderQueue->Enqueue(OverlayAddBoxEvent( {0.0,0.0}, {0.5,0.5}, "TEST", "RED", "DEBUG"));
+
+	DefaultViewPort = CreateViewPort();
 
 	IsInit = true;
 }
@@ -107,6 +115,33 @@ ViewPortController* RenderSystem::CreateViewPort() {
 	return newController;
 }
 
+// delegates render responsibility to other classes
+// think of e.g OverlayController as an arm and RenderSystem as the body
+void RenderSystem::InitRenderResponsibility() {
+	RenderBus->Subscribe<OverlayAddBoxEvent>(std::bind(&OverlayController::AddBox, OverlayControl, std::placeholders::_1));
+}
+
+//initialise the basic resources (not game textures and mats etc)
+//complex meshes and material resource groups are managed by World
+//the resource groups here are basic solid colours for UI
+void RenderSystem::InitBasicResourceGroups() {
+	// no need to store a ptr, only used here
+	Ogre::ResourceGroupManager& Rgm = Ogre::ResourceGroupManager::getSingleton();
+
+	Rgm.createResourceGroup("Overlay");
+
+	//solid colours for overlay
+	std::filesystem::path PathSolDir = SOLUTION_DIR;
+	Rgm.addResourceLocation(PathSolDir.append(std::string("resources\\simple\\mat\\")).generic_string(), "FileSystem", "Overlay");
+
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Overlay");
+
+}
+
+void RenderSystem::UpdateExclusiveHandlers() {
+	OverlayControl->ParentUpdate();
+}
+
 SDL_Window* RenderSystem::GetSDLWindow() {
 	return SDLWindow;
 }
@@ -115,4 +150,5 @@ RenderSystem& RenderSystem::GetInstance() {
 	static RenderSystem Instance;
 	return Instance;
 }
+
 

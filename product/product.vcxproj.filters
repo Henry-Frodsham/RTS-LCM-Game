@@ -28,6 +28,9 @@
     <ClCompile Include="InputTranslator.cpp">
       <Filter>Source\input</Filter>
     </ClCompile>
+    <ClCompile Include="OverlayController.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -124,6 +127,12 @@
     </ClInclude>
     <ClInclude Include="InputTranslator.h">
       <Filter>Headers\input</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayController.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayEvent.h">
+      <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

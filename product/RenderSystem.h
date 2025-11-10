@@ -8,10 +8,13 @@
 #include <Windows.h>
 #include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <SDL2/SDL.h>
+#include <filesystem>
 #include "ViewPortController.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "ErrorReporter.h"
+#include "OverlayEvent.h"
+#include "OverlayController.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating viewports
@@ -28,20 +31,25 @@ private:
 	SDL_Window* SDLWindow;
 
 	Ogre::OverlaySystem* OverlaySystem;
-	Ogre::ImGuiOverlay* ImGuiOverlay;
+
+	OverlayController* OverlayControl;
 
 	Ogre::RenderWindow* PrimaryWindow;
 
 	ErrorReporter RenderErrorReporter;
 	
-
-	std::unique_ptr <EventBus> RenderBus;
-	std::unique_ptr <EventQueue> RenderQueue;
+	ViewPortController* DefaultViewPort;
+	EventBus* RenderBus;
+	EventQueue* RenderQueue;
 
 	// ogre has direct ownership of the viewport so cant use direct ownership
 	std::vector<ViewPortController*> ViewPorts;
 
+	void InitRenderResponsibility();
 
+	void InitBasicResourceGroups();
+
+	void UpdateExclusiveHandlers();
 
 public:
 	static RenderSystem& GetInstance();
@@ -59,5 +67,6 @@ public:
 
 	SDL_Window* GetSDLWindow();
 
+	
 
 };
