@@ -35,7 +35,9 @@ public:
 
 	void AddText(OverlayAddTextEvent Event);
 
-	void EditPanel();
+	void EditPanel(OverlayEditPanelEvent Event);
+
+	void EditText(OverlayEditTextEvent Event);
 
 	void ParentUpdate();
 

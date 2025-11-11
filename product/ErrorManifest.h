@@ -35,6 +35,7 @@ enum ErrorCode : uint32_t {
 	SDL_CONTROLLER_FAILED_INIT = 4002,
 	MATERIAL_NOT_FOUND = 4003,
 	OVERLAY_NOT_FOUND = 4004,
+	ELEMENT_NOT_FOUND = 4005,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
@@ -115,6 +116,9 @@ namespace ErrorDetail {
 			{ErrorCode::OVERLAY_NOT_FOUND, ErrorLevel::ERR,
 			 "unfound overlay name in overlay event", "OverlayController"}},
 
+		{ErrorCode::ELEMENT_NOT_FOUND,
+			{ErrorCode::ELEMENT_NOT_FOUND, ErrorLevel::ERR,
+			 "unfound overlay element in overlay edit event", "OverlayController"}},
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
 			{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

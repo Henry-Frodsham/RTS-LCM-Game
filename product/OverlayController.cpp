@@ -92,6 +92,82 @@ void OverlayController::AddText(OverlayAddTextEvent Event) {
 	OverlayUsed->show();
 }
 
+void OverlayController::EditPanel(OverlayEditPanelEvent Event) {
+	if (!OverlayMngr) {
+		OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::OVERLAY_UNITIALISED));
+		return;
+	}
+	Ogre::Overlay* OverlayUsed = nullptr;
+	try {
+		OverlayUsed = ManagedOverlays.at(Event.OverlayToFindIn);
+	}
+	catch (const std::out_of_range& e) {
+		OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::OVERLAY_NOT_FOUND, fmt::format("the request to edit {} specified overlay {} which is not a managed overlay", Event.NameOfExisting,Event.OverlayToFindIn)));
+		return;
+	}
+	Ogre::OverlayElement* FoundElement = nullptr;
+	try {
+		FoundElement = OverlayMngr->getOverlayElement(Event.NameOfExisting);
+	}
+	catch (std::exception& e) {
+		OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::ELEMENT_NOT_FOUND, fmt::format("the request to edit {} failed since {} didnt contain it", Event.NameOfExisting, Event.OverlayToFindIn)));
+		return;
+	}
+
+	if (Event.NewDimensions != std::vector<float>{-1.f, -1.f}) {
+		FoundElement->setDimensions(Event.NewDimensions[0], Event.NewDimensions[1]);
+	}
+	if (Event.NewPosition != std::vector<float>{-1.f, -1.f}) {
+		FoundElement->setPosition(Event.NewPosition[0], Event.NewPosition[1]);
+	}
+	if (Event.NewMaterialName != "USE_OLD") {
+		FoundElement->setMaterialName(Event.NewMaterialName, "Overlay");
+	}
+}
+
+void OverlayController::EditText(OverlayEditTextEvent Event) {
+	if (!OverlayMngr) {
+		OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::OVERLAY_UNITIALISED));
+		return;
+	}
+	Ogre::Overlay* OverlayUsed = nullptr;
+	try {
+		OverlayUsed = ManagedOverlays.at(Event.OverlayToFindIn);
+	}
+	catch (const std::out_of_range& e) {
+		OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::OVERLAY_NOT_FOUND, fmt::format("the request to edit {} specified overlay {} which is not a managed overlay", Event.NameOfExisting, Event.OverlayToFindIn)));
+		return;
+	}
+	Ogre::OverlayElement* FoundElement = nullptr;
+	Ogre::OverlayElement* FoundText = nullptr;
+	try {
+		FoundElement = OverlayMngr->getOverlayElement(Event.NameOfExisting + "_Panel");
+		FoundText = OverlayMngr->getOverlayElement(Event.NameOfExisting);
+	}
+	catch (std::exception& e) {
+		OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::ELEMENT_NOT_FOUND, fmt::format("the request to edit {} failed since {} didnt contain it", Event.NameOfExisting, Event.OverlayToFindIn)));
+		return;
+	}
+
+	Ogre::TextAreaOverlayElement* TextArea = dynamic_cast<Ogre::TextAreaOverlayElement*>(FoundText);
+
+	if (Event.NewDimensions != std::vector<float>{-1.f, -1.f}) {
+		FoundElement->setDimensions(Event.NewDimensions[0], Event.NewDimensions[1]);
+		TextArea->setDimensions(Event.NewDimensions[0], Event.NewDimensions[1]);
+	}
+	if (Event.NewPosition != std::vector<float>{-1.f, -1.f}) {
+		FoundElement->setPosition(Event.NewPosition[0], Event.NewPosition[1]);
+		TextArea->setPosition(Event.NewPosition[0], Event.NewPosition[1]);
+	}
+	if (Event.NewText != "USE_OLD") {
+		TextArea->setCaption(Event.NewText);
+	}
+	if (Event.NewMaterialName != "USE_OLD") {
+		FoundElement->setMaterialName(Event.NewMaterialName, "Overlay");
+		TextArea->setMaterialName(Event.NewMaterialName, "Overlay");
+	}
+}
+
 void OverlayController::InitFont() {
 	Ogre::FontManager* fontMgr = Ogre::FontManager::getSingletonPtr();
 	Ogre::ResourcePtr customFont = fontMgr->create("OverlayFont", "Font");

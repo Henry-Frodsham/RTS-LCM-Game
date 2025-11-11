@@ -94,6 +94,7 @@ void RenderSystem::Init() {
 	InitRenderResponsibility();
 	//RenderQueue->Enqueue(OverlayAddBoxEvent( {0.0,0.0}, {0.5,0.5}, "TEST", "RED", "DEBUG"));
 	RenderQueue->Enqueue(OverlayAddTextEvent({ 0.0,0.0 }, { 0.75,0.75 }, "TEXT_TEST", "RED", "DEBUG", "TEST"));
+	RenderQueue->Enqueue(OverlayEditTextEvent("TEXT_TEST", "DEBUG", { 0.0,0.0 }, { 0.75,0.75 },"USE_OLD", "TESTYYY"));
 	DefaultViewPort = CreateViewPort();
 
 	IsInit = true;
@@ -120,6 +121,8 @@ ViewPortController* RenderSystem::CreateViewPort() {
 void RenderSystem::InitRenderResponsibility() {
 	RenderBus->Subscribe<OverlayAddBoxEvent>(std::bind(&OverlayController::AddBox, OverlayControl, std::placeholders::_1));
 	RenderBus->Subscribe<OverlayAddTextEvent>(std::bind(&OverlayController::AddText, OverlayControl, std::placeholders::_1));
+	RenderBus->Subscribe<OverlayEditPanelEvent>(std::bind(&OverlayController::EditPanel, OverlayControl, std::placeholders::_1));
+	RenderBus->Subscribe<OverlayEditTextEvent>(std::bind(&OverlayController::EditText, OverlayControl, std::placeholders::_1));
 }
 
 //initialise the basic resources (not game textures and mats etc)
