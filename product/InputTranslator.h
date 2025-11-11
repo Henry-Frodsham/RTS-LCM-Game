@@ -1,21 +1,31 @@
 //Copyright © 2025 Henry Frodsham
 #pragma once
+#include <unordered_set>
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "GameAction.h"
 #include "InputEvent.h"
-#include <unordered_set>
+#include "InputDevice.h"
+#include "OverlayEvent.h"
 
 // listens to its registered device and converts to actual game actions
 class InputTranslator {
 public:
-	InputTranslator();
+	InputTranslator(InputDevice* Device);
 	//~InputTranslator();
 
 	bool HasAction(GameAction Action);
 	bool getKeyState(char Key);
 
 	EventQueue WaitingEvents;
+
+	InputDevice* ManagedDevice;
+
+	int GetNumPressedKeys();
+
+	std::vector<float> GetCurrentAxis();
+
+	void Update();
 
 private:
 	EventBus InputEvents;
@@ -25,6 +35,13 @@ private:
 
 	// actual key states, case sensitive and only used for text prompts
 	std::unordered_set<char> KeyStates;
+
+
+	//std::unordered_set<> ButtonStates;
+
+	std::vector<float> CursorPos;
+
+	std::vector<float> JoyStickStates;
 
 	void TranslateRawKB(RawKBEvent Event);
 	void TranslateRawButton(RawButtonEvent Event);

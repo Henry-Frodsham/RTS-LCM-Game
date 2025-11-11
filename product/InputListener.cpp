@@ -112,6 +112,7 @@ void InputListener::AddListenerQueue(InputDevice* DeviceToListen, EventQueue* Qu
 void InputListener::RemapOrCreateDevice(DeadDeviceIdError Context) {
 	// seperates by KBM and controller
 	if (Context.JoyStick) {
+		
 		SDL_JoystickGUID CurGuid = SDL_JoystickGetGUID(Context.JoyStick);
 		//try find an existing InputDevice with the same GUID
 		for (const auto& [Key, Value] : Devices) {
@@ -120,11 +121,10 @@ void InputListener::RemapOrCreateDevice(DeadDeviceIdError Context) {
 				// skip the uninitialised or keyboard devices
 				continue;
 			}
-
-			//check if GUIDs match
-			//forced to compare memory since SDL2 is restrictive in terms of helper functions
-			
-			if (memcmp(&CurGuid, &Value->ControllerPersistentId, sizeof(SDL_JoystickGUID)) == 0) {
+			SDL_JoystickID InstanceId = SDL_JoystickInstanceID(Value->Controller);
+			//check if instance ids match, forced to revise my previous approach
+			//since GUID is actually a manufacturer id so isnt ideal
+			if (InstanceId == Context.SupposedId) {
 
 				Sint32 NewKey = Context.SupposedId;
 				InputDevice* Device = Value;
@@ -143,7 +143,7 @@ void InputListener::RemapOrCreateDevice(DeadDeviceIdError Context) {
 		//if not then create
 
 		//alloc to the heap since its a pointer
-		InputDevice* NewDevice = new InputDevice{ SDL_JoystickGetGUID(Context.JoyStick), InputDeviceType::CONTROLLER};
+		InputDevice* NewDevice = new InputDevice{ Context.JoyStick, InputDeviceType::CONTROLLER};
 		Sint32 Key = Context.SupposedId;
 
 		Devices[Key] = NewDevice;

@@ -40,7 +40,7 @@ private:
 	
 	ViewPortController* DefaultViewPort;
 	EventBus* RenderBus;
-	EventQueue* RenderQueue;
+	
 
 	// ogre has direct ownership of the viewport so cant use direct ownership
 	std::vector<ViewPortController*> ViewPorts;
@@ -56,10 +56,13 @@ public:
 	//RenderSystem(const RenderSystem&) = delete;
 	//RenderSystem& operator=(const RenderSystem&) = delete;
 
+
 	void Init();
 
 	RenderSystem(const RenderSystem&) = delete;
 	RenderSystem& operator=(const RenderSystem&) = delete;
+
+	EventQueue* RenderQueue;
 
 	ViewPortController* CreateViewPort();
 

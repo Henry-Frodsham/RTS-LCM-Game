@@ -1,14 +1,23 @@
 //Copyright © 2025 Henry Frodsham
 #include "InputTranslator.h"
+#include "InputAnalyser.h"
 
-InputTranslator::InputTranslator() {
+InputTranslator::InputTranslator(InputDevice* Device){
+	ManagedDevice = Device;
 	InputEvents = EventBus();
 	WaitingEvents = EventQueue(&InputEvents);
 
+	CursorPos = { 0.f,0.f };
+	JoyStickStates = { 0.f,0.f };
 	InputEvents.Subscribe<RawKBEvent>(std::bind(&InputTranslator::TranslateRawKB, this, std::placeholders::_1));
 	InputEvents.Subscribe<RawButtonEvent>(std::bind(&InputTranslator::TranslateRawButton, this, std::placeholders::_1));
 	InputEvents.Subscribe<RawCursorEvent>(std::bind(&InputTranslator::TranslateRawCursor, this, std::placeholders::_1));
 	InputEvents.Subscribe<RawAxisEvent>(std::bind(&InputTranslator::TranslateRawAxis, this, std::placeholders::_1));
+
+#ifdef _DEBUG
+	InputAnalyser::GetInstance().RegisterNew(this);
+#endif
+
 }
 
 bool InputTranslator::HasAction(GameAction Action) {
@@ -99,8 +108,57 @@ void InputTranslator::TranslateRawButton(RawButtonEvent Event){
 
 }
 void InputTranslator::TranslateRawCursor(RawCursorEvent Event){
+	const SDL_MouseMotionEvent& Motion = Event.Cursor;
+	std::vector<float> CursorVec{
+		static_cast<float>(Motion.x),
+		static_cast<float>(Motion.y)
+	};
 
+	CursorPos = CursorVec;
 }
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event){
+	const SDL_JoyAxisEvent& SDL_Ev = Event.Axis;
+	// normalise to -1.f - 1.f
+	float NormalisedValue = (float(SDL_Ev.value) / 32767.5f);
 
+	// the left stick acts as a mouse for precise actions
+	// left stick x axis
+	if (SDL_Ev.axis == 0) {
+		JoyStickStates[0] += NormalisedValue;
+	}
+	// left stick y axis
+	else if (SDL_Ev.axis == 1) {
+		JoyStickStates[1] += NormalisedValue;
+	}
+
+	// ignore these for now, the right stick is for snap events instead of using the joystick as a cursor
+	// right stick x axis
+	if (SDL_Ev.axis == 0) {
+
+	}
+	// right stick y axis
+	else if (SDL_Ev.axis == 1) {
+
+	}
+}
+
+int InputTranslator::GetNumPressedKeys() {
+	return KeyStates.size();
+}
+
+std::vector<float> InputTranslator::GetCurrentAxis() {
+	return CursorPos;
+}
+
+void InputTranslator::Update() {
+	WaitingEvents.Dispatch();
+
+
+	//todo : normalize to delta time
+	CursorPos[0] += JoyStickStates[0];
+	CursorPos[1] += JoyStickStates[1];
+
+	//todo, get the actual screen size
+	CursorPos[0] = abs(std::min(800.f, CursorPos[0]));
+	CursorPos[1] = abs(std::min(600.f, CursorPos[1]));
 }

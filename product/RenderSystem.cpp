@@ -92,9 +92,7 @@ void RenderSystem::Init() {
 	OverlayControl = new OverlayController();
 
 	InitRenderResponsibility();
-	//RenderQueue->Enqueue(OverlayAddBoxEvent( {0.0,0.0}, {0.5,0.5}, "TEST", "RED", "DEBUG"));
-	RenderQueue->Enqueue(OverlayAddTextEvent({ 0.0,0.0 }, { 0.75,0.75 }, "TEXT_TEST", "RED", "DEBUG", "TEST"));
-	RenderQueue->Enqueue(OverlayEditTextEvent("TEXT_TEST", "DEBUG", { 0.0,0.0 }, { 0.75,0.75 },"USE_OLD", "TESTYYY"));
+
 	DefaultViewPort = CreateViewPort();
 
 	IsInit = true;

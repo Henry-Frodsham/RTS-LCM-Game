@@ -246,6 +246,7 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     <ClCompile Include="ErrorReporter.cpp" />
     <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="EventQueue.cpp" />
+    <ClCompile Include="InputAnalyser.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
     <ClCompile Include="OverlayController.cpp" />
@@ -261,10 +262,12 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     <ClInclude Include="EventBus.h" />
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="GameAction.h" />
+    <ClInclude Include="InputAnalyser.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="InputEvent.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="InputTranslator.h" />
+    <ClInclude Include="Metrics.h" />
     <ClInclude Include="OverlayController.h" />
     <ClInclude Include="OverlayEvent.h" />
     <ClInclude Include="Player.h" />

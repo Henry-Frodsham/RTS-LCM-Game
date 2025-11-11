@@ -23,13 +23,14 @@ public:
 	InputDevice* GetDeviceFromSDLId(Sint32 ID);
 
 	ErrorReporter InputErrorReporter;
-private:
-	//seperate each listening queue by their device
-	std::unordered_map<InputDevice*,EventQueue*> ListeningQueues;
 
 	//map the id of the Device to the SDL device id
 	//reconnecting a controller changes the id so this needs to be rechecked in update
 	std::unordered_map<Sint32, InputDevice*> Devices;
+
+private:
+	//seperate each listening queue by their device
+	std::unordered_map<InputDevice*,EventQueue*> ListeningQueues;
 
 	//non owning pointer, Ogre owns this since i bound to the main render window
 	SDL_Window* SdlWindow;
