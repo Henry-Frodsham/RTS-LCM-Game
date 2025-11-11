@@ -38,11 +38,11 @@ private:
 
 
 	//init
-	void InitialDeviceSetup();
+	void DeviceSetup();
 
 	//Handlers
 	void RemapOrCreateDevice(DeadDeviceIdError Context);
 
-
+	int NumJoySticks;
 
 };
