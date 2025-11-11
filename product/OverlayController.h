@@ -4,8 +4,12 @@
 #include <OGRE/OgrePrerequisites.h>
 #include <OGRE/Overlay/OgreOverlayManager.h>
 #include <OGRE/Overlay/OgrePanelOverlayElement.h>
+#include <OGRE/Overlay/OgreTextAreaOverlayElement.h>
 #include <OGRE/Overlay/OgreOverlay.h>
+#include <OGRE/Overlay/OgreFontManager.h>
 #include <vector>
+#include <unordered_map>
+#include <stdexcept>
 #include <fmt/core.h>
 #include "ErrorReporter.h"
 #include "OverlayEvent.h"
@@ -17,7 +21,7 @@
 // thus creation is done at startup and overlays are never deleted, just hidden
 class OverlayController {
 private:
-	std::vector<std::string> ManagedOverlays;
+	std::unordered_map<std::string,Ogre::Overlay*> ManagedOverlays;
 
 	ErrorReporter OverlayErrorReporter;
 
@@ -29,7 +33,11 @@ public:
 
 	void AddBox(OverlayAddBoxEvent Event);
 
+	void AddText(OverlayAddTextEvent Event);
+
 	void EditPanel();
 
 	void ParentUpdate();
+
+	void InitFont();
 };

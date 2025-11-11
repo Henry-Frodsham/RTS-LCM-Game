@@ -87,13 +87,13 @@ void RenderSystem::Init() {
 	OverlaySystem = new Ogre::OverlaySystem();
 	SceneManager->addRenderQueueListener(OverlaySystem);
 
+	InitBasicResourceGroups();
+	
 	OverlayControl = new OverlayController();
 
-	InitBasicResourceGroups();
 	InitRenderResponsibility();
-
-	RenderQueue->Enqueue(OverlayAddBoxEvent( {0.0,0.0}, {0.5,0.5}, "TEST", "RED", "DEBUG"));
-
+	//RenderQueue->Enqueue(OverlayAddBoxEvent( {0.0,0.0}, {0.5,0.5}, "TEST", "RED", "DEBUG"));
+	RenderQueue->Enqueue(OverlayAddTextEvent({ 0.0,0.0 }, { 0.75,0.75 }, "TEXT_TEST", "RED", "DEBUG", "TEST"));
 	DefaultViewPort = CreateViewPort();
 
 	IsInit = true;
@@ -119,6 +119,7 @@ ViewPortController* RenderSystem::CreateViewPort() {
 // think of e.g OverlayController as an arm and RenderSystem as the body
 void RenderSystem::InitRenderResponsibility() {
 	RenderBus->Subscribe<OverlayAddBoxEvent>(std::bind(&OverlayController::AddBox, OverlayControl, std::placeholders::_1));
+	RenderBus->Subscribe<OverlayAddTextEvent>(std::bind(&OverlayController::AddText, OverlayControl, std::placeholders::_1));
 }
 
 //initialise the basic resources (not game textures and mats etc)
@@ -129,13 +130,15 @@ void RenderSystem::InitBasicResourceGroups() {
 	Ogre::ResourceGroupManager& Rgm = Ogre::ResourceGroupManager::getSingleton();
 
 	Rgm.createResourceGroup("Overlay");
-
+	Rgm.createResourceGroup("Font");
 	//solid colours for overlay
 	std::filesystem::path PathSolDir = SOLUTION_DIR;
 	Rgm.addResourceLocation(PathSolDir.append(std::string("resources\\simple\\mat\\")).generic_string(), "FileSystem", "Overlay");
+	PathSolDir = SOLUTION_DIR;
+	Rgm.addResourceLocation(PathSolDir.append(std::string("resources\\font\\")).generic_string(), "FileSystem", "Font");
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Overlay");
-
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Font");
 }
 
 void RenderSystem::UpdateExclusiveHandlers() {

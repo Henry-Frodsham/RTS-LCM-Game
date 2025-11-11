@@ -34,6 +34,7 @@ enum ErrorCode : uint32_t {
 	UNSET_INPUT_LISTENER_QUEUE = 4001,
 	SDL_CONTROLLER_FAILED_INIT = 4002,
 	MATERIAL_NOT_FOUND = 4003,
+	OVERLAY_NOT_FOUND = 4004,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
@@ -109,6 +110,10 @@ namespace ErrorDetail {
 		{ErrorCode::MATERIAL_NOT_FOUND,
 			{ErrorCode::MATERIAL_NOT_FOUND, ErrorLevel::ERR,
 			 "a requested material was not found", "Generic"}},
+
+		{ErrorCode::OVERLAY_NOT_FOUND,
+			{ErrorCode::OVERLAY_NOT_FOUND, ErrorLevel::ERR,
+			 "unfound overlay name in overlay event", "OverlayController"}},
 
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
