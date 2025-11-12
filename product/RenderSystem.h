@@ -25,6 +25,10 @@ private:
 
 	bool IsInit = false;
 
+	float DeltaTime;
+
+	std::chrono::steady_clock::time_point LastFrameTime;
+
 	Ogre::Root* OgreRoot;
 	Ogre::SceneManager* SceneManager;
 
@@ -70,6 +74,6 @@ public:
 
 	SDL_Window* GetSDLWindow();
 
-	
+	float GetDeltaTime();
 
 };

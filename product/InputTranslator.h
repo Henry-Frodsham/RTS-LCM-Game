@@ -25,7 +25,7 @@ public:
 
 	std::vector<float> GetCurrentAxis();
 
-	void Update();
+	void Update(float DeltaTime);
 
 private:
 	EventBus InputEvents;
@@ -36,6 +36,10 @@ private:
 	// actual key states, case sensitive and only used for text prompts
 	std::unordered_set<char> KeyStates;
 
+	float CursorSensitivity;              
+	float JoystickDeadzone;               
+	float ScreenWidth;                    
+	float ScreenHeight;
 
 	//std::unordered_set<> ButtonStates;
 
@@ -47,4 +51,6 @@ private:
 	void TranslateRawButton(RawButtonEvent Event);
 	void TranslateRawCursor(RawCursorEvent Event);
 	void TranslateRawAxis(RawAxisEvent Event);
+
+	float ApplyDeadzone(float Value, float Deadzone);
 };

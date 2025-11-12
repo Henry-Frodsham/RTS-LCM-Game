@@ -8,6 +8,7 @@ RenderSystem::RenderSystem()
 	, PrimaryWindow(nullptr)
 	, OverlaySystem(nullptr)
 	, OverlayControl(nullptr)
+	, DefaultViewPort(nullptr)
 	, SDLWindow(nullptr)
 	, ViewPorts(NULL)
 	, RenderErrorReporter(ErrorReporter())
@@ -15,6 +16,10 @@ RenderSystem::RenderSystem()
 	RenderBus = new EventBus();
 	// only publishes to render bus so why bother specifying the bus each time
 	RenderQueue = new EventQueue(RenderBus);
+
+	DeltaTime = 1.f;
+
+	LastFrameTime = std::chrono::high_resolution_clock::now();
 }
 RenderSystem::~RenderSystem()
 {
@@ -27,6 +32,9 @@ RenderSystem::~RenderSystem()
 }
 // main render loop, run regardless of state to maintain responsiveness
 void RenderSystem::RenderFrame() {
+	std::chrono::steady_clock::time_point CurrentTime = std::chrono::high_resolution_clock::now();
+	DeltaTime = std::chrono::duration<float>(CurrentTime - LastFrameTime).count();
+
 	//dispatch internal queue aswell
 	RenderErrorReporter.Dispatch();
 	//dispatch overlay controller... etc
@@ -41,6 +49,7 @@ void RenderSystem::RenderFrame() {
 		//window closed, shutdown app
 		RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::RENDER_WINDOW_CLOSED));
 	}
+	LastFrameTime = std::chrono::high_resolution_clock::now();
 }
 
 // creates Ogre3d root and creates primary render window
@@ -145,7 +154,9 @@ void RenderSystem::InitBasicResourceGroups() {
 void RenderSystem::UpdateExclusiveHandlers() {
 	OverlayControl->ParentUpdate();
 }
-
+float RenderSystem::GetDeltaTime() {
+	return DeltaTime;
+}
 SDL_Window* RenderSystem::GetSDLWindow() {
 	return SDLWindow;
 }

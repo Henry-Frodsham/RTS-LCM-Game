@@ -14,6 +14,13 @@ InputTranslator::InputTranslator(InputDevice* Device){
 	InputEvents.Subscribe<RawCursorEvent>(std::bind(&InputTranslator::TranslateRawCursor, this, std::placeholders::_1));
 	InputEvents.Subscribe<RawAxisEvent>(std::bind(&InputTranslator::TranslateRawAxis, this, std::placeholders::_1));
 
+	// todo: delegate to a config manager
+	// sensitivity = pixels per second
+	CursorSensitivity = 100.f;
+	JoystickDeadzone = 0.1f;
+	ScreenWidth = 800.f;
+	ScreenHeight = 600.f;
+
 #ifdef _DEBUG
 	InputAnalyser::GetInstance().RegisterNew(this);
 #endif
@@ -118,27 +125,27 @@ void InputTranslator::TranslateRawCursor(RawCursorEvent Event){
 }
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event){
 	const SDL_JoyAxisEvent& SDL_Ev = Event.Axis;
-	// normalise to -1.f - 1.f
-	float NormalisedValue = (float(SDL_Ev.value) / 32767.5f);
 
-	// the left stick acts as a mouse for precise actions
-	// left stick x axis
+	float NormalizedValue = static_cast<float>(SDL_Ev.value) / 32767.0f;
+
+	NormalizedValue = std::clamp(NormalizedValue, -1.0f, 1.0f);
+
+	// Left stick X axis
 	if (SDL_Ev.axis == 0) {
-		JoyStickStates[0] += NormalisedValue;
+		JoyStickStates[0] = NormalizedValue;
 	}
-	// left stick y axis
+	// Left stick Y axis
 	else if (SDL_Ev.axis == 1) {
-		JoyStickStates[1] += NormalisedValue;
+		JoyStickStates[1] = NormalizedValue;
 	}
 
-	// ignore these for now, the right stick is for snap events instead of using the joystick as a cursor
-	// right stick x axis
-	if (SDL_Ev.axis == 0) {
-
+	// Right stick X axis
+	else if (SDL_Ev.axis == 2) {
+		// TODO: Implement right stick functionality
 	}
-	// right stick y axis
-	else if (SDL_Ev.axis == 1) {
-
+	// Right stick Y axis
+	else if (SDL_Ev.axis == 3) {
+		// TODO: Implement right stick functionality
 	}
 }
 
@@ -150,15 +157,32 @@ std::vector<float> InputTranslator::GetCurrentAxis() {
 	return CursorPos;
 }
 
-void InputTranslator::Update() {
+//converts a joystick float to one that takes into account the deadzone
+float InputTranslator::ApplyDeadzone(float Value, float Deadzone) {
+	// ignore movements smaller than the deadzone
+	if (std::abs(Value) < Deadzone) {
+		return 0.0f;
+	}
+
+	// velocity scaling starts at the end of the deadzone
+	// stops a sudden accelleration when leaving deadzone
+	float sign = (Value > 0.0f) ? 1.0f : -1.0f;
+	return sign * ((std::abs(Value) - Deadzone) / (1.0f - Deadzone));
+}
+
+void InputTranslator::Update(float DeltaTime) {
 	WaitingEvents.Dispatch();
 
+	float stickX = ApplyDeadzone(JoyStickStates[0], JoystickDeadzone);
+	float stickY = ApplyDeadzone(JoyStickStates[1], JoystickDeadzone);
 
-	//todo : normalize to delta time
-	CursorPos[0] += JoyStickStates[0];
-	CursorPos[1] += JoyStickStates[1];
+	float velocityX = stickX * CursorSensitivity * DeltaTime;
+	float velocityY = stickY * CursorSensitivity * DeltaTime;
 
-	//todo, get the actual screen size
-	CursorPos[0] = abs(std::min(800.f, CursorPos[0]));
-	CursorPos[1] = abs(std::min(600.f, CursorPos[1]));
+	//update and clamp both axis
+	CursorPos[0] += velocityX;
+	CursorPos[1] += velocityY;
+
+	CursorPos[0] = std::clamp(CursorPos[0], 0.f, ScreenWidth);
+	CursorPos[1] = std::clamp(CursorPos[1], 0.f, ScreenHeight);
 }

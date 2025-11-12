@@ -43,10 +43,11 @@ void Application::Loop() {
 	InputAnalyser& InputAnalysisSingleton = InputAnalyser::GetInstance();
 	while (true) {
 		RenderSingleton.RenderFrame(); //render thread func, here for now but delegate in future
+		float DT = RenderSingleton.GetDeltaTime();
 		Input.Update();
 
 		for (const auto& Translator : DebugTranslators) {
-			Translator->Update();
+			Translator->Update(DT);
 		}
 
 		InputAnalysisSingleton.Update();
