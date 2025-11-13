@@ -1,14 +1,30 @@
 //Copyright © 2025 Henry Frodsham
 #include "InputTranslator.h"
+#include "InputAnalyser.h"
 
-InputTranslator::InputTranslator() {
+InputTranslator::InputTranslator(InputDevice* Device){
+	ManagedDevice = Device;
 	InputEvents = EventBus();
 	WaitingEvents = EventQueue(&InputEvents);
 
+	CursorPos = { 0.f,0.f };
+	JoyStickStates = { 0.f,0.f };
 	InputEvents.Subscribe<RawKBEvent>(std::bind(&InputTranslator::TranslateRawKB, this, std::placeholders::_1));
 	InputEvents.Subscribe<RawButtonEvent>(std::bind(&InputTranslator::TranslateRawButton, this, std::placeholders::_1));
 	InputEvents.Subscribe<RawCursorEvent>(std::bind(&InputTranslator::TranslateRawCursor, this, std::placeholders::_1));
 	InputEvents.Subscribe<RawAxisEvent>(std::bind(&InputTranslator::TranslateRawAxis, this, std::placeholders::_1));
+
+	// todo: delegate to a config manager
+	// sensitivity = pixels per second
+	CursorSensitivity = 100.f;
+	JoystickDeadzone = 0.1f;
+	ScreenWidth = 800.f;
+	ScreenHeight = 600.f;
+
+#ifdef _DEBUG
+	InputAnalyser::GetInstance().RegisterNew(this);
+#endif
+
 }
 
 bool InputTranslator::HasAction(GameAction Action) {
@@ -99,8 +115,74 @@ void InputTranslator::TranslateRawButton(RawButtonEvent Event){
 
 }
 void InputTranslator::TranslateRawCursor(RawCursorEvent Event){
+	const SDL_MouseMotionEvent& Motion = Event.Cursor;
+	std::vector<float> CursorVec{
+		static_cast<float>(Motion.x),
+		static_cast<float>(Motion.y)
+	};
 
+	CursorPos = CursorVec;
 }
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event){
+	const SDL_JoyAxisEvent& SDL_Ev = Event.Axis;
 
+	float NormalizedValue = static_cast<float>(SDL_Ev.value) / 32767.0f;
+
+	NormalizedValue = std::clamp(NormalizedValue, -1.0f, 1.0f);
+
+	// Left stick X axis
+	if (SDL_Ev.axis == 0) {
+		JoyStickStates[0] = NormalizedValue;
+	}
+	// Left stick Y axis
+	else if (SDL_Ev.axis == 1) {
+		JoyStickStates[1] = NormalizedValue;
+	}
+
+	// Right stick X axis
+	else if (SDL_Ev.axis == 2) {
+		// TODO: Implement right stick functionality
+	}
+	// Right stick Y axis
+	else if (SDL_Ev.axis == 3) {
+		// TODO: Implement right stick functionality
+	}
+}
+
+int InputTranslator::GetNumPressedKeys() {
+	return KeyStates.size();
+}
+
+std::vector<float> InputTranslator::GetCurrentAxis() {
+	return CursorPos;
+}
+
+//converts a joystick float to one that takes into account the deadzone
+float InputTranslator::ApplyDeadzone(float Value, float Deadzone) {
+	// ignore movements smaller than the deadzone
+	if (std::abs(Value) < Deadzone) {
+		return 0.0f;
+	}
+
+	// velocity scaling starts at the end of the deadzone
+	// stops a sudden accelleration when leaving deadzone
+	float sign = (Value > 0.0f) ? 1.0f : -1.0f;
+	return sign * ((std::abs(Value) - Deadzone) / (1.0f - Deadzone));
+}
+
+void InputTranslator::Update(float DeltaTime) {
+	WaitingEvents.Dispatch();
+
+	float stickX = ApplyDeadzone(JoyStickStates[0], JoystickDeadzone);
+	float stickY = ApplyDeadzone(JoyStickStates[1], JoystickDeadzone);
+
+	float velocityX = stickX * CursorSensitivity * DeltaTime;
+	float velocityY = stickY * CursorSensitivity * DeltaTime;
+
+	//update and clamp both axis
+	CursorPos[0] += velocityX;
+	CursorPos[1] += velocityY;
+
+	CursorPos[0] = std::clamp(CursorPos[0], 0.f, ScreenWidth);
+	CursorPos[1] = std::clamp(CursorPos[1], 0.f, ScreenHeight);
 }

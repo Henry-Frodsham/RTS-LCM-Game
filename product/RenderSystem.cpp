@@ -5,13 +5,21 @@
 RenderSystem::RenderSystem()
 	: OgreRoot(nullptr)
 	, SceneManager(nullptr)
-	, RenderBus(nullptr)
-	, RenderQueue(nullptr)
 	, PrimaryWindow(nullptr)
+	, OverlaySystem(nullptr)
+	, OverlayControl(nullptr)
+	, DefaultViewPort(nullptr)
 	, SDLWindow(nullptr)
 	, ViewPorts(NULL)
 	, RenderErrorReporter(ErrorReporter())
 {
+	RenderBus = new EventBus();
+	// only publishes to render bus so why bother specifying the bus each time
+	RenderQueue = new EventQueue(RenderBus);
+
+	DeltaTime = 1.f;
+
+	LastFrameTime = std::chrono::high_resolution_clock::now();
 }
 RenderSystem::~RenderSystem()
 {
@@ -24,17 +32,24 @@ RenderSystem::~RenderSystem()
 }
 // main render loop, run regardless of state to maintain responsiveness
 void RenderSystem::RenderFrame() {
+	std::chrono::steady_clock::time_point CurrentTime = std::chrono::high_resolution_clock::now();
+	DeltaTime = std::chrono::duration<float>(CurrentTime - LastFrameTime).count();
+
 	//dispatch internal queue aswell
 	RenderErrorReporter.Dispatch();
+	//dispatch overlay controller... etc
+	UpdateExclusiveHandlers();
 
 	if (PrimaryWindow && !PrimaryWindow->isClosed()) {
 		Ogre::WindowEventUtilities::messagePump();
+		RenderQueue->Dispatch();
 		OgreRoot->renderOneFrame();
 	}
 	else {
 		//window closed, shutdown app
 		RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::RENDER_WINDOW_CLOSED));
 	}
+	LastFrameTime = std::chrono::high_resolution_clock::now();
 }
 
 // creates Ogre3d root and creates primary render window
@@ -81,12 +96,13 @@ void RenderSystem::Init() {
 	OverlaySystem = new Ogre::OverlaySystem();
 	SceneManager->addRenderQueueListener(OverlaySystem);
 
-	ImGuiOverlay = new Ogre::ImGuiOverlay();
+	InitBasicResourceGroups();
 	
-	ImGuiOverlay->setZOrder(300);
+	OverlayControl = new OverlayController();
 
-	ImGuiOverlay->show();
+	InitRenderResponsibility();
 
+	DefaultViewPort = CreateViewPort();
 
 	IsInit = true;
 }
@@ -107,6 +123,40 @@ ViewPortController* RenderSystem::CreateViewPort() {
 	return newController;
 }
 
+// delegates render responsibility to other classes
+// think of e.g OverlayController as an arm and RenderSystem as the body
+void RenderSystem::InitRenderResponsibility() {
+	RenderBus->Subscribe<OverlayAddBoxEvent>(std::bind(&OverlayController::AddBox, OverlayControl, std::placeholders::_1));
+	RenderBus->Subscribe<OverlayAddTextEvent>(std::bind(&OverlayController::AddText, OverlayControl, std::placeholders::_1));
+	RenderBus->Subscribe<OverlayEditPanelEvent>(std::bind(&OverlayController::EditPanel, OverlayControl, std::placeholders::_1));
+	RenderBus->Subscribe<OverlayEditTextEvent>(std::bind(&OverlayController::EditText, OverlayControl, std::placeholders::_1));
+}
+
+//initialise the basic resources (not game textures and mats etc)
+//complex meshes and material resource groups are managed by World
+//the resource groups here are basic solid colours for UI
+void RenderSystem::InitBasicResourceGroups() {
+	// no need to store a ptr, only used here
+	Ogre::ResourceGroupManager& Rgm = Ogre::ResourceGroupManager::getSingleton();
+
+	Rgm.createResourceGroup("Overlay");
+	Rgm.createResourceGroup("Font");
+	//solid colours for overlay
+	std::filesystem::path PathSolDir = SOLUTION_DIR;
+	Rgm.addResourceLocation(PathSolDir.append(std::string("resources\\simple\\mat\\")).generic_string(), "FileSystem", "Overlay");
+	PathSolDir = SOLUTION_DIR;
+	Rgm.addResourceLocation(PathSolDir.append(std::string("resources\\font\\")).generic_string(), "FileSystem", "Font");
+
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Overlay");
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Font");
+}
+
+void RenderSystem::UpdateExclusiveHandlers() {
+	OverlayControl->ParentUpdate();
+}
+float RenderSystem::GetDeltaTime() {
+	return DeltaTime;
+}
 SDL_Window* RenderSystem::GetSDLWindow() {
 	return SDLWindow;
 }
@@ -115,4 +165,5 @@ RenderSystem& RenderSystem::GetInstance() {
 	static RenderSystem Instance;
 	return Instance;
 }
+
 

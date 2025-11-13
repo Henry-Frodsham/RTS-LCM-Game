@@ -14,11 +14,11 @@ enum InputDeviceType {
 struct InputDevice {
 	//SDL doesnt support GUID for KBM
 	//however this isnt an issue since multiple KBM's arent supported
-	SDL_JoystickGUID ControllerPersistentId;
+	SDL_Joystick* Controller;
 
 	InputDeviceType InputType;
 
-	InputDevice(SDL_JoystickGUID GUID, InputDeviceType Type)
-		: ControllerPersistentId(GUID)
+	InputDevice(SDL_Joystick* Joy, InputDeviceType Type)
+		: Controller(Joy)
 		, InputType(Type) { }
 };

@@ -33,10 +33,14 @@ enum ErrorCode : uint32_t {
 	//error
 	UNSET_INPUT_LISTENER_QUEUE = 4001,
 	SDL_CONTROLLER_FAILED_INIT = 4002,
+	MATERIAL_NOT_FOUND = 4003,
+	OVERLAY_NOT_FOUND = 4004,
+	ELEMENT_NOT_FOUND = 4005,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
-	SDL_FAILED_BIND = 5003
+	SDL_FAILED_BIND = 5003,
+	OVERLAY_UNITIALISED = 5004
 };
 
 // general information on an error
@@ -103,18 +107,34 @@ namespace ErrorDetail {
 		{ErrorCode::SDL_CONTROLLER_FAILED_INIT,
 			{ErrorCode::SDL_CONTROLLER_FAILED_INIT, ErrorLevel::ERR,
 			 "a controller failed init", "InputListener"}},
+
+		{ErrorCode::MATERIAL_NOT_FOUND,
+			{ErrorCode::MATERIAL_NOT_FOUND, ErrorLevel::ERR,
+			 "a requested material was not found", "Generic"}},
+
+		{ErrorCode::OVERLAY_NOT_FOUND,
+			{ErrorCode::OVERLAY_NOT_FOUND, ErrorLevel::ERR,
+			 "unfound overlay name in overlay event", "OverlayController"}},
+
+		{ErrorCode::ELEMENT_NOT_FOUND,
+			{ErrorCode::ELEMENT_NOT_FOUND, ErrorLevel::ERR,
+			 "unfound overlay element in overlay edit event", "OverlayController"}},
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
 			{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,
 			 "No available renders found/accessible", "RenderSystem"}},
+
 		{ErrorCode::SDL_FAILED_INIT,
 			{ErrorCode::SDL_FAILED_INIT, ErrorLevel::FATAL,
 			 "SDL init failed", "RenderSystem"}},
 		
 		{ErrorCode::SDL_FAILED_BIND,
 			{ErrorCode::SDL_FAILED_BIND, ErrorLevel::FATAL,
-			 "SDL failed bind to primary window", "RenderSystem"}}
-		
+			 "SDL failed bind to primary window", "RenderSystem"}},
+
+		{ErrorCode::OVERLAY_UNITIALISED,
+			{ErrorCode::OVERLAY_UNITIALISED, ErrorLevel::FATAL,
+			 "attempted overlay call before OverlaySystem is initialised", "OverlaySystem"}}
 
 	};
 

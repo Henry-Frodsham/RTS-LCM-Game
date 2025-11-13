@@ -16,3 +16,8 @@ struct EditMeshEvent {
 
 };
 
+struct TickEvent {
+	float DeltaTime;
+
+
+};

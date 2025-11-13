@@ -8,10 +8,13 @@
 #include <Windows.h>
 #include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <SDL2/SDL.h>
+#include <filesystem>
 #include "ViewPortController.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "ErrorReporter.h"
+#include "OverlayEvent.h"
+#include "OverlayController.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating viewports
@@ -22,36 +25,48 @@ private:
 
 	bool IsInit = false;
 
+	float DeltaTime;
+
+	std::chrono::steady_clock::time_point LastFrameTime;
+
 	Ogre::Root* OgreRoot;
 	Ogre::SceneManager* SceneManager;
 
 	SDL_Window* SDLWindow;
 
 	Ogre::OverlaySystem* OverlaySystem;
-	Ogre::ImGuiOverlay* ImGuiOverlay;
+
+	OverlayController* OverlayControl;
 
 	Ogre::RenderWindow* PrimaryWindow;
 
 	ErrorReporter RenderErrorReporter;
 	
-
-	std::unique_ptr <EventBus> RenderBus;
-	std::unique_ptr <EventQueue> RenderQueue;
+	ViewPortController* DefaultViewPort;
+	EventBus* RenderBus;
+	
 
 	// ogre has direct ownership of the viewport so cant use direct ownership
 	std::vector<ViewPortController*> ViewPorts;
 
+	void InitRenderResponsibility();
 
+	void InitBasicResourceGroups();
+
+	void UpdateExclusiveHandlers();
 
 public:
 	static RenderSystem& GetInstance();
 	//RenderSystem(const RenderSystem&) = delete;
 	//RenderSystem& operator=(const RenderSystem&) = delete;
 
+
 	void Init();
 
 	RenderSystem(const RenderSystem&) = delete;
 	RenderSystem& operator=(const RenderSystem&) = delete;
+
+	EventQueue* RenderQueue;
 
 	ViewPortController* CreateViewPort();
 
@@ -59,5 +74,6 @@ public:
 
 	SDL_Window* GetSDLWindow();
 
+	float GetDeltaTime();
 
 };

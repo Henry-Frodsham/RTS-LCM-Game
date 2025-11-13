@@ -28,6 +28,12 @@
     <ClCompile Include="InputTranslator.cpp">
       <Filter>Source\input</Filter>
     </ClCompile>
+    <ClCompile Include="OverlayController.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="InputAnalyser.cpp">
+      <Filter>Source\Debug Analysis Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -78,6 +84,12 @@
     <Filter Include="Source\ErrorReporter">
       <UniqueIdentifier>{67cfc9c1-8b92-41e8-8d93-7a92bbff233c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Debug Analysis Tools">
+      <UniqueIdentifier>{5b59a185-70a1-4de2-be40-d6f89ebb7d0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Debug Analysis Tools">
+      <UniqueIdentifier>{1f0a2db3-e781-458f-bbd0-10c7b798fc7a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
@@ -124,6 +136,18 @@
     </ClInclude>
     <ClInclude Include="InputTranslator.h">
       <Filter>Headers\input</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayController.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="InputAnalyser.h">
+      <Filter>Headers\Debug Analysis Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Metrics.h">
+      <Filter>Headers\Debug Analysis Tools</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
