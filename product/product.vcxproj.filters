@@ -34,6 +34,9 @@
     <ClCompile Include="InputAnalyser.cpp">
       <Filter>Source\Debug Analysis Tools</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigManager.cpp">
+      <Filter>Source\Config</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -89,6 +92,12 @@
     </Filter>
     <Filter Include="Headers\Debug Analysis Tools">
       <UniqueIdentifier>{1f0a2db3-e781-458f-bbd0-10c7b798fc7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Config">
+      <UniqueIdentifier>{beaa91f2-5d30-4cd0-98ae-fb81fa940f2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Config">
+      <UniqueIdentifier>{35904ac4-2245-4d77-9dda-5f2ee9c40533}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="Metrics.h">
       <Filter>Headers\Debug Analysis Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigManager.h">
+      <Filter>Headers\Config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
