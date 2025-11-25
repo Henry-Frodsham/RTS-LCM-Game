@@ -28,6 +28,7 @@ enum ErrorCode : uint32_t {
 	SDL_NO_CONNECTED_CONTROLLERS = 2005,
 	SDL_CONTROLLER_DISCONNECT = 2006,
 	SDL_CONTOLLER_CONNECT = 2007,
+	NO_CUSTOM_JSON = 2008,
 	//warning
 	BAD_SDL_ID_ON_REQUEST = 3001,
 	//error
@@ -40,6 +41,7 @@ enum ErrorCode : uint32_t {
 	JSON_FILE_NOT_FOUND = 4007,
 	JSON_UNOPENED_FILE = 4008,
 	CUSTOM_JSON_VALUE_FAILURE = 4009,
+	JSON_WRITE_ERROR = 4010,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
@@ -99,6 +101,10 @@ namespace ErrorDetail {
 			{ErrorCode::SDL_CONTOLLER_CONNECT, ErrorLevel::INFO,
 			 "a new controller was connected", "InputListener"}},
 
+		{ErrorCode::NO_CUSTOM_JSON,
+			{ErrorCode::NO_CUSTOM_JSON, ErrorLevel::INFO,
+			 "no custom config was found, continuing and using default", "ConfigManager"}},
+
 		//warning
 		{ErrorCode::BAD_SDL_ID_ON_REQUEST,
 			{ErrorCode::BAD_SDL_ID_ON_REQUEST, ErrorLevel::WARNING,
@@ -143,6 +149,10 @@ namespace ErrorDetail {
 		{ErrorCode::CUSTOM_JSON_VALUE_FAILURE,
 			{ErrorCode::CUSTOM_JSON_VALUE_FAILURE, ErrorLevel::ERR,
 			 "a custom value couldnt be retrieved from the requested key", "ConfigManager"}},
+
+		{ErrorCode::JSON_WRITE_ERROR,
+			{ErrorCode::JSON_WRITE_ERROR, ErrorLevel::ERR,
+			 "a json file couldnt be written to", "ConfigManager"}},
 
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,

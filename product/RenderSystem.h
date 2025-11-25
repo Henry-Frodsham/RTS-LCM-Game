@@ -5,6 +5,7 @@
 #include <OGRE/Overlay/OgreOverlaySystem.h>
 #include <iostream>
 #include <vector>
+#include <string>
 #include <Windows.h>
 #include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <SDL2/SDL.h>
@@ -15,6 +16,7 @@
 #include "ErrorReporter.h"
 #include "OverlayEvent.h"
 #include "OverlayController.h"
+#include "ConfigManager.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating viewports
@@ -45,6 +47,7 @@ private:
 	ViewPortController* DefaultViewPort;
 	EventBus* RenderBus;
 	
+	ConfigManager* RenderConfig;
 
 	// ogre has direct ownership of the viewport so cant use direct ownership
 	std::vector<ViewPortController*> ViewPorts;

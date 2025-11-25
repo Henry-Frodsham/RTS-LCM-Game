@@ -20,6 +20,8 @@ RenderSystem::RenderSystem()
 	DeltaTime = 1.f;
 
 	LastFrameTime = std::chrono::high_resolution_clock::now();
+
+	RenderConfig = new ConfigManager("VideoSettings", &RenderErrorReporter);
 }
 RenderSystem::~RenderSystem()
 {
@@ -78,8 +80,16 @@ void RenderSystem::Init() {
 	}
 	OgreRoot->setRenderSystem(RenderSystems[0]);
 
-	// use the auto created window for now, delegate to RenderSettings in future
-	PrimaryWindow = OgreRoot->initialise(true, "RTS LCM GAME");
+	OgreRoot->initialise(false);
+
+	Ogre::RenderWindowDescription Settings = Ogre::RenderWindowDescription(
+		RenderConfig->GetValueOrDefault<std::string>("WindowName"),
+		RenderConfig->GetValueOrDefault<unsigned int>("WindowWidth"),
+		RenderConfig->GetValueOrDefault<unsigned int>("WindowHeight"),
+		RenderConfig->GetValueOrDefault<bool>("FullScreen")
+	);
+
+	PrimaryWindow = OgreRoot->createRenderWindow(Settings);
 
 	//get the window handle to bind with SDL
 	size_t WindowHandle = 0;

@@ -6,8 +6,8 @@ ConfigManager::ConfigManager(std::string BaseName, ErrorReporter* ParentReporter
 	, Reporter(ParentReporter)
 	, NameExtension(InstanceName)
 {
-    std::filesystem::path CustomPath = std::filesystem::path(SOLUTION_DIR) / "config" / "custom" / ConfigName / NameExtension;
-    std::filesystem::path DefaultPath = std::filesystem::path(SOLUTION_DIR) / "config" / "default" / ConfigName;
+    CustomPath = std::filesystem::path(SOLUTION_DIR) / "config" / "custom" / (ConfigName + NameExtension + ".json");
+    DefaultPath = std::filesystem::path(SOLUTION_DIR) / "config" / "default" / (ConfigName + ".json");
 	LoadOrReload();
 }
 
@@ -15,7 +15,7 @@ ConfigManager::ConfigManager(std::string BaseName, ErrorReporter* ParentReporter
 void ConfigManager::LoadOrReload() {
 
 	if (!std::filesystem::exists(CustomPath)) {
-		Reporter->EnqueueError(ErrorDetail::CreateError(ErrorCode::JSON_FILE_NOT_FOUND, fmt::format("the custom json file with specified path {}, doesnt exist", CustomPath.string())));
+		Reporter->EnqueueError(ErrorDetail::CreateError(ErrorCode::NO_CUSTOM_JSON, fmt::format("the custom json file with specified path {}, doesnt exist, using default.", CustomPath.string())));
 	}
 	else {
 		CustomValues = OpenAndParse(CustomPath);
@@ -67,7 +67,7 @@ void ConfigManager::SaveFiles() {
         }
     }
     catch (const std::filesystem::filesystem_error& e) {
-        Reporter->EnqueueError(ErrorDetail::CreateError(ErrorCode::JSON_FAILURE,
+        Reporter->EnqueueError(ErrorDetail::CreateError(ErrorCode::JSON_WRITE_ERROR,
             fmt::format("failed to create directories for config files \n original error: {}", e.what())));
         return;
     }
@@ -86,7 +86,7 @@ void ConfigManager::SaveFiles() {
             }
         }
         catch (const std::exception& e) {
-            Reporter->EnqueueError(ErrorDetail::CreateError(ErrorCode::JSON_FAILURE,
+            Reporter->EnqueueError(ErrorDetail::CreateError(ErrorCode::JSON_WRITE_ERROR,
                 fmt::format("failed to write custom config file {} \n original error: {}",
                     CustomPath.string(), e.what())));
         }
@@ -100,13 +100,12 @@ void ConfigManager::SaveFiles() {
                     fmt::format("unable to open default config file {} for writing", DefaultPath.string())));
             }
             else {
-                // 
                 DefaultFile << DefaultValues.dump(4);
                 DefaultFile.close();
             }
         }
         catch (const std::exception& e) {
-            Reporter->EnqueueError(ErrorDetail::CreateError(ErrorCode::JSON_FAILURE,
+            Reporter->EnqueueError(ErrorDetail::CreateError(ErrorCode::JSON_WRITE_ERROR,
                 fmt::format("failed to write default config file {} \n original error: {}",
                     DefaultPath.string(), e.what())));
         }
