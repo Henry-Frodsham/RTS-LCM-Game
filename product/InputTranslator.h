@@ -7,6 +7,7 @@
 #include "InputEvent.h"
 #include "InputDevice.h"
 #include "OverlayEvent.h"
+#include "ConfigManager.h"
 
 // listens to its registered device and converts to actual game actions
 class InputTranslator {
@@ -17,7 +18,7 @@ public:
 	bool HasAction(GameAction Action);
 	bool getKeyState(char Key);
 
-	EventQueue WaitingEvents;
+	EventQueue* WaitingEvents;
 
 	InputDevice* ManagedDevice;
 
@@ -28,13 +29,15 @@ public:
 	void Update(float DeltaTime);
 
 private:
-	EventBus InputEvents;
+	EventBus* InputEvents;
 	
 	// active actions, remains until button/key released
 	std::unordered_set<GameAction> ActiveActions;
 
 	// actual key states, case sensitive and only used for text prompts
 	std::unordered_set<char> KeyStates;
+
+	std::unordered_set<Uint8> ButtonStates;
 
 	float CursorSensitivity;              
 	float JoystickDeadzone;               
@@ -46,6 +49,7 @@ private:
 	std::vector<float> CursorPos;
 
 	std::vector<float> JoyStickStates;
+
 
 	void TranslateRawKB(RawKBEvent Event);
 	void TranslateRawButton(RawButtonEvent Event);

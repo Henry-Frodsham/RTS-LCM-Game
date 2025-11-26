@@ -44,10 +44,10 @@ void InputListener::Update() {
 				// SDL2 doesnt have any device index for KBM so just use -1
 				SdlDeviceIndex = -1;
 				break;
-			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_JOYBUTTONDOWN:
 				SdlDeviceIndex = Event.cbutton.which;
 				break;
-			case SDL_CONTROLLERBUTTONUP:
+			case SDL_JOYBUTTONUP:
 				SdlDeviceIndex = Event.cbutton.which;
 				break;
 			case SDL_MOUSEMOTION:
@@ -93,12 +93,12 @@ void InputListener::Update() {
 				QueueToNotify->Enqueue(RawKBEvent{ Event.key, true });
 				break;
 
-			case SDL_CONTROLLERBUTTONDOWN:
-				QueueToNotify->Enqueue(RawButtonEvent{ Event.cbutton, false });
+			case SDL_JOYBUTTONDOWN:
+				QueueToNotify->Enqueue(RawButtonEvent{ Event.jbutton, false });
 				break;
 
-			case SDL_CONTROLLERBUTTONUP:
-				QueueToNotify->Enqueue(RawButtonEvent{ Event.cbutton, true });
+			case SDL_JOYBUTTONUP:
+				QueueToNotify->Enqueue(RawButtonEvent{ Event.jbutton, true });
 				break;
 
 			case SDL_MOUSEMOTION:

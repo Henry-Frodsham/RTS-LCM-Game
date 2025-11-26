@@ -82,14 +82,14 @@ void RenderSystem::Init() {
 
 	OgreRoot->initialise(false);
 
-	Ogre::RenderWindowDescription Settings = Ogre::RenderWindowDescription(
+	RenderWindowSettings = Ogre::RenderWindowDescription(
 		RenderConfig->GetValueOrDefault<std::string>("WindowName"),
 		RenderConfig->GetValueOrDefault<unsigned int>("WindowWidth"),
 		RenderConfig->GetValueOrDefault<unsigned int>("WindowHeight"),
 		RenderConfig->GetValueOrDefault<bool>("FullScreen")
 	);
 
-	PrimaryWindow = OgreRoot->createRenderWindow(Settings);
+	PrimaryWindow = OgreRoot->createRenderWindow(RenderWindowSettings);
 
 	//get the window handle to bind with SDL
 	size_t WindowHandle = 0;
@@ -113,7 +113,7 @@ void RenderSystem::Init() {
 	InitRenderResponsibility();
 
 	DefaultViewPort = CreateViewPort();
-
+	CreateViewPort();
 	IsInit = true;
 }
 
@@ -170,6 +170,11 @@ float RenderSystem::GetDeltaTime() {
 SDL_Window* RenderSystem::GetSDLWindow() {
 	return SDLWindow;
 }
+
+Ogre::RenderWindowDescription RenderSystem::GetPrimaryWindowInformation() {
+	return RenderWindowSettings;
+}
+
 // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {
 	static RenderSystem Instance;

@@ -19,9 +19,9 @@ private:
 	std::vector<InputTranslator*> Translators;
 	std::unordered_map<InputMetric, InputTranslator*> InputMetrics;
 
-	EventBus MetricBus;
+	EventBus* MetricBus;
 
-	ErrorReporter MetricError;
+	ErrorReporter* MetricError;
 
 	
 
@@ -33,7 +33,7 @@ public:
 
 	void Update();
 
-	EventQueue MetricQueue;
+	EventQueue* MetricQueue;
 
 
 

@@ -36,7 +36,7 @@ void Application::Loop() {
 	std::vector<InputTranslator*> DebugTranslators;
 	for (const auto& Element : Input.Devices) {
 		InputTranslator* HeapAllocTranslator = new InputTranslator(Element.second);
-		Input.AddListenerQueue(Element.second, &HeapAllocTranslator->WaitingEvents);
+		Input.AddListenerQueue(Element.second, HeapAllocTranslator->WaitingEvents);
 		DebugTranslators.push_back(HeapAllocTranslator);
 	}
 

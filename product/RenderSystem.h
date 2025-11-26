@@ -45,6 +45,9 @@ private:
 	ErrorReporter RenderErrorReporter;
 	
 	ViewPortController* DefaultViewPort;
+
+	Ogre::RenderWindowDescription RenderWindowSettings;
+
 	EventBus* RenderBus;
 	
 	ConfigManager* RenderConfig;
@@ -76,6 +79,8 @@ public:
 	void RenderFrame();
 
 	SDL_Window* GetSDLWindow();
+
+	Ogre::RenderWindowDescription GetPrimaryWindowInformation();
 
 	float GetDeltaTime();
 

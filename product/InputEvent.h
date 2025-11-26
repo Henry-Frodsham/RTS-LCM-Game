@@ -16,9 +16,9 @@ struct RawKBEvent {
 
 // unified event for controller button input and key input
 struct RawButtonEvent {
-	SDL_ControllerButtonEvent Button;
+	SDL_JoyButtonEvent Button;
 	bool ButtonUp;
-	RawButtonEvent(SDL_ControllerButtonEvent RawButton, bool UpState)
+	RawButtonEvent(SDL_JoyButtonEvent RawButton, bool UpState)
 		: Button(RawButton) 
 		, ButtonUp(UpState){ }
 };
