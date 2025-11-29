@@ -4,7 +4,7 @@
 #include "InputListener.h"
 #include "InputTranslator.h"
 #include "InputAnalyser.h"
-
+#include "WorldManager.h"
 Application::Application() {
 	StateManager = ApplicationStateManager();
 }
@@ -31,7 +31,9 @@ void Application::Loop() {
 	//temporary test
 	InputListener Input = InputListener(RenderSingleton.GetSDLWindow());
 	Input.Update();
-	
+
+	WorldManager WM = WorldManager();
+	WM.WorldQueue->Enqueue(CreateMeshWorldEntityEvent("test","cube.mesh","test1"));
 	// temporary measure to display all the connected devices in the overlay
 	std::vector<InputTranslator*> DebugTranslators;
 	for (const auto& Element : Input.Devices) {
@@ -43,6 +45,7 @@ void Application::Loop() {
 	InputAnalyser& InputAnalysisSingleton = InputAnalyser::GetInstance();
 	while (true) {
 		RenderSingleton.RenderFrame(); //render thread func, here for now but delegate in future
+		WM.update();
 		float DT = RenderSingleton.GetDeltaTime();
 		Input.Update();
 

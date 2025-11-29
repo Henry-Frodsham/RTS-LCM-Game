@@ -1,23 +1,15 @@
 //Copyright © 2025 Henry Frodsham
 #pragma once
+#include <string>
+#include <OGRE/Ogre.h>
 
-// delete a mesh component from both the ECS registry and the main scene
-struct DeleteMeshEvent {
+struct CreateEntityEvent {
+	std::string EntityName;
+	std::string MeshName;
 
-};
-
-// create a new mesh in the registry and attach to main scene 
-struct CreateMeshEvent {
-
-};
-
-// edit mesh details from ECS registry
-struct EditMeshEvent {
-
+	std::function<void(Ogre::SceneNode*, Ogre::Entity*)> StoreEntityCallBack;
 };
 
 struct TickEvent {
 	float DeltaTime;
-
-
 };

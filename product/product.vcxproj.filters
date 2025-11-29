@@ -37,6 +37,12 @@
     <ClCompile Include="ConfigManager.cpp">
       <Filter>Source\Config</Filter>
     </ClCompile>
+    <ClCompile Include="EntityComponentFactory.cpp">
+      <Filter>Source\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityConstructionTemplates.h">
+      <Filter>Headers\ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -99,6 +105,12 @@
     <Filter Include="Source\Config">
       <UniqueIdentifier>{35904ac4-2245-4d77-9dda-5f2ee9c40533}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\ECS">
+      <UniqueIdentifier>{71a47d8c-0bdd-46a8-81cf-c45e96b82580}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ECS">
+      <UniqueIdentifier>{e416f013-20e6-4c01-9ba6-f42034383746}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
@@ -160,6 +172,15 @@
     </ClInclude>
     <ClInclude Include="ConfigManager.h">
       <Filter>Headers\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityComponentFactory.h">
+      <Filter>Headers\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECSFactoryEvent.h">
+      <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

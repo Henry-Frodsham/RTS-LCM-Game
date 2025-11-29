@@ -42,6 +42,7 @@ enum ErrorCode : uint32_t {
 	JSON_UNOPENED_FILE = 4008,
 	CUSTOM_JSON_VALUE_FAILURE = 4009,
 	JSON_WRITE_ERROR = 4010,
+	ECS_WRONG_CREATION_ORDER = 4011,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
@@ -155,6 +156,9 @@ namespace ErrorDetail {
 			{ErrorCode::JSON_WRITE_ERROR, ErrorLevel::ERR,
 			 "a json file couldnt be written to", "ConfigManager"}},
 
+		{ErrorCode::ECS_WRONG_CREATION_ORDER,
+			{ErrorCode::ECS_WRONG_CREATION_ORDER, ErrorLevel::ERR,
+			 "an ECS component couldnt be created because the prerequisite component could not be found", "ECSFactory"}},
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
 			{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

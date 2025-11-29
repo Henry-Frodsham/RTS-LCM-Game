@@ -102,6 +102,7 @@ void RenderSystem::Init() {
 
 	
 	SceneManager = OgreRoot->createSceneManager();
+	SceneManager->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
 
 	OverlaySystem = new Ogre::OverlaySystem();
 	SceneManager->addRenderQueueListener(OverlaySystem);
@@ -123,7 +124,8 @@ ViewPortController* RenderSystem::CreateViewPort() {
 	Ogre::SceneManager::CameraList CameraList = SceneManager->getCameras();
 
 	Ogre::Camera* Camera = SceneManager->createCamera(std::to_string(CameraList.size()));
-
+	Camera->setNearClipDistance(0.1f);
+	Camera->setFarClipDistance(1000.0f);
 	Ogre::Viewport* AddedViewPort = PrimaryWindow->addViewport(Camera, CameraList.size()); // temporary Z order
 
 	ViewPortController* newController = new ViewPortController(AddedViewPort);
@@ -155,10 +157,14 @@ void RenderSystem::InitBasicResourceGroups() {
 	std::filesystem::path PathSolDir = SOLUTION_DIR;
 	Rgm.addResourceLocation(PathSolDir.append(std::string("resources\\simple\\mat\\")).generic_string(), "FileSystem", "Overlay");
 	PathSolDir = SOLUTION_DIR;
+	Rgm.addResourceLocation(PathSolDir.append(std::string("resources\\simple\\mesh")).generic_string(), "FileSystem", "Mesh");
+	PathSolDir = SOLUTION_DIR;
 	Rgm.addResourceLocation(PathSolDir.append(std::string("resources\\font\\")).generic_string(), "FileSystem", "Font");
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Overlay");
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Mesh");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Font");
+
 }
 
 void RenderSystem::UpdateExclusiveHandlers() {
@@ -173,6 +179,14 @@ SDL_Window* RenderSystem::GetSDLWindow() {
 
 Ogre::RenderWindowDescription RenderSystem::GetPrimaryWindowInformation() {
 	return RenderWindowSettings;
+}
+
+Ogre::SceneNode* RenderSystem::CreateSceneNode(std::string Name) {
+	return SceneManager->getRootSceneNode()->createChildSceneNode(Name);
+}
+
+Ogre::Entity* RenderSystem::CreateEntity(std::string Name, std::string MeshName) {
+	return SceneManager->createEntity(Name,MeshName);
 }
 
 // singleton access to prevent 2 Ogre roots being made

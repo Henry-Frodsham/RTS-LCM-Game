@@ -244,6 +244,8 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConfigManager.cpp" />
+    <ClCompile Include="EntityComponentFactory.cpp" />
+    <ClCompile Include="EntityConstructionTemplates.h" />
     <ClCompile Include="ErrorReporter.cpp" />
     <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="EventQueue.cpp" />
@@ -259,6 +261,8 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
   <ItemGroup>
     <ClInclude Include="BaseComponents.h" />
     <ClInclude Include="ConfigManager.h" />
+    <ClInclude Include="ECSFactoryEvent.h" />
+    <ClInclude Include="EntityComponentFactory.h" />
     <ClInclude Include="ErrorManifest.h" />
     <ClInclude Include="ErrorReporter.h" />
     <ClInclude Include="EventBus.h" />
@@ -276,6 +280,7 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ViewPortController.h" />
+    <ClInclude Include="WorldEvent.h" />
     <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
