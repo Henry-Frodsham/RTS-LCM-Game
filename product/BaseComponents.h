@@ -3,7 +3,11 @@
 #include <string>
 #include <OGRE/Ogre.h>
 
-// ogre entity information
+//common ECS components
+
+// basic ogre information
+// contains the attached scenenode for ogre
+// contains no observable behaviour by itself
 struct OgreComponent {
 	Ogre::SceneNode* EntityNode;
 
@@ -13,7 +17,10 @@ struct OgreComponent {
 		, NodeName(NodeN){ }
 };
 
-// mesh information, the 3d structure
+// mesh information
+// contains the ogre entity with the stored name of the entity and mesh
+// the mesh name is a file name for the .mesh file 
+// however due to the existence of ogre resource groups it doesnt need to be a filesystem::path
 struct MeshComponent {
 	Ogre::Entity* Entity;
 
@@ -23,13 +30,10 @@ struct MeshComponent {
 	MeshComponent(Ogre::Entity* Ent, std::string MeshN, std::string EntN)
 		: Entity(Ent)
 		, MeshName(MeshN)
-		, EntityName(EntN){
+		, EntityName(EntN) {
 	}
 };
 
-// material information
-
-// texture information
 
 
 

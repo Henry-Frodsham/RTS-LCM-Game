@@ -37,7 +37,7 @@
     <ClCompile Include="ConfigManager.cpp">
       <Filter>Source\Config</Filter>
     </ClCompile>
-    <ClCompile Include="EntityComponentFactory.cpp">
+    <ClCompile Include="ECSHelper.cpp">
       <Filter>Source\ECS</Filter>
     </ClCompile>
     <ClCompile Include="EntityConstructionTemplates.h">
@@ -176,7 +176,7 @@
     <ClInclude Include="WorldEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
-    <ClInclude Include="EntityComponentFactory.h">
+    <ClInclude Include="ECSHelper.h">
       <Filter>Headers\ECS</Filter>
     </ClInclude>
     <ClInclude Include="ECSFactoryEvent.h">

@@ -51,10 +51,10 @@ std::vector<float> ViewPortController::GetCameraAngle() {
 }
 
 // get the dimensions of a specific split screen instance
-std::vector<int> ViewPortController::GetViewPortDimensions() {
-	return std::vector<int> { ViewPort->getActualLeft(),
-		ViewPort->getActualTop(),
-		ViewPort->getActualWidth(),
-		ViewPort->getActualHeight()
+std::vector<float> ViewPortController::GetViewPortDimensions() {
+	return std::vector<float> { ViewPort->getLeft(),
+		ViewPort->getTop(),
+		ViewPort->getWidth(),
+		ViewPort->getHeight()
 		};
 }

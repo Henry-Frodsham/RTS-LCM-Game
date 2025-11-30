@@ -1,6 +1,9 @@
 #pragma once
 
-
+// an event used to add a rectangle to the screen
+// the event is queued then handled by the overlay manager
+// from there it is attached to a scenenode and visible on the screen
+// the overlays colour depends on the material used
 struct OverlayAddBoxEvent {
 	std::vector<float> Position;
 	std::vector<float> Dimensions;
@@ -22,6 +25,9 @@ struct OverlayAddBoxEvent {
 	{}
 };
 
+// an event used to add text to the screen
+// a font isnt specified each time, rather all text uses the same cached font 
+// the event is queued elsewhere then handled by overlay manager
 struct OverlayAddTextEvent {
 	std::vector<float> Position;
 	std::vector<float> Dimensions;
@@ -47,6 +53,10 @@ struct OverlayAddTextEvent {
 	}
 };
 
+// an event used to edit a prexisting rectangle overlay
+// the overlay to edit is found by the name of the overlay container inside ogre
+// and the name of the overlay itself
+// queued on an event queue elsewhere then handled by overlay manager 
 struct OverlayEditPanelEvent {
 	std::string NameOfExisting;
 	std::string OverlayToFindIn;
@@ -70,6 +80,10 @@ struct OverlayEditPanelEvent {
 	}
 };
 
+// an event used to edit a prexisting text overlay
+// found by getting the overlay container by name from inside ogre
+// overlay containers exist inside overlays so that is specified too
+// queued on an event queue elsewhere then handled by overlay manager
 struct OverlayEditTextEvent {
 	std::string NameOfExisting;
 	std::string OverlayToFindIn;

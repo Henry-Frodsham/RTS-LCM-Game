@@ -244,7 +244,7 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConfigManager.cpp" />
-    <ClCompile Include="EntityComponentFactory.cpp" />
+    <ClCompile Include="ECSHelper.cpp" />
     <ClCompile Include="EntityConstructionTemplates.h" />
     <ClCompile Include="ErrorReporter.cpp" />
     <ClCompile Include="EventBus.cpp" />
@@ -262,7 +262,7 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     <ClInclude Include="BaseComponents.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="ECSFactoryEvent.h" />
-    <ClInclude Include="EntityComponentFactory.h" />
+    <ClInclude Include="ECSHelper.h" />
     <ClInclude Include="ErrorManifest.h" />
     <ClInclude Include="ErrorReporter.h" />
     <ClInclude Include="EventBus.h" />

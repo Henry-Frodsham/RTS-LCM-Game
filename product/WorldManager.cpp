@@ -6,7 +6,7 @@ WorldManager::WorldManager() {
 	WorldQueue = new EventQueue(WorldBus);
 	ECSReporter = new ErrorReporter();
 
-	CompFactory = new EntityComponentFactory(&Registry, ECSReporter);
+	CompFactory = new ECSHelper(&Registry, ECSReporter);
 
 	// dont subscribe to the CompFactory functions directly for initial entity creation since it requires multiple steps
 	// so let templates handle that

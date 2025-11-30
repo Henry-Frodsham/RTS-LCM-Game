@@ -2,7 +2,7 @@
 #pragma once
 
 
-//basic metrics to prove everything is working with input
+//contains metric information for an input device which is then displayed on the overlay
 struct InputMetric {
 	int NumPressedKeys;
 	float AxisY;
@@ -18,6 +18,8 @@ struct InputMetric {
 	}
 };
 
+//neccessary to compare 2 InputMetric objects
+//comparison is used to deem whether to update the overlay or leave it the same
 template<>
 struct std::hash<InputMetric> {
 	std::size_t operator()(const InputMetric& metric) const {

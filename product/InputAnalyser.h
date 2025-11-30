@@ -10,8 +10,10 @@
 #include "RenderSystem.h"
 #include "ErrorReporter.h"
 
-//gather metrics of input devices
-//then registers and updates an overlay
+// a debug overlay visible only when built in debug
+// shows the activity of input devices
+
+//class used to gather metrics of registered input devices and manage a unique overlay for each
 class InputAnalyser {
 private:
 	InputAnalyser();
@@ -27,7 +29,6 @@ private:
 
 public:
 	static InputAnalyser& GetInstance();
-
 
 	void RegisterNew(InputTranslator* NewTranslator);
 

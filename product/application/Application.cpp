@@ -5,6 +5,7 @@
 #include "InputTranslator.h"
 #include "InputAnalyser.h"
 #include "WorldManager.h"
+
 Application::Application() {
 	StateManager = ApplicationStateManager();
 }
@@ -33,7 +34,7 @@ void Application::Loop() {
 	Input.Update();
 
 	WorldManager WM = WorldManager();
-	WM.WorldQueue->Enqueue(CreateMeshWorldEntityEvent("test","cube.mesh","test1"));
+	WM.WorldQueue->Enqueue(CreateMeshWorldEntityEvent("test","cube.mesh","test1", Ogre::Vector3(0.5f,0.f,-5.f)));
 	// temporary measure to display all the connected devices in the overlay
 	std::vector<InputTranslator*> DebugTranslators;
 	for (const auto& Element : Input.Devices) {

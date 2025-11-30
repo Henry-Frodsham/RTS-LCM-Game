@@ -37,5 +37,5 @@ public:
 	~ViewPortController(){}
 
 	std::vector<float> GetCameraAngle();
-	std::vector<int> GetViewPortDimensions();
+	std::vector<float> GetViewPortDimensions();
 };

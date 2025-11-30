@@ -4,7 +4,7 @@
 #include "EventQueue.h"
 #include "WorldEvent.h"
 #include "ErrorReporter.h"
-#include "EntityComponentFactory.h"
+#include "ECSHelper.h"
 #include "EntityConstructionTemplates.h"
 #include <OGRE/Ogre.h>
 #include <entt/entt.hpp>
@@ -20,7 +20,7 @@ public:
 	EventQueue* WorldQueue;
 private:
 
-	EntityComponentFactory* CompFactory;
+	ECSHelper* CompFactory;
 
 	EventBus* WorldBus;
 

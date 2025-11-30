@@ -23,6 +23,6 @@ TEST_CASE("ViewPortController - change dimensions") {
 	RS->Init();
 	ViewPortController* Obj = RS->CreateViewPort();
 	Obj->ChangeViewPortDimensions(1.f, 1.f,1.f,1.f);
-	CHECK(Obj->GetViewPortDimensions() == std::vector<int> {1, 1, 1, 1});
+	CHECK(Obj->GetViewPortDimensions() == std::vector<float> {1.f, 1.f, 1.f, 1.f});
 	
 }

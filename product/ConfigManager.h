@@ -15,6 +15,11 @@ public:
 	// updating each ConfigManager is impractical so just use the callers reporter
 	ConfigManager(std::string BaseName, ErrorReporter* ParentReporter, std::string InstanceName = "");
 
+    // a universal retrieval function to get any value from the stored nlohmann::json map
+    // template (return):
+    //   DataType - the data type to return 
+    // param:
+    //   Key - the json key to retrieve the value from
     template<typename DataType>
     DataType GetValueOrDefault(std::string Key) {
         
@@ -43,7 +48,11 @@ public:
             Key, ConfigName)));
         return DataType{};
     }
-
+    
+    // a universal function to update any value from a key to any DataType
+    // param:
+    //  - DataType - the datatype of the value to update with
+    //  - Key - the json key used to find the location to update
     template<typename DataType>
     void UpdateValue(std::string Key, DataType NewData) {
         if (CustomValues.contains(Key)) {
