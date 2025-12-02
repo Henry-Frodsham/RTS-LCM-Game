@@ -83,8 +83,10 @@ public:
 	Ogre::RenderWindowDescription GetPrimaryWindowInformation();
 
 	Ogre::SceneNode* CreateSceneNode(std::string Name);
+	Ogre::SceneNode* GetSceneNodeFromName(std::string Name);
 
 	Ogre::Entity* CreateEntity(std::string Name, std::string MeshName);
+
 
 	float GetDeltaTime();
 

@@ -191,6 +191,7 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ECSTests.cpp" />
     <ClCompile Include="EventBusTests.cpp" />
     <ClCompile Include="EventQueueTests.cpp" />
     <ClCompile Include="InputListenerTests.cpp" />

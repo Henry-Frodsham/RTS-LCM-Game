@@ -43,6 +43,7 @@ enum ErrorCode : uint32_t {
 	CUSTOM_JSON_VALUE_FAILURE = 4009,
 	JSON_WRITE_ERROR = 4010,
 	ECS_WRONG_CREATION_ORDER = 4011,
+	SCENE_NODE_DOESNT_EXIST = 4012,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
@@ -159,6 +160,10 @@ namespace ErrorDetail {
 		{ErrorCode::ECS_WRONG_CREATION_ORDER,
 			{ErrorCode::ECS_WRONG_CREATION_ORDER, ErrorLevel::ERR,
 			 "an ECS component couldnt be created because the prerequisite component could not be found", "ECSFactory"}},
+
+		{ErrorCode::SCENE_NODE_DOESNT_EXIST,
+			{ErrorCode::SCENE_NODE_DOESNT_EXIST, ErrorLevel::ERR,
+			 "the requested scene node didnt exist", "RenderSystem"}},
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
 			{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

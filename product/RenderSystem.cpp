@@ -185,6 +185,16 @@ Ogre::SceneNode* RenderSystem::CreateSceneNode(std::string Name) {
 	return SceneManager->getRootSceneNode()->createChildSceneNode(Name);
 }
 
+Ogre::SceneNode* RenderSystem::GetSceneNodeFromName(std::string Name) {
+	try {
+		SceneManager->getSceneNode(Name);
+	}
+	catch (std::exception e) {
+		RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::SCENE_NODE_DOESNT_EXIST, fmt::format("the queried scene node {} didnt exist", Name)));
+		return nullptr;
+	}
+}
+
 Ogre::Entity* RenderSystem::CreateEntity(std::string Name, std::string MeshName) {
 	return SceneManager->createEntity(Name,MeshName);
 }

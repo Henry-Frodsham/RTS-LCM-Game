@@ -18,6 +18,7 @@ public:
 
 	// any thread can queue events but cant directly publish to bus
 	EventQueue* WorldQueue;
+
 private:
 
 	ECSHelper* CompFactory;
