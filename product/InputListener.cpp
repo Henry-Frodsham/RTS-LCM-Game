@@ -240,3 +240,19 @@ void InputListener::DeviceSetup() {
 	}
 
 }
+
+std::vector<InputDevice*> InputListener::GetUnintegratedDevices() {
+	std::vector<InputDevice*> DeviceList;
+	// return early to prevent iterating over the devices unnecessarily
+	if (Devices.size() == ListeningQueues.size()) {
+		return DeviceList;
+	}
+	
+	for (const auto& [Key, Value] : Devices) {
+		if (!ListeningQueues.contains(Value)) {
+			DeviceList.push_back(Value);
+		}
+	}
+
+	return DeviceList;
+}

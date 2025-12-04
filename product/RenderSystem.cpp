@@ -114,7 +114,6 @@ void RenderSystem::Init() {
 	InitRenderResponsibility();
 
 	DefaultViewPort = CreateViewPort();
-	CreateViewPort();
 	IsInit = true;
 }
 
@@ -132,7 +131,23 @@ ViewPortController* RenderSystem::CreateViewPort() {
 
 	ViewPorts.push_back(newController);
 
+	ScaleViewPorts();
+
 	return newController;
+}
+
+void RenderSystem::ScaleViewPorts() {
+	short int NumberToScale = ViewPorts.size();
+	for (short I = 0; I < NumberToScale; I++) {
+		ViewPortController* VPC = ViewPorts.at(I);
+
+		//the amount of relative screen size per viewport to add
+		//each viewPort gets an equal portion
+		float SizePerVP = 1.f / float(NumberToScale);
+		
+
+		VPC->ChangeViewPortDimensions(SizePerVP*float(I),0.f,SizePerVP,1.f);
+	}
 }
 
 // delegates render responsibility to other classes
@@ -193,6 +208,10 @@ Ogre::SceneNode* RenderSystem::GetSceneNodeFromName(std::string Name) {
 		RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::SCENE_NODE_DOESNT_EXIST, fmt::format("the queried scene node {} didnt exist", Name)));
 		return nullptr;
 	}
+}
+
+ViewPortController* RenderSystem::GetPrimaryViewport() {
+	return DefaultViewPort;
 }
 
 Ogre::Entity* RenderSystem::CreateEntity(std::string Name, std::string MeshName) {

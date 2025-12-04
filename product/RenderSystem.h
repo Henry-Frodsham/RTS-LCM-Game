@@ -61,6 +61,8 @@ private:
 
 	void UpdateExclusiveHandlers();
 
+	void ScaleViewPorts();
+
 public:
 	static RenderSystem& GetInstance();
 	//RenderSystem(const RenderSystem&) = delete;
@@ -87,6 +89,7 @@ public:
 
 	Ogre::Entity* CreateEntity(std::string Name, std::string MeshName);
 
+	ViewPortController* GetPrimaryViewport();
 
 	float GetDeltaTime();
 

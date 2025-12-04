@@ -28,6 +28,8 @@ public:
 	//reconnecting a controller changes the id so this needs to be rechecked in update
 	std::unordered_map<Sint32, InputDevice*> Devices;
 
+	std::vector<InputDevice*> GetUnintegratedDevices();
+
 private:
 	//seperate each listening queue by their device
 	std::unordered_map<InputDevice*,EventQueue*> ListeningQueues;

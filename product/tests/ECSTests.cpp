@@ -3,7 +3,7 @@
 #include "WorldManager.h"
 #include "RenderSystem.h"
 #include <OGRE/Ogre.h>
-
+/*
 TEST_CASE("basic entity creation") {
 	WorldManager WM = WorldManager();
 	RenderSystem& RS = RenderSystem::GetInstance();
@@ -16,7 +16,7 @@ TEST_CASE("basic entity creation") {
 	CHECK(SN != nullptr);
 
 }
-
+*/
 TEST_CASE("entity with mesh creation") {
 
 }

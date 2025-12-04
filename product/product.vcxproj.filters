@@ -43,6 +43,12 @@
     <ClCompile Include="EntityConstructionTemplates.h">
       <Filter>Headers\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="instanceOverseer.cpp">
+      <Filter>Source\instance</Filter>
+    </ClCompile>
+    <ClCompile Include="GameInstance.cpp">
+      <Filter>Source\instance</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -110,6 +116,12 @@
     </Filter>
     <Filter Include="Source\ECS">
       <UniqueIdentifier>{e416f013-20e6-4c01-9ba6-f42034383746}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\instance">
+      <UniqueIdentifier>{51e756d4-cf6f-45df-b654-479a49bab4bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\instance">
+      <UniqueIdentifier>{0a9f0a4e-774c-4a35-988f-19d566d8a519}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +192,15 @@
       <Filter>Headers\ECS</Filter>
     </ClInclude>
     <ClInclude Include="ECSFactoryEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="instanceOverseer.h">
+      <Filter>Headers\instance</Filter>
+    </ClInclude>
+    <ClInclude Include="GameInstance.h">
+      <Filter>Headers\instance</Filter>
+    </ClInclude>
+    <ClInclude Include="InstanceEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>
