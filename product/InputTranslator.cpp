@@ -126,7 +126,10 @@ void InputTranslator::TranslateRawCursor(RawCursorEvent Event){
 		static_cast<float>(Motion.x),
 		static_cast<float>(Motion.y)
 	};
-
+	RelativeMotion = Ogre::Vector2f(
+		CursorVec[0] - CursorPos[0],
+		CursorVec[1] - CursorPos[1]
+	);
 	CursorPos = CursorVec;
 }
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event){
@@ -182,18 +185,36 @@ float InputTranslator::ApplyDeadzone(float Value, float Deadzone) {
 }
 
 void InputTranslator::Update(float DeltaTime) {
+	//reset relative motion before events are processed, so if theres a tick without motion then its cleared
+	RelativeMotion = Ogre::Vector2f(0.f,0.f);
 	WaitingEvents->Dispatch();
+	if (ManagedDevice->InputType == InputDeviceType::CONTROLLER) {
+		float stickX = ApplyDeadzone(JoyStickStates[0], JoystickDeadzone);
+		float stickY = ApplyDeadzone(JoyStickStates[1], JoystickDeadzone);
 
-	float stickX = ApplyDeadzone(JoyStickStates[0], JoystickDeadzone);
-	float stickY = ApplyDeadzone(JoyStickStates[1], JoystickDeadzone);
+		float velocityX = stickX * CursorSensitivity * DeltaTime;
+		float velocityY = stickY * CursorSensitivity * DeltaTime;
 
-	float velocityX = stickX * CursorSensitivity * DeltaTime;
-	float velocityY = stickY * CursorSensitivity * DeltaTime;
+		//update and clamp both axis
+		CursorPos[0] += velocityX;
+		CursorPos[1] += velocityY;
 
-	//update and clamp both axis
-	CursorPos[0] += velocityX;
-	CursorPos[1] += velocityY;
+		RelativeMotion = Ogre::Vector2f(
+			velocityX,
+			velocityY
+		);
 
-	CursorPos[0] = std::clamp(CursorPos[0], 0.f, ScreenWidth);
-	CursorPos[1] = std::clamp(CursorPos[1], 0.f, ScreenHeight);
+		CursorPos[0] = std::clamp(CursorPos[0], 0.f, ScreenWidth);
+		CursorPos[1] = std::clamp(CursorPos[1], 0.f, ScreenHeight);
+	}
+}
+
+Ogre::Vector2f InputTranslator::GetRelativeMotion() {
+	return RelativeMotion;
+}
+bool InputTranslator::HasRelativeMotion() {
+	if (RelativeMotion != Ogre::Vector2f(0.f, 0.f)) {
+		return true;
+	}
+	return false;
 }

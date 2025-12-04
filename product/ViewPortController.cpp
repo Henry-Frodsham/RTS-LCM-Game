@@ -6,6 +6,10 @@ ViewPortController::ViewPortController(Ogre::Viewport* NewVP){
 	ViewPort = NewVP;
 }
 
+void ViewPortController::setOverlaysEnabled(bool Val) {
+	ViewPort->setOverlaysEnabled(Val);
+}
+
 // adjust camera viewing angle
 void ViewPortController::MoveCamera(float Pitch, float Yaw) {
 	ViewPort->getCamera();
@@ -58,3 +62,18 @@ std::vector<float> ViewPortController::GetViewPortDimensions() {
 		ViewPort->getHeight()
 		};
 }
+
+void ViewPortController::MoveCameraOrbitingPoint2DMotion(Ogre::Vector2f RelativeMotion, Ogre::Vector3f OrbitPoint) {
+	Ogre::Camera* Camera = ViewPort->getCamera();
+
+	Ogre::Real Distance = (Camera->getParentSceneNode()->getPosition() - OrbitPoint).length();
+
+	Camera->getParentSceneNode()->setPosition(OrbitPoint);
+
+	Camera->getParentSceneNode()->yaw(Ogre::Radian(RelativeMotion.x));
+
+	Camera->getParentSceneNode()->pitch(Ogre::Radian(RelativeMotion.y));
+
+	Camera->getParentSceneNode()->translate(Ogre::Vector3(0, 0, Distance), Ogre::Node::TS_LOCAL);
+}
+

@@ -2,7 +2,6 @@
 #include "EventQueue.h"
 #include "EventBus.h"
 #include "InputListener.h"
-#include "InstanceEvent.h"
 #include "ErrorReporter.h"
 #include "InputTranslator.h"
 

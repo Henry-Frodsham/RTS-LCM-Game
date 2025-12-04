@@ -8,6 +8,7 @@
 #include "InputDevice.h"
 #include "OverlayEvent.h"
 #include "ConfigManager.h"
+#include <OGRE/Ogre.h>
 
 // listens to its registered device and converts to actual game actions
 class InputTranslator {
@@ -25,7 +26,9 @@ public:
 	int GetNumPressedKeys();
 
 	std::vector<float> GetCurrentAxis();
+	Ogre::Vector2f GetRelativeMotion();
 
+	bool HasRelativeMotion();
 	void Update(float DeltaTime);
 
 private:
@@ -47,6 +50,8 @@ private:
 	//std::unordered_set<> ButtonStates;
 
 	std::vector<float> CursorPos;
+
+	Ogre::Vector2f RelativeMotion;
 
 	std::vector<float> JoyStickStates;
 

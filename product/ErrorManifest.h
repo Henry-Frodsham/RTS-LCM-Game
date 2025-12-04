@@ -45,6 +45,7 @@ enum ErrorCode : uint32_t {
 	ECS_WRONG_CREATION_ORDER = 4011,
 	SCENE_NODE_DOESNT_EXIST = 4012,
 	INSTANCE_REQUEST_NO_DEVICE = 4013,
+	BAD_VIEWPORT_CONTROL_REQUEST = 4014,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
@@ -169,6 +170,10 @@ namespace ErrorDetail {
 		{ErrorCode::INSTANCE_REQUEST_NO_DEVICE,
 			{ErrorCode::INSTANCE_REQUEST_NO_DEVICE, ErrorLevel::ERR,
 			 "creating a new instance failed because the request didnt contain a valid device", "InstanceOverseer"}},
+
+		{ErrorCode::BAD_VIEWPORT_CONTROL_REQUEST,
+			{ErrorCode::BAD_VIEWPORT_CONTROL_REQUEST, ErrorLevel::ERR,
+			 "a request made by an instance thread to control their viewport was invalid", "InstanceOverseer"}},
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
 			{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

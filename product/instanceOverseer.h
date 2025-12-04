@@ -32,6 +32,8 @@ private:
 
 	void RegisterNewInstance(RegisterInstanceEvent Event);
 
+	//non thread safe requests that must be handled here
+	void MoveViewport2DOrbit(UpstreamOrbitViewport2DEvent Event);
 	
 	//a new instance is made solely based on a new device being connected
 	InputListener* DeviceListener;

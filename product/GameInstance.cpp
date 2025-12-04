@@ -1,5 +1,5 @@
 #include "GameInstance.h"
-
+#include "InstanceEvent.h"
 GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ, InputDevice* Device, InputTranslator* DeviceTranslator)
 	: ParentReporter(ParentR)
 	, UpstreamQueue(ParentQ)
@@ -12,4 +12,8 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ, InputDev
 void GameInstance::Run(float DT) {
 	InstanceTranslator->Update(DT);
 
+	if (InstanceTranslator->HasRelativeMotion()) {
+		UpstreamQueue->Enqueue(UpstreamOrbitViewport2DEvent(InstanceTranslator->GetRelativeMotion(),
+			this));
+	}
 }

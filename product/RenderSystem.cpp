@@ -114,6 +114,8 @@ void RenderSystem::Init() {
 	InitRenderResponsibility();
 
 	DefaultViewPort = CreateViewPort();
+
+	DefaultViewPort->setOverlaysEnabled(true);
 	IsInit = true;
 }
 
@@ -125,12 +127,25 @@ ViewPortController* RenderSystem::CreateViewPort() {
 	Ogre::Camera* Camera = SceneManager->createCamera(std::to_string(CameraList.size()));
 	Camera->setNearClipDistance(0.1f);
 	Camera->setFarClipDistance(1000.0f);
+
+	Camera->setAutoAspectRatio(true);
+
+	//configure a scene node for the camera to be able to be moved
+	Ogre::SceneNode* CameraNode = SceneManager->getRootSceneNode()->createChildSceneNode(
+		"CameraNode_" + std::to_string(CameraList.size())
+	);
+
+	CameraNode->attachObject(Camera);
+
 	Ogre::Viewport* AddedViewPort = PrimaryWindow->addViewport(Camera, CameraList.size()); // temporary Z order
+
+
 
 	ViewPortController* newController = new ViewPortController(AddedViewPort);
 
 	ViewPorts.push_back(newController);
 
+	newController->setOverlaysEnabled(false);
 	ScaleViewPorts();
 
 	return newController;
