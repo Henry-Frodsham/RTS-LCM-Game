@@ -7,10 +7,10 @@ ConfigManager::ConfigManager(std::string BaseName,
     : ConfigName(BaseName),
       Reporter(ParentReporter),
       NameExtension(InstanceName) {
-  CustomPath = std::filesystem::path(SOLUTION_DIR) / "config" / "custom" /
-               (ConfigName + NameExtension + ".json");
-  DefaultPath = std::filesystem::path(SOLUTION_DIR) / "config" / "default" /
-                (ConfigName + ".json");
+  CustomPath = std::filesystem::path(std::filesystem::current_path()) /
+               "config" / "custom" / (ConfigName + NameExtension + ".json");
+  DefaultPath = std::filesystem::path(std::filesystem::current_path()) /
+                "config" / "default" / (ConfigName + ".json");
   LoadOrReload();
 }
 

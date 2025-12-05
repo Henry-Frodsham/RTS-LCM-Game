@@ -185,17 +185,17 @@ void RenderSystem::InitBasicResourceGroups() {
   Rgm.createResourceGroup("Overlay");
   Rgm.createResourceGroup("Font");
   // solid colours for overlay
-  std::filesystem::path PathSolDir = SOLUTION_DIR;
+  std::filesystem::path PathSolDir = std::filesystem::current_path();
   Rgm.addResourceLocation(
       PathSolDir.append(std::string("resources\\simple\\mat\\"))
           .generic_string(),
       "FileSystem", "Overlay");
-  PathSolDir = SOLUTION_DIR;
+  PathSolDir = std::filesystem::current_path();
   Rgm.addResourceLocation(
       PathSolDir.append(std::string("resources\\simple\\mesh"))
           .generic_string(),
       "FileSystem", "Mesh");
-  PathSolDir = SOLUTION_DIR;
+  PathSolDir = std::filesystem::current_path();
   Rgm.addResourceLocation(
       PathSolDir.append(std::string("resources\\font\\")).generic_string(),
       "FileSystem", "Font");
