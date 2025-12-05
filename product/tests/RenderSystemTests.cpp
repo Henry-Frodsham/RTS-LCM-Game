@@ -1,19 +1,16 @@
-//Copyright © 2025 Henry Frodsham
-#include "RenderSystem.h"
+// Copyright © 2025 Henry Frodsham
 #include <doctest/doctest.h>
 
+#include "RenderSystem.h"
+
 TEST_CASE("RenderSystem - singleton behaviour") {
-	CHECK_NOTHROW(RenderSystem::GetInstance());
+  CHECK_NOTHROW(RenderSystem::GetInstance());
 }
 
 TEST_CASE("RenderSystem - new viewport") {
-	
-	RenderSystem* Obj = &RenderSystem::GetInstance();
-	Obj->Init();
-	CHECK(Obj->CreateViewPort() != NULL);
-	
+  RenderSystem* Obj = &RenderSystem::GetInstance();
+  Obj->Init();
+  CHECK(Obj->CreateViewPort() != NULL);
 }
 
-TEST_CASE("RenderSystem - attach model to scene") {
-
-}
+TEST_CASE("RenderSystem - attach model to scene") {}

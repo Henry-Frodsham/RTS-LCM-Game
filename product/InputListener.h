@@ -1,50 +1,51 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
 #include <SDL2/SDL.h>
-#include <vector>
-#include <unordered_map>
-#include <stdexcept>
+
 #include <iostream>
+#include <stdexcept>
+#include <unordered_map>
+#include <vector>
+
 #include "ErrorReporter.h"
+#include "EventQueue.h"
 #include "InputDevice.h"
 #include "InputEvent.h"
-#include "EventQueue.h"
 
-
-// reads input states, dispatches events to seperate game instances on a per device basis
+// reads input states, dispatches events to seperate game instances on a per
+// device basis
 class InputListener {
-public:
-	InputListener(SDL_Window* SdlWindow);
+ public:
+  InputListener(SDL_Window* SdlWindow);
 
-	void Update();
-	
-	void AddListenerQueue(InputDevice* DeviceToListen, EventQueue* QueueToNotify);
+  void Update();
 
-	InputDevice* GetDeviceFromSDLId(Sint32 ID);
+  void AddListenerQueue(InputDevice* DeviceToListen, EventQueue* QueueToNotify);
 
-	ErrorReporter InputErrorReporter;
+  InputDevice* GetDeviceFromSDLId(Sint32 ID);
 
-	//map the id of the Device to the SDL device id
-	//reconnecting a controller changes the id so this needs to be rechecked in update
-	std::unordered_map<Sint32, InputDevice*> Devices;
+  ErrorReporter InputErrorReporter;
 
-	std::vector<InputDevice*> GetUnintegratedDevices();
+  // map the id of the Device to the SDL device id
+  // reconnecting a controller changes the id so this needs to be rechecked in
+  // update
+  std::unordered_map<Sint32, InputDevice*> Devices;
 
-private:
-	//seperate each listening queue by their device
-	std::unordered_map<InputDevice*,EventQueue*> ListeningQueues;
+  std::vector<InputDevice*> GetUnintegratedDevices();
 
-	//non owning pointer, Ogre owns this since i bound to the main render window
-	SDL_Window* SdlWindow;
-	//std::vector<InputDevice*> Device;
+ private:
+  // seperate each listening queue by their device
+  std::unordered_map<InputDevice*, EventQueue*> ListeningQueues;
 
+  // non owning pointer, Ogre owns this since i bound to the main render window
+  SDL_Window* SdlWindow;
+  // std::vector<InputDevice*> Device;
 
-	//init
-	void DeviceSetup();
+  // init
+  void DeviceSetup();
 
-	//Handlers
-	void RemapOrCreateDevice(DeadDeviceIdError Context);
+  // Handlers
+  void RemapOrCreateDevice(DeadDeviceIdError Context);
 
-	int NumJoySticks;
-
+  int NumJoySticks;
 };

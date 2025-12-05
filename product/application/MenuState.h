@@ -1,10 +1,9 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
 
 class MenuState {
-private:
-
-public:
-	MenuState();
-	~MenuState();
+ private:
+ public:
+  MenuState();
+  ~MenuState();
 };

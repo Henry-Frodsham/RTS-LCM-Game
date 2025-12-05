@@ -247,7 +247,6 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     <ClCompile Include="ECSHelper.cpp" />
     <ClCompile Include="EntityConstructionTemplates.h" />
     <ClCompile Include="ErrorReporter.cpp" />
-    <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="InputAnalyser.cpp" />

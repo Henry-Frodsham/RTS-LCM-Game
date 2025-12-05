@@ -1,16 +1,18 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 #include <OGRE/OgrePrerequisites.h>
+#include <OGRE/Overlay/OgreFontManager.h>
+#include <OGRE/Overlay/OgreOverlay.h>
 #include <OGRE/Overlay/OgreOverlayManager.h>
 #include <OGRE/Overlay/OgrePanelOverlayElement.h>
 #include <OGRE/Overlay/OgreTextAreaOverlayElement.h>
-#include <OGRE/Overlay/OgreOverlay.h>
-#include <OGRE/Overlay/OgreFontManager.h>
-#include <vector>
-#include <unordered_map>
-#include <stdexcept>
 #include <fmt/core.h>
+
+#include <stdexcept>
+#include <unordered_map>
+#include <vector>
+
 #include "ErrorReporter.h"
 #include "OverlayEvent.h"
 
@@ -20,26 +22,26 @@
 // ogre stores objects in those layers extremely inefficiently (O(n))
 // thus creation is done at startup and overlays are never deleted, just hidden
 class OverlayController {
-private:
-	std::unordered_map<std::string,Ogre::Overlay*> ManagedOverlays;
+ private:
+  std::unordered_map<std::string, Ogre::Overlay*> ManagedOverlays;
 
-	ErrorReporter OverlayErrorReporter;
+  ErrorReporter OverlayErrorReporter;
 
-	Ogre::OverlayManager* OverlayMngr;
+  Ogre::OverlayManager* OverlayMngr;
 
-public:
-	// handlers for OverlayEvents on the renderQueue
-	OverlayController();
+ public:
+  // handlers for OverlayEvents on the renderQueue
+  OverlayController();
 
-	void AddBox(OverlayAddBoxEvent Event);
+  void AddBox(OverlayAddBoxEvent Event);
 
-	void AddText(OverlayAddTextEvent Event);
+  void AddText(OverlayAddTextEvent Event);
 
-	void EditPanel(OverlayEditPanelEvent Event);
+  void EditPanel(OverlayEditPanelEvent Event);
 
-	void EditText(OverlayEditTextEvent Event);
+  void EditText(OverlayEditTextEvent Event);
 
-	void ParentUpdate();
+  void ParentUpdate();
 
-	void InitFont();
+  void InitFont();
 };

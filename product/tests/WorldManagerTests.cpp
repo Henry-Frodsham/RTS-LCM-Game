@@ -1,11 +1,8 @@
-//Copyright © 2025 Henry Frodsham
-#include "WorldManager.h"
+// Copyright © 2025 Henry Frodsham
 #include <doctest/doctest.h>
 
-TEST_CASE("WorldManager - singleton behaviour") {
+#include "WorldManager.h"
 
-}
+TEST_CASE("WorldManager - singleton behaviour") {}
 
-TEST_CASE("WorldManager - ") {
-
-}
+TEST_CASE("WorldManager - ") {}

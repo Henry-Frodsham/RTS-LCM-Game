@@ -1,14 +1,15 @@
-//Copyright © 2025 Henry Frodsham
-#include "Application.h"
+// Copyright © 2025 Henry Frodsham
 #include <doctest/doctest.h>
+
+#include "Application.h"
 
 // startup function, delegates responsibility to the application class
 int main(int argc, char** argv) {
-    Application* MainApp = new Application();
+  Application* MainApp = new Application();
 
-    MainApp->Start();
+  MainApp->Start();
 
-    // shutdown
-    delete MainApp;
-    return 0;
+  // shutdown
+  delete MainApp;
+  return 0;
 }

@@ -1,3 +1,2 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
-

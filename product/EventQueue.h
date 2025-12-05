@@ -1,36 +1,36 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
-#include <queue>
-#include <memory>
 #include <functional>
+#include <memory>
 #include <mutex>
+#include <queue>
+
 #include "EventBus.h"
 
 class EventQueue {
-private:
-    std::queue<std::function<void(EventBus&)>> Queue;
+ private:
+  std::queue<std::function<void(EventBus&)>> Queue;
 
-    mutable std::mutex QueueMutex;
+  mutable std::mutex QueueMutex;
 
-    EventBus* AssumedBus;
-public:
-    EventQueue(EventBus* DefaultBus = nullptr);
-    ~EventQueue() {}
+  EventBus* AssumedBus;
 
-    //template function implementation needs to be here
-    //add an event to the queue
-    template<typename EventType>
-    void Enqueue(EventType&& Event) {
-        std::lock_guard<std::mutex> Lock(QueueMutex);
-        Queue.push([Event = std::forward<EventType>(Event)](EventBus& Bus) mutable {
-            Bus.Publish(std::move(Event));
-            });
-    }
+ public:
+  EventQueue(EventBus* DefaultBus = nullptr);
+  ~EventQueue() {}
 
-    void Dispatch(EventBus& bus);
-    void Dispatch();
+  // template function implementation needs to be here
+  // add an event to the queue
+  template <typename EventType>
+  void Enqueue(EventType&& Event) {
+    std::lock_guard<std::mutex> Lock(QueueMutex);
+    Queue.push([Event = std::forward<EventType>(Event)](EventBus& Bus) mutable {
+      Bus.Publish(std::move(Event));
+    });
+  }
 
-    void Reset();
+  void Dispatch(EventBus& bus);
+  void Dispatch();
 
-
+  void Reset();
 };

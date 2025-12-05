@@ -1,28 +1,25 @@
-//Copyright © 2025 Henry Frodsham
-#include "ViewPortController.h"
-#include "RenderSystem.h"
+// Copyright © 2025 Henry Frodsham
 #include <doctest/doctest.h>
 
+#include "RenderSystem.h"
+#include "ViewPortController.h"
+
 TEST_CASE("ViewPortController - constructor") {
-	CHECK_NOTHROW(ViewPortController Obj{nullptr});
+  CHECK_NOTHROW(ViewPortController Obj{nullptr});
 }
 
 TEST_CASE("ViewPortController - move camera") {
-	
-	RenderSystem* RS = &RenderSystem::GetInstance();
-	RS->Init();
-	ViewPortController* Obj = RS->CreateViewPort();
-	Obj->MoveCamera(0.f, 0.f);
-	CHECK(Obj->GetCameraAngle() == std::vector<float> {0.f, 0.f, 0.f});
-	
+  RenderSystem* RS = &RenderSystem::GetInstance();
+  RS->Init();
+  ViewPortController* Obj = RS->CreateViewPort();
+  Obj->MoveCamera(0.f, 0.f);
+  CHECK(Obj->GetCameraAngle() == std::vector<float>{0.f, 0.f, 0.f});
 }
 
 TEST_CASE("ViewPortController - change dimensions") {
-	
-	RenderSystem* RS = &RenderSystem::GetInstance();
-	RS->Init();
-	ViewPortController* Obj = RS->CreateViewPort();
-	Obj->ChangeViewPortDimensions(1.f, 1.f,1.f,1.f);
-	CHECK(Obj->GetViewPortDimensions() == std::vector<float> {1.f, 1.f, 1.f, 1.f});
-	
+  RenderSystem* RS = &RenderSystem::GetInstance();
+  RS->Init();
+  ViewPortController* Obj = RS->CreateViewPort();
+  Obj->ChangeViewPortDimensions(1.f, 1.f, 1.f, 1.f);
+  CHECK(Obj->GetViewPortDimensions() == std::vector<float>{1.f, 1.f, 1.f, 1.f});
 }

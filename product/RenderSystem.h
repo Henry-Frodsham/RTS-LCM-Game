@@ -1,96 +1,97 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
+#include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <OGRE/Ogre.h>
 #include <OGRE/Overlay/OgreImGuiOverlay.h>
 #include <OGRE/Overlay/OgreOverlaySystem.h>
-#include <iostream>
-#include <vector>
-#include <string>
-#include <Windows.h>
-#include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <SDL2/SDL.h>
+#include <Windows.h>
+
 #include <filesystem>
-#include "ViewPortController.h"
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "ConfigManager.h"
+#include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
-#include "ErrorReporter.h"
-#include "OverlayEvent.h"
 #include "OverlayController.h"
-#include "ConfigManager.h"
+#include "OverlayEvent.h"
+#include "ViewPortController.h"
 
 // base rendering system in singleton pattern
-// responsible for attaching models to the main game map, and for creating viewports
+// responsible for attaching models to the main game map, and for creating
+// viewports
 class RenderSystem {
-private:
-	RenderSystem();
-	~RenderSystem();
+ private:
+  RenderSystem();
+  ~RenderSystem();
 
-	bool IsInit = false;
+  bool IsInit = false;
 
-	float DeltaTime;
+  float DeltaTime;
 
-	std::chrono::steady_clock::time_point LastFrameTime;
+  std::chrono::steady_clock::time_point LastFrameTime;
 
-	Ogre::Root* OgreRoot;
-	Ogre::SceneManager* SceneManager;
+  Ogre::Root* OgreRoot;
+  Ogre::SceneManager* SceneManager;
 
-	SDL_Window* SDLWindow;
+  SDL_Window* SDLWindow;
 
-	Ogre::OverlaySystem* OverlaySystem;
+  Ogre::OverlaySystem* OverlaySystem;
 
-	OverlayController* OverlayControl;
+  OverlayController* OverlayControl;
 
-	Ogre::RenderWindow* PrimaryWindow;
+  Ogre::RenderWindow* PrimaryWindow;
 
-	ErrorReporter RenderErrorReporter;
-	
-	ViewPortController* DefaultViewPort;
+  ErrorReporter RenderErrorReporter;
 
-	Ogre::RenderWindowDescription RenderWindowSettings;
+  ViewPortController* DefaultViewPort;
 
-	EventBus* RenderBus;
-	
-	ConfigManager* RenderConfig;
+  Ogre::RenderWindowDescription RenderWindowSettings;
 
-	// ogre has direct ownership of the viewport so cant use direct ownership
-	std::vector<ViewPortController*> ViewPorts;
+  EventBus* RenderBus;
 
-	void InitRenderResponsibility();
+  ConfigManager* RenderConfig;
 
-	void InitBasicResourceGroups();
+  // ogre has direct ownership of the viewport so cant use direct ownership
+  std::vector<ViewPortController*> ViewPorts;
 
-	void UpdateExclusiveHandlers();
+  void InitRenderResponsibility();
 
-	void ScaleViewPorts();
+  void InitBasicResourceGroups();
 
-public:
-	static RenderSystem& GetInstance();
-	//RenderSystem(const RenderSystem&) = delete;
-	//RenderSystem& operator=(const RenderSystem&) = delete;
+  void UpdateExclusiveHandlers();
 
+  void ScaleViewPorts();
 
-	void Init();
+ public:
+  static RenderSystem& GetInstance();
+  // RenderSystem(const RenderSystem&) = delete;
+  // RenderSystem& operator=(const RenderSystem&) = delete;
 
-	RenderSystem(const RenderSystem&) = delete;
-	RenderSystem& operator=(const RenderSystem&) = delete;
+  void Init();
 
-	EventQueue* RenderQueue;
+  RenderSystem(const RenderSystem&) = delete;
+  RenderSystem& operator=(const RenderSystem&) = delete;
 
-	ViewPortController* CreateViewPort();
+  EventQueue* RenderQueue;
 
-	void RenderFrame();
+  ViewPortController* CreateViewPort();
 
-	SDL_Window* GetSDLWindow();
+  void RenderFrame();
 
-	Ogre::RenderWindowDescription GetPrimaryWindowInformation();
+  SDL_Window* GetSDLWindow();
 
-	Ogre::SceneNode* CreateSceneNode(std::string Name);
-	Ogre::SceneNode* GetSceneNodeFromName(std::string Name);
+  Ogre::RenderWindowDescription GetPrimaryWindowInformation();
 
-	Ogre::Entity* CreateEntity(std::string Name, std::string MeshName);
+  Ogre::SceneNode* CreateSceneNode(std::string Name);
+  Ogre::SceneNode* GetSceneNodeFromName(std::string Name);
 
-	ViewPortController* GetPrimaryViewport();
+  Ogre::Entity* CreateEntity(std::string Name, std::string MeshName);
 
-	float GetDeltaTime();
+  ViewPortController* GetPrimaryViewport();
 
+  float GetDeltaTime();
 };
