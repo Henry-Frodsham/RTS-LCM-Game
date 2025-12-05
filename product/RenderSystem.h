@@ -5,6 +5,7 @@
 #include <OGRE/Overlay/OgreOverlaySystem.h>
 #include <iostream>
 #include <vector>
+#include <string>
 #include <Windows.h>
 #include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <SDL2/SDL.h>
@@ -15,6 +16,7 @@
 #include "ErrorReporter.h"
 #include "OverlayEvent.h"
 #include "OverlayController.h"
+#include "ConfigManager.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating viewports
@@ -43,8 +45,12 @@ private:
 	ErrorReporter RenderErrorReporter;
 	
 	ViewPortController* DefaultViewPort;
+
+	Ogre::RenderWindowDescription RenderWindowSettings;
+
 	EventBus* RenderBus;
 	
+	ConfigManager* RenderConfig;
 
 	// ogre has direct ownership of the viewport so cant use direct ownership
 	std::vector<ViewPortController*> ViewPorts;
@@ -54,6 +60,8 @@ private:
 	void InitBasicResourceGroups();
 
 	void UpdateExclusiveHandlers();
+
+	void ScaleViewPorts();
 
 public:
 	static RenderSystem& GetInstance();
@@ -73,6 +81,15 @@ public:
 	void RenderFrame();
 
 	SDL_Window* GetSDLWindow();
+
+	Ogre::RenderWindowDescription GetPrimaryWindowInformation();
+
+	Ogre::SceneNode* CreateSceneNode(std::string Name);
+	Ogre::SceneNode* GetSceneNodeFromName(std::string Name);
+
+	Ogre::Entity* CreateEntity(std::string Name, std::string MeshName);
+
+	ViewPortController* GetPrimaryViewport();
 
 	float GetDeltaTime();
 

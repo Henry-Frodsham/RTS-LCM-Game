@@ -3,9 +3,16 @@
 #include <queue>
 #include <memory>
 #include <functional>
+#include <mutex>
 #include "EventBus.h"
 
 class EventQueue {
+private:
+    std::queue<std::function<void(EventBus&)>> Queue;
+
+    mutable std::mutex QueueMutex;
+
+    EventBus* AssumedBus;
 public:
     EventQueue(EventBus* DefaultBus = nullptr);
     ~EventQueue() {}
@@ -14,6 +21,7 @@ public:
     //add an event to the queue
     template<typename EventType>
     void Enqueue(EventType&& Event) {
+        std::lock_guard<std::mutex> Lock(QueueMutex);
         Queue.push([Event = std::forward<EventType>(Event)](EventBus& Bus) mutable {
             Bus.Publish(std::move(Event));
             });
@@ -24,8 +32,5 @@ public:
 
     void Reset();
 
-private:
-    std::queue<std::function<void(EventBus&)>> Queue;
 
-    EventBus* AssumedBus;
 };

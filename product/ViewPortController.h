@@ -13,6 +13,8 @@ private:
 public:
 	bool ToggleAutomaticRendering(bool Val);
 
+	void setOverlaysEnabled(bool Val);
+
 	// determines which objects will be rendered on the screen
 	void setVisibilityMask(Ogre::uint32 mask);
 
@@ -28,6 +30,10 @@ public:
 	// destroys the frame buffer
 	void Clear();
 
+	
+	//motion doesnt consider a 3d coordinate because the orbit is at a fixed depth
+	void MoveCameraOrbitingPoint2DMotion(Ogre::Vector2f RelativeMotion,Ogre::Vector3f OrbitPoint);
+
 	// Copy constructor - required for vector storage
 	ViewPortController(const ViewPortController&) = default;
 	// Move constructor
@@ -37,5 +43,7 @@ public:
 	~ViewPortController(){}
 
 	std::vector<float> GetCameraAngle();
-	std::vector<int> GetViewPortDimensions();
+	std::vector<float> GetViewPortDimensions();
+
+
 };

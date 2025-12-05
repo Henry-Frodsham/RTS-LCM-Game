@@ -4,22 +4,22 @@
 
 InputTranslator::InputTranslator(InputDevice* Device){
 	ManagedDevice = Device;
-	InputEvents = EventBus();
-	WaitingEvents = EventQueue(&InputEvents);
+	InputEvents = new EventBus();
+	WaitingEvents = new EventQueue(InputEvents);
 
 	CursorPos = { 0.f,0.f };
 	JoyStickStates = { 0.f,0.f };
-	InputEvents.Subscribe<RawKBEvent>(std::bind(&InputTranslator::TranslateRawKB, this, std::placeholders::_1));
-	InputEvents.Subscribe<RawButtonEvent>(std::bind(&InputTranslator::TranslateRawButton, this, std::placeholders::_1));
-	InputEvents.Subscribe<RawCursorEvent>(std::bind(&InputTranslator::TranslateRawCursor, this, std::placeholders::_1));
-	InputEvents.Subscribe<RawAxisEvent>(std::bind(&InputTranslator::TranslateRawAxis, this, std::placeholders::_1));
+	InputEvents->Subscribe<RawKBEvent>(std::bind(&InputTranslator::TranslateRawKB, this, std::placeholders::_1));
+	InputEvents->Subscribe<RawButtonEvent>(std::bind(&InputTranslator::TranslateRawButton, this, std::placeholders::_1));
+	InputEvents->Subscribe<RawCursorEvent>(std::bind(&InputTranslator::TranslateRawCursor, this, std::placeholders::_1));
+	InputEvents->Subscribe<RawAxisEvent>(std::bind(&InputTranslator::TranslateRawAxis, this, std::placeholders::_1));
 
-	// todo: delegate to a config manager
-	// sensitivity = pixels per second
 	CursorSensitivity = 100.f;
 	JoystickDeadzone = 0.1f;
-	ScreenWidth = 800.f;
-	ScreenHeight = 600.f;
+
+	Ogre::RenderWindowDescription WindowInfo = RenderSystem::GetInstance().GetPrimaryWindowInformation();
+	ScreenWidth = float(WindowInfo.width);
+	ScreenHeight = float(WindowInfo.height);
 
 #ifdef _DEBUG
 	InputAnalyser::GetInstance().RegisterNew(this);
@@ -86,9 +86,9 @@ void InputTranslator::TranslateRawKB(RawKBEvent Event){
 
 }
 void InputTranslator::TranslateRawButton(RawButtonEvent Event){
-	SDL_GameControllerButton Button = (SDL_GameControllerButton)Event.Button.button;
+	Uint8 ButtonIndex = Event.Button.button;
 
-	if (Button == SDL_CONTROLLER_BUTTON_A) {
+	if (ButtonIndex == 0) {
 		if (Event.ButtonUp) {
 			ActiveActions.erase(GameAction::USE);
 		}
@@ -96,7 +96,7 @@ void InputTranslator::TranslateRawButton(RawButtonEvent Event){
 			ActiveActions.insert(GameAction::USE);
 		}
 	}
-	else if (Button == SDL_CONTROLLER_BUTTON_B) {
+	else if (ButtonIndex == 1) {
 		if (Event.ButtonUp) {
 			ActiveActions.erase(GameAction::BACK);
 		}
@@ -104,7 +104,7 @@ void InputTranslator::TranslateRawButton(RawButtonEvent Event){
 			ActiveActions.insert(GameAction::BACK);
 		}
 	}
-	else if (Button == SDL_CONTROLLER_BUTTON_X) {
+	else if (ButtonIndex == 2) {
 		if (Event.ButtonUp) {
 			ActiveActions.erase(GameAction::CONTXT);
 		}
@@ -113,6 +113,12 @@ void InputTranslator::TranslateRawButton(RawButtonEvent Event){
 		}
 	}
 
+	if (Event.ButtonUp) {
+		ButtonStates.erase(Event.Button.button);
+	}
+	else {
+		ButtonStates.insert(Event.Button.button);
+	}
 }
 void InputTranslator::TranslateRawCursor(RawCursorEvent Event){
 	const SDL_MouseMotionEvent& Motion = Event.Cursor;
@@ -120,7 +126,10 @@ void InputTranslator::TranslateRawCursor(RawCursorEvent Event){
 		static_cast<float>(Motion.x),
 		static_cast<float>(Motion.y)
 	};
-
+	RelativeMotion = Ogre::Vector2f(
+		(CursorVec[0] - CursorPos[0]) / 100.f,
+		(CursorVec[1] - CursorPos[1]) / 100.f
+	);
 	CursorPos = CursorVec;
 }
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event){
@@ -150,7 +159,12 @@ void InputTranslator::TranslateRawAxis(RawAxisEvent Event){
 }
 
 int InputTranslator::GetNumPressedKeys() {
-	return KeyStates.size();
+	if (ManagedDevice->InputType == InputDeviceType::KBM) {
+		return KeyStates.size();
+	}
+	else {
+		return ButtonStates.size();
+	}
 }
 
 std::vector<float> InputTranslator::GetCurrentAxis() {
@@ -171,18 +185,36 @@ float InputTranslator::ApplyDeadzone(float Value, float Deadzone) {
 }
 
 void InputTranslator::Update(float DeltaTime) {
-	WaitingEvents.Dispatch();
+	//reset relative motion before events are processed, so if theres a tick without motion then its cleared
+	RelativeMotion = Ogre::Vector2f(0.f,0.f);
+	WaitingEvents->Dispatch();
+	if (ManagedDevice->InputType == InputDeviceType::CONTROLLER) {
+		float stickX = ApplyDeadzone(JoyStickStates[0], JoystickDeadzone);
+		float stickY = ApplyDeadzone(JoyStickStates[1], JoystickDeadzone);
 
-	float stickX = ApplyDeadzone(JoyStickStates[0], JoystickDeadzone);
-	float stickY = ApplyDeadzone(JoyStickStates[1], JoystickDeadzone);
+		float velocityX = stickX * CursorSensitivity * DeltaTime;
+		float velocityY = stickY * CursorSensitivity * DeltaTime;
 
-	float velocityX = stickX * CursorSensitivity * DeltaTime;
-	float velocityY = stickY * CursorSensitivity * DeltaTime;
+		//update and clamp both axis
+		CursorPos[0] += velocityX;
+		CursorPos[1] += velocityY;
 
-	//update and clamp both axis
-	CursorPos[0] += velocityX;
-	CursorPos[1] += velocityY;
+		RelativeMotion = Ogre::Vector2f(
+			velocityX,
+			velocityY
+		);
 
-	CursorPos[0] = std::clamp(CursorPos[0], 0.f, ScreenWidth);
-	CursorPos[1] = std::clamp(CursorPos[1], 0.f, ScreenHeight);
+		CursorPos[0] = std::clamp(CursorPos[0], 0.f, ScreenWidth);
+		CursorPos[1] = std::clamp(CursorPos[1], 0.f, ScreenHeight);
+	}
+}
+
+Ogre::Vector2f InputTranslator::GetRelativeMotion() {
+	return RelativeMotion;
+}
+bool InputTranslator::HasRelativeMotion() {
+	if (RelativeMotion != Ogre::Vector2f(0.f, 0.f)) {
+		return true;
+	}
+	return false;
 }

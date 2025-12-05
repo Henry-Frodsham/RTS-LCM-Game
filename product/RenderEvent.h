@@ -1,23 +1,11 @@
 //Copyright © 2025 Henry Frodsham
 #pragma once
+#include <string>
+#include <OGRE/Ogre.h>
 
-// delete a mesh component from both the ECS registry and the main scene
-struct DeleteMeshEvent {
-
-};
-
-// create a new mesh in the registry and attach to main scene 
-struct CreateMeshEvent {
-
-};
-
-// edit mesh details from ECS registry
-struct EditMeshEvent {
-
-};
+//unimplemented as of yet, render events will be used for instance threads to interact with ogre::root
+//along with other RenderSystem owned ogre systems
 
 struct TickEvent {
 	float DeltaTime;
-
-
 };

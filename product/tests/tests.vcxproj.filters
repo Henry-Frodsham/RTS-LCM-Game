@@ -20,6 +20,9 @@
     <ClCompile Include="WorldManagerTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="ECSTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

@@ -93,7 +93,7 @@
       <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_CRT_SECURE_NO_WARNINGS;NOMINMAX;SOLUTION_DIR=R"($(SolutionDir))";WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\nlohmann;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,7 +133,7 @@ xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"</Command>
       <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_CRT_SECURE_NO_WARNINGS;NOMINMAX;SOLUTION_DIR=R"($(SolutionDir))";WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\nlohmann;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -171,7 +171,7 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
       <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_CRT_SECURE_NO_WARNINGS;NOMINMAX;SOLUTION_DIR=R"($(SolutionDir))";_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\nlohmann;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -211,7 +211,7 @@ xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"</Command>
       <PreprocessorDefinitions>DOCTEST_CONFIG_DISABLE;ENTT_USE_ATOMIC;_CRT_SECURE_NO_WARNINGS;NOMINMAX;SOLUTION_DIR=R"($(SolutionDir))";NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE\Bites;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\nlohmann;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include\OGRE;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -243,12 +243,17 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ConfigManager.cpp" />
+    <ClCompile Include="ECSHelper.cpp" />
+    <ClCompile Include="EntityConstructionTemplates.h" />
     <ClCompile Include="ErrorReporter.cpp" />
     <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="EventQueue.cpp" />
+    <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="InputAnalyser.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
+    <ClCompile Include="instanceOverseer.cpp" />
     <ClCompile Include="OverlayController.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
@@ -257,16 +262,22 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseComponents.h" />
+    <ClInclude Include="ConfigManager.h" />
+    <ClInclude Include="ECSFactoryEvent.h" />
+    <ClInclude Include="ECSHelper.h" />
     <ClInclude Include="ErrorManifest.h" />
     <ClInclude Include="ErrorReporter.h" />
     <ClInclude Include="EventBus.h" />
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="GameAction.h" />
+    <ClInclude Include="GameInstance.h" />
     <ClInclude Include="InputAnalyser.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="InputEvent.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="InputTranslator.h" />
+    <ClInclude Include="InstanceEvent.h" />
+    <ClInclude Include="instanceOverseer.h" />
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="OverlayController.h" />
     <ClInclude Include="OverlayEvent.h" />
@@ -274,6 +285,7 @@ xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"</Command>
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ViewPortController.h" />
+    <ClInclude Include="WorldEvent.h" />
     <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

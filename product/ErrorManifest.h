@@ -28,6 +28,7 @@ enum ErrorCode : uint32_t {
 	SDL_NO_CONNECTED_CONTROLLERS = 2005,
 	SDL_CONTROLLER_DISCONNECT = 2006,
 	SDL_CONTOLLER_CONNECT = 2007,
+	NO_CUSTOM_JSON = 2008,
 	//warning
 	BAD_SDL_ID_ON_REQUEST = 3001,
 	//error
@@ -36,11 +37,25 @@ enum ErrorCode : uint32_t {
 	MATERIAL_NOT_FOUND = 4003,
 	OVERLAY_NOT_FOUND = 4004,
 	ELEMENT_NOT_FOUND = 4005,
+	JSON_PARSE_ERROR = 4006,
+	JSON_FILE_NOT_FOUND = 4007,
+	JSON_UNOPENED_FILE = 4008,
+	CUSTOM_JSON_VALUE_FAILURE = 4009,
+	JSON_WRITE_ERROR = 4010,
+	ECS_WRONG_CREATION_ORDER = 4011,
+	SCENE_NODE_DOESNT_EXIST = 4012,
+	INSTANCE_REQUEST_NO_DEVICE = 4013,
+	BAD_VIEWPORT_CONTROL_REQUEST = 4014,
 	//fatal
 	OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
 	SDL_FAILED_INIT = 5002,
 	SDL_FAILED_BIND = 5003,
-	OVERLAY_UNITIALISED = 5004
+	OVERLAY_UNITIALISED = 5004,
+	JSON_FAILURE = 5005,
+	DEFAULT_JSON_VALUE_FAILURE = 5006,
+	JSON_VALUE_MISSING_KEYS = 5007,
+	TRANSLATOR_NO_DEVICE = 5008,
+	UNRECOGNISED = 5999
 };
 
 // general information on an error
@@ -91,6 +106,10 @@ namespace ErrorDetail {
 			{ErrorCode::SDL_CONTOLLER_CONNECT, ErrorLevel::INFO,
 			 "a new controller was connected", "InputListener"}},
 
+		{ErrorCode::NO_CUSTOM_JSON,
+			{ErrorCode::NO_CUSTOM_JSON, ErrorLevel::INFO,
+			 "no custom config was found, continuing and using default", "ConfigManager"}},
+
 		//warning
 		{ErrorCode::BAD_SDL_ID_ON_REQUEST,
 			{ErrorCode::BAD_SDL_ID_ON_REQUEST, ErrorLevel::WARNING,
@@ -119,6 +138,42 @@ namespace ErrorDetail {
 		{ErrorCode::ELEMENT_NOT_FOUND,
 			{ErrorCode::ELEMENT_NOT_FOUND, ErrorLevel::ERR,
 			 "unfound overlay element in overlay edit event", "OverlayController"}},
+
+		{ErrorCode::JSON_FILE_NOT_FOUND,
+			{ErrorCode::JSON_FILE_NOT_FOUND, ErrorLevel::ERR,
+			 "a json file wasnt found at the specified location", "ConfigManager"}},
+
+		{ErrorCode::JSON_PARSE_ERROR,
+			{ErrorCode::JSON_PARSE_ERROR, ErrorLevel::ERR,
+			 "a json file contains invalid syntax", "ConfigManager"}},
+
+		{ErrorCode::JSON_UNOPENED_FILE,
+			{ErrorCode::JSON_UNOPENED_FILE, ErrorLevel::ERR,
+			 "a json file was unable to be opened", "ConfigManager"}},
+
+		{ErrorCode::CUSTOM_JSON_VALUE_FAILURE,
+			{ErrorCode::CUSTOM_JSON_VALUE_FAILURE, ErrorLevel::ERR,
+			 "a custom value couldnt be retrieved from the requested key", "ConfigManager"}},
+
+		{ErrorCode::JSON_WRITE_ERROR,
+			{ErrorCode::JSON_WRITE_ERROR, ErrorLevel::ERR,
+			 "a json file couldnt be written to", "ConfigManager"}},
+
+		{ErrorCode::ECS_WRONG_CREATION_ORDER,
+			{ErrorCode::ECS_WRONG_CREATION_ORDER, ErrorLevel::ERR,
+			 "an ECS component couldnt be created because the prerequisite component could not be found", "ECSFactory"}},
+
+		{ErrorCode::SCENE_NODE_DOESNT_EXIST,
+			{ErrorCode::SCENE_NODE_DOESNT_EXIST, ErrorLevel::ERR,
+			 "the requested scene node didnt exist", "RenderSystem"}},
+
+		{ErrorCode::INSTANCE_REQUEST_NO_DEVICE,
+			{ErrorCode::INSTANCE_REQUEST_NO_DEVICE, ErrorLevel::ERR,
+			 "creating a new instance failed because the request didnt contain a valid device", "InstanceOverseer"}},
+
+		{ErrorCode::BAD_VIEWPORT_CONTROL_REQUEST,
+			{ErrorCode::BAD_VIEWPORT_CONTROL_REQUEST, ErrorLevel::ERR,
+			 "a request made by an instance thread to control their viewport was invalid", "InstanceOverseer"}},
 		//fatal
 		{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
 			{ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,
@@ -134,8 +189,23 @@ namespace ErrorDetail {
 
 		{ErrorCode::OVERLAY_UNITIALISED,
 			{ErrorCode::OVERLAY_UNITIALISED, ErrorLevel::FATAL,
-			 "attempted overlay call before OverlaySystem is initialised", "OverlaySystem"}}
+			 "attempted overlay call before OverlaySystem is initialised", "OverlaySystem"}},
 
+		{ErrorCode::JSON_FAILURE,
+			{ErrorCode::JSON_FAILURE, ErrorLevel::FATAL,
+			 "failed to load custom config and failed to load default values as a fallback", "ConfigManager"}},
+
+		{ErrorCode::DEFAULT_JSON_VALUE_FAILURE,
+			{ErrorCode::DEFAULT_JSON_VALUE_FAILURE, ErrorLevel::FATAL,
+			 "a requested key couldnt be retrieved from either default or custom json maps", "ConfigManager"}},
+
+		{ErrorCode::JSON_VALUE_MISSING_KEYS,
+			{ErrorCode::JSON_VALUE_MISSING_KEYS, ErrorLevel::FATAL,
+			 "a requested key wasnt found in either custom or default maps", "ConfigManager"}},
+
+		{ErrorCode::UNRECOGNISED,
+			{ErrorCode::UNRECOGNISED, ErrorLevel::FATAL,
+			 "an unrecognised error has occured", "APPLICATION PANIC"}}
 	};
 
 	// get default error from manifest

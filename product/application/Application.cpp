@@ -4,6 +4,8 @@
 #include "InputListener.h"
 #include "InputTranslator.h"
 #include "InputAnalyser.h"
+#include "WorldManager.h"
+#include "instanceOverseer.h"
 
 Application::Application() {
 	StateManager = ApplicationStateManager();
@@ -31,24 +33,21 @@ void Application::Loop() {
 	//temporary test
 	InputListener Input = InputListener(RenderSingleton.GetSDLWindow());
 	Input.Update();
-	
+
+	WorldManager WM = WorldManager();
+	WM.WorldQueue->Enqueue(CreateMeshWorldEntityEvent("test","cube.mesh","test1", Ogre::Vector3(0.5f,0.f,-5.f)));
 	// temporary measure to display all the connected devices in the overlay
-	std::vector<InputTranslator*> DebugTranslators;
-	for (const auto& Element : Input.Devices) {
-		InputTranslator* HeapAllocTranslator = new InputTranslator(Element.second);
-		Input.AddListenerQueue(Element.second, &HeapAllocTranslator->WaitingEvents);
-		DebugTranslators.push_back(HeapAllocTranslator);
-	}
+
+	InstanceOverseer Instances = InstanceOverseer(&Input);
 
 	InputAnalyser& InputAnalysisSingleton = InputAnalyser::GetInstance();
 	while (true) {
 		RenderSingleton.RenderFrame(); //render thread func, here for now but delegate in future
+		WM.update();
 		float DT = RenderSingleton.GetDeltaTime();
 		Input.Update();
 
-		for (const auto& Translator : DebugTranslators) {
-			Translator->Update(DT);
-		}
+		Instances.ReviseAndUpdate(DT);
 
 		InputAnalysisSingleton.Update();
 

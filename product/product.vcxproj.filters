@@ -34,6 +34,21 @@
     <ClCompile Include="InputAnalyser.cpp">
       <Filter>Source\Debug Analysis Tools</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigManager.cpp">
+      <Filter>Source\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="ECSHelper.cpp">
+      <Filter>Source\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityConstructionTemplates.h">
+      <Filter>Headers\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="instanceOverseer.cpp">
+      <Filter>Source\instance</Filter>
+    </ClCompile>
+    <ClCompile Include="GameInstance.cpp">
+      <Filter>Source\instance</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -89,6 +104,24 @@
     </Filter>
     <Filter Include="Headers\Debug Analysis Tools">
       <UniqueIdentifier>{1f0a2db3-e781-458f-bbd0-10c7b798fc7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Config">
+      <UniqueIdentifier>{beaa91f2-5d30-4cd0-98ae-fb81fa940f2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Config">
+      <UniqueIdentifier>{35904ac4-2245-4d77-9dda-5f2ee9c40533}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\ECS">
+      <UniqueIdentifier>{71a47d8c-0bdd-46a8-81cf-c45e96b82580}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ECS">
+      <UniqueIdentifier>{e416f013-20e6-4c01-9ba6-f42034383746}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\instance">
+      <UniqueIdentifier>{51e756d4-cf6f-45df-b654-479a49bab4bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\instance">
+      <UniqueIdentifier>{0a9f0a4e-774c-4a35-988f-19d566d8a519}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +181,27 @@
     </ClInclude>
     <ClInclude Include="Metrics.h">
       <Filter>Headers\Debug Analysis Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigManager.h">
+      <Filter>Headers\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="ECSHelper.h">
+      <Filter>Headers\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECSFactoryEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="instanceOverseer.h">
+      <Filter>Headers\instance</Filter>
+    </ClInclude>
+    <ClInclude Include="GameInstance.h">
+      <Filter>Headers\instance</Filter>
+    </ClInclude>
+    <ClInclude Include="InstanceEvent.h">
+      <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

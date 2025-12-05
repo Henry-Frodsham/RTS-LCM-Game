@@ -3,9 +3,9 @@
 
 InputAnalyser::InputAnalyser()
 {
-	MetricBus = EventBus();
-	MetricQueue = EventQueue(&MetricBus);
-	MetricError = ErrorReporter();
+	MetricBus = new EventBus();
+	MetricQueue = new EventQueue(MetricBus);
+	MetricError = new ErrorReporter();
 }
 
 void InputAnalyser::RegisterNew(InputTranslator* NewTranslator) {
@@ -41,8 +41,8 @@ void InputAnalyser::RegisterNew(InputTranslator* NewTranslator) {
 }
 
 void InputAnalyser::Update() {
-	MetricQueue.Dispatch();
-	MetricError.Dispatch();
+	MetricQueue->Dispatch();
+	MetricError->Dispatch();
 	RenderSystem& Renderer = RenderSystem::GetInstance();
 
 	for (int i = 0; i < Translators.size(); i++) {

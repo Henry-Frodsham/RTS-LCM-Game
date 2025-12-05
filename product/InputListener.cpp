@@ -44,10 +44,10 @@ void InputListener::Update() {
 				// SDL2 doesnt have any device index for KBM so just use -1
 				SdlDeviceIndex = -1;
 				break;
-			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_JOYBUTTONDOWN:
 				SdlDeviceIndex = Event.cbutton.which;
 				break;
-			case SDL_CONTROLLERBUTTONUP:
+			case SDL_JOYBUTTONUP:
 				SdlDeviceIndex = Event.cbutton.which;
 				break;
 			case SDL_MOUSEMOTION:
@@ -93,12 +93,12 @@ void InputListener::Update() {
 				QueueToNotify->Enqueue(RawKBEvent{ Event.key, true });
 				break;
 
-			case SDL_CONTROLLERBUTTONDOWN:
-				QueueToNotify->Enqueue(RawButtonEvent{ Event.cbutton, false });
+			case SDL_JOYBUTTONDOWN:
+				QueueToNotify->Enqueue(RawButtonEvent{ Event.jbutton, false });
 				break;
 
-			case SDL_CONTROLLERBUTTONUP:
-				QueueToNotify->Enqueue(RawButtonEvent{ Event.cbutton, true });
+			case SDL_JOYBUTTONUP:
+				QueueToNotify->Enqueue(RawButtonEvent{ Event.jbutton, true });
 				break;
 
 			case SDL_MOUSEMOTION:
@@ -239,4 +239,20 @@ void InputListener::DeviceSetup() {
 		InputErrorReporter.EnqueueError(DeadDeviceIdError{ nullptr, -1 });
 	}
 
+}
+
+std::vector<InputDevice*> InputListener::GetUnintegratedDevices() {
+	std::vector<InputDevice*> DeviceList;
+	// return early to prevent iterating over the devices unnecessarily
+	if (Devices.size() == ListeningQueues.size()) {
+		return DeviceList;
+	}
+	
+	for (const auto& [Key, Value] : Devices) {
+		if (!ListeningQueues.contains(Value)) {
+			DeviceList.push_back(Value);
+		}
+	}
+
+	return DeviceList;
 }
