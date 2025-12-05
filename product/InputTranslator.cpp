@@ -127,8 +127,8 @@ void InputTranslator::TranslateRawCursor(RawCursorEvent Event){
 		static_cast<float>(Motion.y)
 	};
 	RelativeMotion = Ogre::Vector2f(
-		CursorVec[0] - CursorPos[0],
-		CursorVec[1] - CursorPos[1]
+		(CursorVec[0] - CursorPos[0]) / 100.f,
+		(CursorVec[1] - CursorPos[1]) / 100.f
 	);
 	CursorPos = CursorVec;
 }
