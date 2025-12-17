@@ -16,6 +16,7 @@ TEST_CASE("ECS - basic entity creation") {
     Ogre::Vector3(0.5f, 0.f, -5.f))); WM->update();
     // no easy way to access the registry directly directly so query ogre directly
     // returns nullptr when the sceneNode doesnt exist
+    RS.RenderQueue->Dispatch();
     Ogre::SceneNode* SN = RS.GetSceneNodeFromName("test");
 
     CHECK(SN != nullptr);
@@ -31,6 +32,7 @@ TEST_CASE("ECS - entity with mesh creation") {
     WM->update();
     // no easy way to access the registry directly directly so query ogre directly
     // returns nullptr when the sceneNode doesnt exist
+    RS.RenderQueue->Dispatch();
     Ogre::SceneNode* SN = RS.GetSceneNodeFromName("test2");
 
     CHECK(SN != nullptr);

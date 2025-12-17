@@ -19,6 +19,7 @@
 #include "OverlayController.h"
 #include "OverlayEvent.h"
 #include "ViewPortController.h"
+#include "RenderEvent.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating
@@ -65,6 +66,14 @@ class RenderSystem {
   void UpdateExclusiveHandlers();
 
   void ScaleViewPorts();
+
+  void CreateSceneNodeFromEvent(CreateSceneNodeEvent Event);
+
+  void CreateEntityFromEvent(CreateOgreEntityEvent Event);
+
+  void SetNodePositionFromEvent(SetNodePositionEvent Event);
+
+  void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
 
  public:
   static RenderSystem& GetInstance();

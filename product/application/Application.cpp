@@ -35,22 +35,23 @@ void Application::Loop() {
 
   WorldManager WM = WorldManager();
   WM.WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
-      "test", "cube.mesh", "test1", Ogre::Vector3(0.5f, 0.f, -5.f)));
+      "test", "Cube.mesh", "test1", Ogre::Vector3(0.5f, 0.f, -5.f)));
   // temporary measure to display all the connected devices in the overlay
 
   InstanceOverseer Instances = InstanceOverseer(&Input);
 
   InputAnalyser& InputAnalysisSingleton = InputAnalyser::GetInstance();
   while (true) {
-    RenderSingleton.RenderFrame();  // render thread func, here for now but
-                                    // delegate in future
+    RenderSingleton.RenderFrame();  // all interactions with ogre need to be run in the main thread
+
     WM.update();
+
     float DT = RenderSingleton.GetDeltaTime();
-    Input.Update();
+    std::thread InputThread = std::thread(&InputListener::Update, &Input);
 
     Instances.ReviseAndUpdate(DT);
 
-    InputAnalysisSingleton.Update();
+    std::thread InputAnalysisThread = std::thread(&InputAnalyser::Update, &InputAnalysisSingleton);
 
     if (StateManager.CurrentState == AppState::GAME) {
     } else if (StateManager.CurrentState == AppState::MENU) {
@@ -59,5 +60,7 @@ void Application::Loop() {
       // invalid state
       return;
     }
+    InputThread.join();
+    InputAnalysisThread.join();
   }
 }

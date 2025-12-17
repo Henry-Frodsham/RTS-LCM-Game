@@ -173,6 +173,16 @@ void RenderSystem::InitRenderResponsibility() {
       &OverlayController::EditPanel, OverlayControl, std::placeholders::_1));
   RenderBus->Subscribe<OverlayEditTextEvent>(std::bind(
       &OverlayController::EditText, OverlayControl, std::placeholders::_1));
+
+  //core Ogre interactions
+  RenderBus->Subscribe<CreateSceneNodeEvent>(std::bind(
+      &RenderSystem::CreateSceneNodeFromEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<CreateOgreEntityEvent>(std::bind(
+      &RenderSystem::CreateEntityFromEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<SetNodePositionEvent>(std::bind(
+      &RenderSystem::SetNodePositionFromEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<AttachEntityToScenNodeEvent>(std::bind(
+      &RenderSystem::AttachEntityToNodeFromEvent, this, std::placeholders::_1));
 }
 
 // initialise the basic resources (not game textures and mats etc)
@@ -237,6 +247,18 @@ Ogre::Entity* RenderSystem::CreateEntity(std::string Name,
   return SceneManager->createEntity(Name, MeshName);
 }
 
+void RenderSystem::CreateSceneNodeFromEvent(CreateSceneNodeEvent Event){
+    Event.Node.get() = SceneManager->createSceneNode();
+}
+void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event){
+    Event.Entity.get() = SceneManager->createEntity(Event.EntityName, Event.MeshName);
+}
+void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event){
+    Event.NodeToChange.get()->setPosition(Event.NewPosition);
+}
+void RenderSystem::AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event){
+    Event.SceneNode.get()->attachObject(Event.Entity.get());
+}
 // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {
   static RenderSystem Instance;
