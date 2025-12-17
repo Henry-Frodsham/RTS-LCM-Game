@@ -200,13 +200,13 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ECSTests.cpp" />
+    <ClCompile Include="ErrorReporterTests.cpp" />
     <ClCompile Include="EventBusTests.cpp" />
     <ClCompile Include="EventQueueTests.cpp" />
     <ClCompile Include="InputListenerTests.cpp" />
     <ClCompile Include="RenderSystemTests.cpp" />
     <ClCompile Include="TestsMain.cpp" />
     <ClCompile Include="ViewPortTests.cpp" />
-    <ClCompile Include="WorldManagerTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\product.vcxproj">

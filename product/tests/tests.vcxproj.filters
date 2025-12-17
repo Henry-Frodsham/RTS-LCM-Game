@@ -17,10 +17,10 @@
     <ClCompile Include="InputListenerTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="WorldManagerTests.cpp">
+    <ClCompile Include="ECSTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="ECSTests.cpp">
+    <ClCompile Include="ErrorReporterTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,5 +12,3 @@ TEST_CASE("RenderSystem - new viewport") {
   Obj->Init();
   CHECK(Obj->CreateViewPort() != NULL);
 }
-
-TEST_CASE("RenderSystem - attach model to scene") {}
