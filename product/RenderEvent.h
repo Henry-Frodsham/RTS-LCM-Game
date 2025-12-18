@@ -13,8 +13,11 @@ struct TickEvent {
 
 struct CreateSceneNodeEvent {
 	std::reference_wrapper<Ogre::SceneNode*> Node;
-	CreateSceneNodeEvent(Ogre::SceneNode*& N)
+	std::string NodeName;
+	CreateSceneNodeEvent(Ogre::SceneNode*& N
+		,std::string NodeN)
 		: Node(N)
+		, NodeName(NodeN)
 	{
 		
 	}

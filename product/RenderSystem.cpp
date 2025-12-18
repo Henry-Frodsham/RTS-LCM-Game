@@ -248,7 +248,7 @@ Ogre::Entity* RenderSystem::CreateEntity(std::string Name,
 }
 
 void RenderSystem::CreateSceneNodeFromEvent(CreateSceneNodeEvent Event){
-    Event.Node.get() = SceneManager->createSceneNode();
+    Event.Node.get() = SceneManager->getRootSceneNode()->createChildSceneNode(Event.NodeName);
 }
 void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event){
     Event.Entity.get() = SceneManager->createEntity(Event.EntityName, Event.MeshName);

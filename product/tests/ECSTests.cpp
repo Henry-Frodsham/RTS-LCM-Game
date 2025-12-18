@@ -13,7 +13,8 @@ TEST_CASE("ECS - basic entity creation") {
     RenderSystem& RS = RenderSystem::GetInstance();
     RS.Init();
     WM->WorldQueue->Enqueue(CreateBasicWorldEntityEvent("test",
-    Ogre::Vector3(0.5f, 0.f, -5.f))); WM->update();
+    Ogre::Vector3(0.5f, 0.f, -5.f))); 
+    WM->update();
     // no easy way to access the registry directly directly so query ogre directly
     // returns nullptr when the sceneNode doesnt exist
     RS.RenderQueue->Dispatch();

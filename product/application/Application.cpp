@@ -35,7 +35,7 @@ void Application::Loop() {
 
   WorldManager WM = WorldManager();
   WM.WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
-      "test", "Cube.mesh", "test1", Ogre::Vector3(0.5f, 0.f, -5.f)));
+      "test", "cube.mesh", "test1", Ogre::Vector3(0.5f, 0.f, -5.f)));
   // temporary measure to display all the connected devices in the overlay
 
   InstanceOverseer Instances = InstanceOverseer(&Input);
@@ -44,7 +44,7 @@ void Application::Loop() {
   while (true) {
     RenderSingleton.RenderFrame();  // all interactions with ogre need to be run in the main thread
 
-    WM.update();
+    std::thread WorldManagerThread = std::thread(&WorldManager::update, &WM);
 
     float DT = RenderSingleton.GetDeltaTime();
     std::thread InputThread = std::thread(&InputListener::Update, &Input);
@@ -60,6 +60,7 @@ void Application::Loop() {
       // invalid state
       return;
     }
+    WorldManagerThread.join();
     InputThread.join();
     InputAnalysisThread.join();
   }

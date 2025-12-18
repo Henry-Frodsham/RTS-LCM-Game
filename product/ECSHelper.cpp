@@ -22,12 +22,14 @@ void ECSHelper::CreateAndAddEntity(CreateEntityEvent Event) {
 void ECSHelper::CreateAndAddOgreComponent(AddOgreComponentEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
 
-  Ogre::SceneNode* Node = nullptr;
-  Rs.RenderQueue->Enqueue(CreateSceneNodeEvent(Node));
 
-  Rs.RenderQueue->Enqueue(SetNodePositionEvent(Node, Event.InitialPosition));
+  auto& Component = RegistryToUse->emplace<OgreComponent>(*Event.Entity, nullptr, Event.NodeName);
 
-  RegistryToUse->emplace<OgreComponent>(*Event.Entity, Node, Event.NodeName);
+  Rs.RenderQueue->Enqueue(CreateSceneNodeEvent(std::ref(Component.EntityNode), Event.NodeName));
+  
+  Rs.RenderQueue->Enqueue(SetNodePositionEvent(std::ref(Component.EntityNode), Event.InitialPosition));
+
+  
 }
 
 void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
@@ -37,7 +39,13 @@ void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
   try {
     OgreComponent& EntOgreComp =
         RegistryToUse->get<OgreComponent>(*Event.Entity);
-    NodeToAttach = EntOgreComp.EntityNode;
+    auto& Component = RegistryToUse->emplace<MeshComponent>(*Event.Entity, nullptr, Event.MeshName,
+        Event.EntityName);
+
+    Rs.RenderQueue->Enqueue(CreateOgreEntityEvent(std::ref(Component.Entity), Event.EntityName, Event.MeshName));
+
+    Rs.RenderQueue->Enqueue(AttachEntityToScenNodeEvent(std::ref(Component.Entity), std::ref(EntOgreComp.EntityNode)));
+
   } catch (std::exception& e) {
     ParentReporter->EnqueueError(ErrorDetail::CreateError(
         ErrorCode::ECS_WRONG_CREATION_ORDER,
@@ -45,11 +53,5 @@ void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
         "OgreComponent to attach to"));
     return;
   }
-  Ogre::Entity* Ent = nullptr;
-  Rs.RenderQueue->Enqueue(CreateOgreEntityEvent(Ent, Event.EntityName, Event.MeshName));
-  
 
-  Rs.RenderQueue->Enqueue(AttachEntityToScenNodeEvent(Ent, NodeToAttach));
-  RegistryToUse->emplace<MeshComponent>(*Event.Entity, Ent, Event.MeshName,
-                                        Event.EntityName);
 }
