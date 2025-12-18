@@ -15,4 +15,3 @@
 \contentsline {subsection}{\numberline {4.4}Risk 4: inability to implement REA}{9}{}%
 \contentsline {section}{\numberline {5}Acronomys}{10}{}%
 \contentsline {section}{\numberline {6}Glossary}{11}{}%
-\contentsline {section}{\numberline {7}References}{12}{}%
