@@ -1,19 +1,20 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
-#include "ApplicationStateManager.h"
 #include <iostream>
 #include <thread>
 
+#include "ApplicationStateManager.h"
+
 class Application {
-public:
-	Application();
-	~Application() {};
-	void Start();
+ public:
+  Application();
+  ~Application() {};
+  void Start();
 
-private:
-	bool Init();
+ private:
+  bool Init();
 
-	void Loop();
+  void Loop();
 
-	ApplicationStateManager StateManager;
+  ApplicationStateManager StateManager;
 };

@@ -1,40 +1,42 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
-#include "GameInstance.h"
-#include "EventQueue.h"
-#include "EventBus.h"
-#include "InputListener.h"
-#include "InstanceEvent.h"
-#include "ErrorReporter.h"
-#include "InputTranslator.h"
-#include "ViewPortController.h"
-#include "RenderSystem.h"
-#include <unordered_map>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
-//the class that "holds the reigns" over all instances
+#include "ErrorReporter.h"
+#include "EventBus.h"
+#include "EventQueue.h"
+#include "GameInstance.h"
+#include "InputListener.h"
+#include "InputTranslator.h"
+#include "InstanceEvent.h"
+#include "RenderSystem.h"
+#include "ViewPortController.h"
+
+// the class that "holds the reigns" over all instances
 
 class InstanceOverseer {
-public:
-	InstanceOverseer(InputListener* ParentListener);
-	EventQueue* InstanceQueue;
-	void ReviseAndUpdate(float DeltaTime);
-private:
-	std::vector<GameInstance*> GameInstances;
+ public:
+  InstanceOverseer(InputListener* ParentListener);
+  EventQueue* InstanceQueue;
+  void ReviseAndUpdate(float DeltaTime);
 
-	//viewports need to be stored 
-	std::unordered_map<GameInstance*, ViewPortController*> InstanceViewports;
+ private:
+  std::vector<GameInstance*> GameInstances;
 
-	EventBus* InstanceBus;
+  // viewports need to be stored
+  std::unordered_map<GameInstance*, ViewPortController*> InstanceViewports;
 
-	ErrorReporter* InstanceReporter;
+  EventBus* InstanceBus;
 
-	void RegisterNewInstance(RegisterInstanceEvent Event);
+  ErrorReporter* InstanceReporter;
 
-	//non thread safe requests that must be handled here
-	void MoveViewport2DOrbit(UpstreamOrbitViewport2DEvent Event);
-	
-	//a new instance is made solely based on a new device being connected
-	InputListener* DeviceListener;
+  void RegisterNewInstance(RegisterInstanceEvent Event);
+
+  // non thread safe requests that must be handled here
+  void MoveViewport2DOrbit(UpstreamOrbitViewport2DEvent Event);
+
+  // a new instance is made solely based on a new device being connected
+  InputListener* DeviceListener;
 };

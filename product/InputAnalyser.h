@@ -1,41 +1,38 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #pragma once
-#include <vector>
 #include <unordered_map>
-#include "InputDevice.h"
-#include "Metrics.h"
-#include "InputTranslator.h"
+#include <vector>
+
+#include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
+#include "InputDevice.h"
+#include "InputTranslator.h"
+#include "Metrics.h"
 #include "RenderSystem.h"
-#include "ErrorReporter.h"
 
 // a debug overlay visible only when built in debug
 // shows the activity of input devices
 
-//class used to gather metrics of registered input devices and manage a unique overlay for each
+// class used to gather metrics of registered input devices and manage a unique
+// overlay for each
 class InputAnalyser {
-private:
-	InputAnalyser();
+ private:
+  InputAnalyser();
 
-	std::vector<InputTranslator*> Translators;
-	std::unordered_map<InputMetric, InputTranslator*> InputMetrics;
+  std::vector<InputTranslator*> Translators;
+  std::unordered_map<InputMetric, InputTranslator*> InputMetrics;
 
-	EventBus* MetricBus;
+  EventBus* MetricBus;
 
-	ErrorReporter* MetricError;
+  ErrorReporter* MetricError;
 
-	
+ public:
+  static InputAnalyser& GetInstance();
 
-public:
-	static InputAnalyser& GetInstance();
+  void RegisterNew(InputTranslator* NewTranslator);
 
-	void RegisterNew(InputTranslator* NewTranslator);
+  void Update();
 
-	void Update();
-
-	EventQueue* MetricQueue;
-
-
-
+  EventQueue* MetricQueue;
 };

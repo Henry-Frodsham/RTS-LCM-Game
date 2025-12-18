@@ -1,42 +1,36 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #include <doctest/doctest.h>
+
 #include <string>
+
 #include "EventBus.h"
 
-struct TestEvent {
+struct TestEvent {};
 
-};
+void TestHandler(TestEvent) {}
 
-void TestHandler(TestEvent) {
-
-}
-
-TEST_CASE("EventBus - constructor") {
-	CHECK_NOTHROW(EventBus obj());
-}
+TEST_CASE("EventBus - constructor") { CHECK_NOTHROW(EventBus obj()); }
 
 TEST_CASE("EventBus - subscribe and publish") {
-    EventBus Obj{};
-    bool HandlerCalled = false;
+  EventBus Obj{};
+  bool HandlerCalled = false;
 
-    Obj.Subscribe<TestEvent>([&HandlerCalled](const TestEvent& event) {
-        HandlerCalled = true;
-        });
+  Obj.Subscribe<TestEvent>(
+      [&HandlerCalled](const TestEvent& event) { HandlerCalled = true; });
 
-    Obj.Publish(TestEvent());
+  Obj.Publish(TestEvent());
 
-    CHECK(HandlerCalled);
+  CHECK(HandlerCalled);
 }
 
 TEST_CASE("EventBus - singular handler call from publish") {
-    EventBus Obj{};
-    int NumCalls = 0;
+  EventBus Obj{};
+  int NumCalls = 0;
 
-    Obj.Subscribe<TestEvent>([&NumCalls](const TestEvent& event) {
-        NumCalls += 1;
-        });
+  Obj.Subscribe<TestEvent>(
+      [&NumCalls](const TestEvent& event) { NumCalls += 1; });
 
-    Obj.Publish(TestEvent());
+  Obj.Publish(TestEvent());
 
-    CHECK(NumCalls == 1);
+  CHECK(NumCalls == 1);
 }

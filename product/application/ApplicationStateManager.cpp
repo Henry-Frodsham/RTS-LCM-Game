@@ -1,6 +1,5 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #include "ApplicationStateManager.h"
 
 ApplicationStateManager::ApplicationStateManager()
-	: CurrentState(AppState::MENU)
-{}
+    : CurrentState(AppState::MENU) {}

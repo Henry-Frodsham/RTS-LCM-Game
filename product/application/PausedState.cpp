@@ -1,2 +1,2 @@
-//Copyright © 2025 Henry Frodsham
+// Copyright © 2025 Henry Frodsham
 #include "PausedState.h"
