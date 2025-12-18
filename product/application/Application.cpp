@@ -42,7 +42,8 @@ void Application::Loop() {
 
   InputAnalyser& InputAnalysisSingleton = InputAnalyser::GetInstance();
   while (true) {
-    RenderSingleton.RenderFrame();  // all interactions with ogre need to be run in the main thread
+    RenderSingleton.RenderFrame();  // all interactions with ogre need to be run
+                                    // in the main thread
 
     std::thread WorldManagerThread = std::thread(&WorldManager::update, &WM);
 
@@ -51,7 +52,8 @@ void Application::Loop() {
 
     Instances.ReviseAndUpdate(DT);
 
-    std::thread InputAnalysisThread = std::thread(&InputAnalyser::Update, &InputAnalysisSingleton);
+    std::thread InputAnalysisThread =
+        std::thread(&InputAnalyser::Update, &InputAnalysisSingleton);
 
     if (StateManager.CurrentState == AppState::GAME) {
     } else if (StateManager.CurrentState == AppState::MENU) {

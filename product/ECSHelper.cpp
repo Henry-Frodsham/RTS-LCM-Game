@@ -1,5 +1,6 @@
 // Copyright © 2025 Henry Frodsham
 #include "ECSHelper.h"
+
 #include "RenderEvent.h"
 
 ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
@@ -22,14 +23,14 @@ void ECSHelper::CreateAndAddEntity(CreateEntityEvent Event) {
 void ECSHelper::CreateAndAddOgreComponent(AddOgreComponentEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
 
+  auto& Component = RegistryToUse->emplace<OgreComponent>(
+      *Event.Entity, nullptr, Event.NodeName);
 
-  auto& Component = RegistryToUse->emplace<OgreComponent>(*Event.Entity, nullptr, Event.NodeName);
+  Rs.RenderQueue->Enqueue(
+      CreateSceneNodeEvent(std::ref(Component.EntityNode), Event.NodeName));
 
-  Rs.RenderQueue->Enqueue(CreateSceneNodeEvent(std::ref(Component.EntityNode), Event.NodeName));
-  
-  Rs.RenderQueue->Enqueue(SetNodePositionEvent(std::ref(Component.EntityNode), Event.InitialPosition));
-
-  
+  Rs.RenderQueue->Enqueue(SetNodePositionEvent(std::ref(Component.EntityNode),
+                                               Event.InitialPosition));
 }
 
 void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
@@ -39,12 +40,14 @@ void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
   try {
     OgreComponent& EntOgreComp =
         RegistryToUse->get<OgreComponent>(*Event.Entity);
-    auto& Component = RegistryToUse->emplace<MeshComponent>(*Event.Entity, nullptr, Event.MeshName,
-        Event.EntityName);
+    auto& Component = RegistryToUse->emplace<MeshComponent>(
+        *Event.Entity, nullptr, Event.MeshName, Event.EntityName);
 
-    Rs.RenderQueue->Enqueue(CreateOgreEntityEvent(std::ref(Component.Entity), Event.EntityName, Event.MeshName));
+    Rs.RenderQueue->Enqueue(CreateOgreEntityEvent(
+        std::ref(Component.Entity), Event.EntityName, Event.MeshName));
 
-    Rs.RenderQueue->Enqueue(AttachEntityToScenNodeEvent(std::ref(Component.Entity), std::ref(EntOgreComp.EntityNode)));
+    Rs.RenderQueue->Enqueue(AttachEntityToScenNodeEvent(
+        std::ref(Component.Entity), std::ref(EntOgreComp.EntityNode)));
 
   } catch (std::exception& e) {
     ParentReporter->EnqueueError(ErrorDetail::CreateError(
@@ -53,5 +56,4 @@ void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
         "OgreComponent to attach to"));
     return;
   }
-
 }

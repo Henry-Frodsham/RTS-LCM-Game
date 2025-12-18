@@ -174,7 +174,7 @@ void RenderSystem::InitRenderResponsibility() {
   RenderBus->Subscribe<OverlayEditTextEvent>(std::bind(
       &OverlayController::EditText, OverlayControl, std::placeholders::_1));
 
-  //core Ogre interactions
+  // core Ogre interactions
   RenderBus->Subscribe<CreateSceneNodeEvent>(std::bind(
       &RenderSystem::CreateSceneNodeFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<CreateOgreEntityEvent>(std::bind(
@@ -247,17 +247,20 @@ Ogre::Entity* RenderSystem::CreateEntity(std::string Name,
   return SceneManager->createEntity(Name, MeshName);
 }
 
-void RenderSystem::CreateSceneNodeFromEvent(CreateSceneNodeEvent Event){
-    Event.Node.get() = SceneManager->getRootSceneNode()->createChildSceneNode(Event.NodeName);
+void RenderSystem::CreateSceneNodeFromEvent(CreateSceneNodeEvent Event) {
+  Event.Node.get() =
+      SceneManager->getRootSceneNode()->createChildSceneNode(Event.NodeName);
 }
-void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event){
-    Event.Entity.get() = SceneManager->createEntity(Event.EntityName, Event.MeshName);
+void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event) {
+  Event.Entity.get() =
+      SceneManager->createEntity(Event.EntityName, Event.MeshName);
 }
-void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event){
-    Event.NodeToChange.get()->setPosition(Event.NewPosition);
+void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
+  Event.NodeToChange.get()->setPosition(Event.NewPosition);
 }
-void RenderSystem::AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event){
-    Event.SceneNode.get()->attachObject(Event.Entity.get());
+void RenderSystem::AttachEntityToNodeFromEvent(
+    AttachEntityToScenNodeEvent Event) {
+  Event.SceneNode.get()->attachObject(Event.Entity.get());
 }
 // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {
