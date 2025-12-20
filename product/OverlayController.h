@@ -41,6 +41,8 @@ class OverlayController {
 
   void EditText(OverlayEditTextEvent Event);
 
+  void CreateOverlay();
+
   void ParentUpdate();
 
   void InitFont();

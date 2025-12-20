@@ -20,6 +20,7 @@
 #include "OverlayEvent.h"
 #include "ViewPortController.h"
 #include "RenderEvent.h"
+#include "ViewPortUpdateListener.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating
@@ -49,6 +50,8 @@ class RenderSystem {
   ErrorReporter RenderErrorReporter;
 
   ViewPortController* DefaultViewPort;
+
+  ViewPortUpdateListener* ViewPortListener;
 
   Ogre::RenderWindowDescription RenderWindowSettings;
 

@@ -9,6 +9,7 @@ RenderSystem::RenderSystem()
       OverlayControl(nullptr),
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
+      ViewPortListener(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
   RenderBus = new EventBus();
@@ -114,6 +115,8 @@ void RenderSystem::Init() {
   DefaultViewPort = CreateViewPort();
 
   DefaultViewPort->setOverlaysEnabled(true);
+
+  ViewPortListener = new ViewPortUpdateListener();
   IsInit = true;
 }
 

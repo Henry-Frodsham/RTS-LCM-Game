@@ -46,6 +46,9 @@
     <ClCompile Include="GameInstance.cpp">
       <Filter>Source\instance</Filter>
     </ClCompile>
+    <ClCompile Include="ViewPortUpdateListener.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -119,6 +122,12 @@
     </Filter>
     <Filter Include="Headers\instance">
       <UniqueIdentifier>{0a9f0a4e-774c-4a35-988f-19d566d8a519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\REA">
+      <UniqueIdentifier>{43d1d4c5-fc93-4f7f-acc6-ea5ac3d86047}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\REA">
+      <UniqueIdentifier>{22b2fcb0-4546-4598-b0c9-053679da12b8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +208,12 @@
     </ClInclude>
     <ClInclude Include="InstanceEvent.h">
       <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Headers\REA</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewPortUpdateListener.h">
+      <Filter>Headers\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

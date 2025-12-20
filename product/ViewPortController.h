@@ -32,6 +32,8 @@ class ViewPortController {
   // destroys the frame buffer
   void Clear();
 
+  //comparison with another viewport without allowing direct access to the viewport
+  bool Equals(Ogre::Viewport* OtherViewport);
   // motion doesnt consider a 3d coordinate because the orbit is at a fixed
   // depth
   void MoveCameraOrbitingPoint2DMotion(Ogre::Vector2f RelativeMotion,

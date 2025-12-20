@@ -10,6 +10,10 @@ void ViewPortController::setOverlaysEnabled(bool Val) {
   ViewPort->setOverlaysEnabled(Val);
 }
 
+bool ViewPortController::Equals(Ogre::Viewport* OtherViewport) {
+    return OtherViewport == ViewPort;
+}
+
 // adjust camera viewing angle
 void ViewPortController::MoveCamera(float Pitch, float Yaw) {
   ViewPort->getCamera();
