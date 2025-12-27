@@ -97,3 +97,17 @@ struct OverlayEditTextEvent {
         NewText(Text),
         NameOfExisting(Name) {}
 };
+
+struct CreateOverlayEvent {
+  std::string OverlayName;
+  // to prevent a long chain of communication requests, an overlay can be made with either the viewport or device
+  InputDevice* InstanceDevice;
+  ViewPortController* InstanceViewPort;
+
+  //allow cases without either for a global overlay though
+  CreateOverlayEvent(std::string Overlay, InputDevice* Device = nullptr,
+      ViewPortController* Viewport = nullptr) 
+        : OverlayName(Overlay)
+        , InstanceDevice(Device)
+        , InstanceViewPort(Viewport) {}
+};
