@@ -13,17 +13,19 @@ void InputAnalyser::RegisterNew(InputTranslator* NewTranslator) {
 
   RenderSystem& Renderer = RenderSystem::GetInstance();
 
+  Renderer.RenderQueue->Enqueue(CreateOverlayEvent("DEBUG_" + std::to_string(Translators.size()), NewTranslator->ManagedDevice));
+
   Renderer.RenderQueue->Enqueue(OverlayAddTextEvent(
-      {0.f, 0.f + float((Translators.size() - 1) / 20.f)}, {1.f, 1.f},
-      "M_DEV_" + std::to_string(Translators.size()), "RED", "DEBUG",
+      {0.f, 0.f}, {1.f, 1.f},
+      "M_DEV_" + std::to_string(Translators.size()), "RED", "DEBUG_" + std::to_string(Translators.size()),
       "DEVICE " + std::to_string(Translators.size())));
   Renderer.RenderQueue->Enqueue(OverlayAddTextEvent(
-      {0.02f, 0.02f + float((Translators.size() - 1) / 20.f)}, {1.f, 1.f},
-      "M_MET_" + std::to_string(Translators.size()), "RED", "DEBUG",
+      {0.02f, 0.02f}, {1.f, 1.f},
+      "M_MET_" + std::to_string(Translators.size()), "RED", "DEBUG_" + std::to_string(Translators.size()),
       "PRESSED BUTTONS/KEYS " + std::to_string(Translators.size())));
   Renderer.RenderQueue->Enqueue(OverlayAddTextEvent(
-      {0.02f, 0.04f + float((Translators.size() - 1) / 20.f)}, {1.f, 1.f},
-      "M_MET_C" + std::to_string(Translators.size()), "RED", "DEBUG",
+      {0.02f, 0.04f}, {1.f, 1.f},
+      "M_MET_C" + std::to_string(Translators.size()), "RED", "DEBUG_" + std::to_string(Translators.size()),
       "AXIS/CURSOR " + std::to_string(Translators.size())));
 }
 
@@ -38,10 +40,11 @@ void InputAnalyser::Update() {
     std::vector<float> VecPos = TranslatorToUpdate->GetCurrentAxis();
 
     Renderer.RenderQueue->Enqueue(OverlayEditTextEvent(
-        "M_MET_" + std::to_string(i + 1), "DEBUG", {-1.f, -1.f}, {-1.f, -1.f},
+        "M_MET_" + std::to_string(i + 1), "DEBUG_" +  std::to_string(i+1), {-1.f, -1.f}, {-1.f, -1.f},
         "USE_OLD", "PRESSED BUTTONS/KEYS " + std::to_string(NumKeys)));
+
     Renderer.RenderQueue->Enqueue(OverlayEditTextEvent(
-        "M_MET_C" + std::to_string(i + 1), "DEBUG", {-1.f, -1.f}, {-1.f, -1.f},
+        "M_MET_C" + std::to_string(i + 1), "DEBUG_" + std::to_string(i+1), {-1.f, -1.f}, {-1.f, -1.f},
         "USE_OLD",
         fmt::format("AXIS X : {} AXIS Y : {}", VecPos[0], VecPos[1])));
   }

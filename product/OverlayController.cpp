@@ -1,11 +1,20 @@
 // Copyright © 2025 Henry Frodsham
 #include "OverlayController.h"
+#include "RenderSystem.h"
 
 OverlayController::OverlayController() : OverlayErrorReporter() {
   OverlayMngr = Ogre::OverlayManager::getSingletonPtr();
-  ManagedOverlays.emplace("DEBUG", OverlayMngr->create("DEBUG"));
 
   InitFont();
+}
+
+void OverlayController::CreateOverlay(CreateOverlayEvent Event) {
+    ManagedOverlays.emplace(Event.OverlayName, OverlayMngr->create(Event.OverlayName));
+
+    RenderSystem& Render = RenderSystem::GetInstance();
+
+
+    Render.RenderQueue->Enqueue(RegisterOverlayToViewPortEvent(ManagedOverlays.at(Event.OverlayName), Render.FindViewPortFromDevice(Event.InstanceDevice)));
 }
 
 void OverlayController::AddBox(OverlayAddBoxEvent Event) {

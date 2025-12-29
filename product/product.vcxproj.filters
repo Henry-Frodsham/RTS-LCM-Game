@@ -129,6 +129,9 @@
     <Filter Include="Source\REA">
       <UniqueIdentifier>{22b2fcb0-4546-4598-b0c9-053679da12b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\UI">
+      <UniqueIdentifier>{8c437e23-2b60-4aff-a4cd-98eccda8bb27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventBus.h">
@@ -214,6 +217,12 @@
     </ClInclude>
     <ClInclude Include="ViewPortUpdateListener.h">
       <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewPortUpdateEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="ResizeEvent.h">
+      <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

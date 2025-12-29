@@ -7,10 +7,10 @@ void ViewPortUpdateListener::preViewportUpdate(const Ogre::RenderTargetViewportE
 	//disable all the overlays, then enable the one that should be rendered
 	for (auto Viewport : InstanceViewports) {
 		if (Viewport.second->Equals(evt.source)) {
-			Viewport.second->setOverlaysEnabled(true);
+			Viewport.first->show();
 		}
 		else {
-			Viewport.second->setOverlaysEnabled(false);
+			Viewport.first->hide();
 		}
 	}
 	
@@ -18,16 +18,16 @@ void ViewPortUpdateListener::preViewportUpdate(const Ogre::RenderTargetViewportE
     VPULReporter.Dispatch();
 }
 
-void ViewPortUpdateListener::AssignOverlayToViewport(ViewPortController* ViewPort, Ogre::Overlay* Overlay) {
-  if (!ViewPort) {
+void ViewPortUpdateListener::AssignOverlayToViewport(RegisterOverlayToViewPortEvent Event) {
+  if (!Event.ViewPort) {
     VPULReporter.EnqueueError(ErrorDetail::CreateError(
         ErrorCode::ATTEMPT_ASSIGN_OVERLAY_TO_UNSET_VIEWPORT));
     return;
   }
-  if (!Overlay) {
+  if (!Event.Overlay) {
     VPULReporter.EnqueueError(ErrorDetail::CreateError(
         ErrorCode::ATTEMPT_TO_ASSIGN_VIEWPORT_TO_UNSET_OVERLAY));
     return;
   }
-  InstanceViewports.emplace(ViewPort, Overlay);
+  InstanceViewports.emplace(Event.Overlay, Event.ViewPort);
 }

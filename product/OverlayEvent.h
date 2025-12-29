@@ -1,4 +1,7 @@
+// Copyright © 2025 Henry Frodsham
 #pragma once
+#include "InputDevice.h"
+#include "ViewPortController.h"
 
 // an event used to add a rectangle to the screen
 // the event is queued then handled by the overlay manager

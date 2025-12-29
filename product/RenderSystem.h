@@ -21,6 +21,7 @@
 #include "ViewPortController.h"
 #include "RenderEvent.h"
 #include "ViewPortUpdateListener.h"
+#include "ViewPortUpdateEvent.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating
@@ -78,6 +79,8 @@ class RenderSystem {
 
   void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
 
+  
+
  public:
   static RenderSystem& GetInstance();
   // RenderSystem(const RenderSystem&) = delete;
@@ -106,4 +109,6 @@ class RenderSystem {
   ViewPortController* GetPrimaryViewport();
 
   float GetDeltaTime();
+
+  ViewPortController* FindViewPortFromDevice(InputDevice* Device);
 };

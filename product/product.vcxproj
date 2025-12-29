@@ -294,8 +294,10 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="ResizeEvent.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ViewPortController.h" />
+    <ClInclude Include="ViewPortUpdateEvent.h" />
     <ClInclude Include="ViewPortUpdateListener.h" />
     <ClInclude Include="WorldEvent.h" />
     <ClInclude Include="WorldManager.h" />

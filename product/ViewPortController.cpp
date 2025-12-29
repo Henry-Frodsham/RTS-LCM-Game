@@ -4,10 +4,19 @@
 // constructor
 ViewPortController::ViewPortController(Ogre::Viewport* NewVP) {
   ViewPort = NewVP;
+  ControllingDevice = nullptr;
 }
 
 void ViewPortController::setOverlaysEnabled(bool Val) {
   ViewPort->setOverlaysEnabled(Val);
+}
+
+void ViewPortController::RegisterControllingDevice(InputDevice* Device) {
+    ControllingDevice = Device;
+}
+
+bool ViewPortController::IsControllerByDevice(InputDevice* Device) {
+    return ControllingDevice == Device;
 }
 
 bool ViewPortController::Equals(Ogre::Viewport* OtherViewport) {

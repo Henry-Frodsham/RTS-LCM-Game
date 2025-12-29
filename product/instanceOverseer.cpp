@@ -10,6 +10,8 @@ InstanceOverseer::InstanceOverseer(InputListener* ParentListener)
       &InstanceOverseer::RegisterNewInstance, this, std::placeholders::_1));
   InstanceBus->Subscribe<UpstreamOrbitViewport2DEvent>(std::bind(
       &InstanceOverseer::MoveViewport2DOrbit, this, std::placeholders::_1));
+  InstanceBus->Subscribe<RecheckViewPortSizeCommand>(std::bind(
+      &InstanceOverseer::RecalculateViewPortSizes, this, std::placeholders::_1));
 }
 
 void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
@@ -18,24 +20,57 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
         ErrorDetail::CreateError(ErrorCode::INSTANCE_REQUEST_NO_DEVICE));
     return;
   }
+  RenderSystem& RS = RenderSystem::GetInstance();
 
-  InputTranslator* Translator = new InputTranslator(Event.InstanceDevice);
+  ViewPortController* VP = nullptr;
+  // KBM should always have control of the main viewport for text prompts etc
+  // if the new device isnt the kbm then just make a new one
+  if (Event.InstanceDevice->InputType == InputDeviceType::KBM) {
+      VP = RS.GetPrimaryViewport();
+  }
+  else {
+      VP = RS.CreateViewPort();
+  }
+  std::vector<float> RelativeVPDimensions = VP->GetViewPortDimensions();
+  Ogre::RenderWindowDescription WindowInfo =
+      RS.GetPrimaryWindowInformation();
+  float TotalWindowWidth = static_cast<float>(WindowInfo.width);
+  float TotalWindowHeight = static_cast<float>(WindowInfo.height);
+
+  float ViewPortWidth = TotalWindowWidth * RelativeVPDimensions[2];
+  float ViewPortHeight = TotalWindowWidth * RelativeVPDimensions[3];
+
+  InputTranslator* Translator = new InputTranslator(Event.InstanceDevice, ViewPortWidth, ViewPortHeight);
   DeviceListener->AddListenerQueue(Event.InstanceDevice,
                                    Translator->WaitingEvents);
   GameInstance* NewInstance = new GameInstance(
       InstanceReporter, InstanceQueue, Event.InstanceDevice, Translator);
 
   GameInstances.push_back(NewInstance);
+  InstanceViewports.emplace(NewInstance, VP);
 
-  RenderSystem& RS = RenderSystem::GetInstance();
 
-  // KBM should always have control of the main viewport for text prompts etc
-  // if the new device isnt the kbm then just make a new one
-  if (Event.InstanceDevice->InputType == InputDeviceType::KBM) {
-    InstanceViewports.emplace(NewInstance, RS.GetPrimaryViewport());
-  } else {
-    InstanceViewports.emplace(NewInstance, RS.CreateViewPort());
-  }
+
+  VP->RegisterControllingDevice(Event.InstanceDevice);
+
+  InstanceQueue->Enqueue(RecheckViewPortSizeCommand());
+}
+
+void InstanceOverseer::RecalculateViewPortSizes(RecheckViewPortSizeCommand Cmd) {
+    RenderSystem& RS = RenderSystem::GetInstance();
+    Ogre::RenderWindowDescription WindowInfo =
+        RS.GetPrimaryWindowInformation();
+    for (auto Pair : InstanceViewports) {
+        std::vector<float> RelativeVPDimensions = Pair.second->GetViewPortDimensions();
+
+        float TotalWindowWidth = static_cast<float>(WindowInfo.width);
+        float TotalWindowHeight = static_cast<float>(WindowInfo.height);
+
+        float ViewPortWidth = TotalWindowWidth * RelativeVPDimensions[2];
+        float ViewPortHeight = TotalWindowHeight * RelativeVPDimensions[3];
+
+        Pair.first->LocalQueue->Enqueue(ResizedViewPortEvent(ViewPortWidth, ViewPortHeight));
+    }
 }
 
 void InstanceOverseer::ReviseAndUpdate(float DeltaTime) {

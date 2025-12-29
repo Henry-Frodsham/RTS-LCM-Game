@@ -10,10 +10,13 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
       InstanceTranslator(DeviceTranslator) {
   LocalBus = new EventBus();
   LocalQueue = new EventQueue(LocalBus);
+
+  LocalBus->Subscribe<ResizedViewPortEvent>(std::bind(&InputTranslator::ResizeViewPortDimensions, InstanceTranslator, std::placeholders::_1));
 }
 
 void GameInstance::Run(float DT) {
   InstanceTranslator->Update(DT);
+  LocalQueue->Dispatch();
 
   if (InstanceTranslator->HasRelativeMotion()) {
     UpstreamQueue->Enqueue(UpstreamOrbitViewport2DEvent(

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "ViewPortController.h"
 #include "ErrorReporter.h"
+#include "ViewPortUpdateEvent.h"
 
 class ViewPortUpdateListener : public Ogre::RenderTargetListener {
 private:
@@ -16,5 +17,5 @@ public:
 
     void preViewportUpdate(const Ogre::RenderTargetViewportEvent& evt) override;
 
-    void AssignOverlayToViewport(ViewPortController* Viewport, Ogre::Overlay* Overlay);
+    void AssignOverlayToViewport(RegisterOverlayToViewPortEvent Event);
 };
