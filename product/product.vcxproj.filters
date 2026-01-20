@@ -49,6 +49,12 @@
     <ClCompile Include="ViewPortUpdateListener.cpp">
       <Filter>Source\Render</Filter>
     </ClCompile>
+    <ClCompile Include="Cursor.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformationMatrix.cpp">
+      <Filter>Source\Matrix</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -131,6 +137,15 @@
     </Filter>
     <Filter Include="Source\UI">
       <UniqueIdentifier>{8c437e23-2b60-4aff-a4cd-98eccda8bb27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\UI">
+      <UniqueIdentifier>{1ea5edfc-795b-49de-8fe2-43078d544d09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Matrix">
+      <UniqueIdentifier>{8c747afa-ca91-4665-ab32-848f3d6911e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Matrix">
+      <UniqueIdentifier>{5fc9709a-aa81-4f13-acb8-7cf9cd66f884}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +238,15 @@
     </ClInclude>
     <ClInclude Include="ResizeEvent.h">
       <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="Cursor.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformationMatrix.h">
+      <Filter>Headers\Matrix</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
