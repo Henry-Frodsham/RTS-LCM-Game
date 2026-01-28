@@ -4,6 +4,7 @@
 #include "EventQueue.h"
 #include "InputListener.h"
 #include "InputTranslator.h"
+#include "Cursor.h"
 
 class GameInstance {
  public:
@@ -28,4 +29,6 @@ class GameInstance {
 
   // thread safe commands only accessing local resources
   EventBus* LocalBus;
+
+  Cursor* InstanceCursor;
 };

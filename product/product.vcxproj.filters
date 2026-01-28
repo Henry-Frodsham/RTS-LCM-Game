@@ -55,6 +55,9 @@
     <ClCompile Include="TransformationMatrix.cpp">
       <Filter>Source\Matrix</Filter>
     </ClCompile>
+    <ClCompile Include="EntityInteraction.cpp">
+      <Filter>Source\Action</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -146,6 +149,12 @@
     </Filter>
     <Filter Include="Headers\Matrix">
       <UniqueIdentifier>{5fc9709a-aa81-4f13-acb8-7cf9cd66f884}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Action">
+      <UniqueIdentifier>{16e0fc90-0731-49ca-b68c-61a88fb7811a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Action">
+      <UniqueIdentifier>{bee106f6-0a0d-47af-b0ba-12783cb54514}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -247,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="TransformationMatrix.h">
       <Filter>Headers\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityInteractionEvaluator.h">
+      <Filter>Headers\Action</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

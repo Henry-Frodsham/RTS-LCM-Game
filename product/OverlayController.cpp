@@ -38,8 +38,9 @@ void OverlayController::AddBox(OverlayAddBoxEvent Event) {
       OverlayMngr->createOverlayElement("Panel", Event.Name));
 
   // relative coordinate mode, avoids manual scaling with different screen sizes
-  Panel->setMetricsMode(Ogre::GMM_RELATIVE);
+  Panel->setMetricsMode(Ogre::GMM_PIXELS);
   Panel->setPosition(Event.Position[0], Event.Position[1]);
+  Panel->setMetricsMode(Ogre::GMM_RELATIVE);
   Panel->setDimensions(Event.Dimensions[0], Event.Dimensions[1]);
 
   try {
@@ -139,9 +140,11 @@ void OverlayController::EditPanel(OverlayEditPanelEvent Event) {
   }
 
   if (Event.NewDimensions != std::vector<float>{-1.f, -1.f}) {
+      FoundElement->setMetricsMode(Ogre::GMM_RELATIVE);
     FoundElement->setDimensions(Event.NewDimensions[0], Event.NewDimensions[1]);
   }
   if (Event.NewPosition != std::vector<float>{-1.f, -1.f}) {
+      FoundElement->setMetricsMode(Ogre::GMM_PIXELS);
     FoundElement->setPosition(Event.NewPosition[0], Event.NewPosition[1]);
   }
   if (Event.NewMaterialName != "USE_OLD") {

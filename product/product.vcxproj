@@ -257,6 +257,7 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="ECSHelper.cpp" />
     <ClCompile Include="EntityConstructionTemplates.h" />
+    <ClCompile Include="EntityInteraction.cpp" />
     <ClCompile Include="ErrorReporter.cpp" />
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="GameInstance.cpp" />
@@ -279,6 +280,7 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClInclude Include="CursorEvent.h" />
     <ClInclude Include="ECSFactoryEvent.h" />
     <ClInclude Include="ECSHelper.h" />
+    <ClInclude Include="EntityInteractionEvaluator.h" />
     <ClInclude Include="ErrorManifest.h" />
     <ClInclude Include="ErrorReporter.h" />
     <ClInclude Include="EventBus.h" />
