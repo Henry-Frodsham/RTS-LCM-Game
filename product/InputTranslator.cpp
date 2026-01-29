@@ -201,6 +201,9 @@ bool InputTranslator::HasRelativeMotion() {
   return false;
 }
 
+std::vector<float> InputTranslator::GetViewPortDimensions() {
+  return std::vector<float>{ViewPortWidth, ViewPortHeight};
+}
 void InputTranslator::ResizeViewPortDimensions(ResizedViewPortEvent Event) {
     ViewPortWidth = Event.X;
     ViewPortHeight = Event.Y;

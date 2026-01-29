@@ -20,11 +20,12 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
 
 void GameInstance::Run(float DT) {
   InstanceTranslator->Update(DT);
-  InstanceCursor->Update();
+  
   LocalQueue->Dispatch();
 
   if (InstanceTranslator->HasRelativeMotion()) {
     UpstreamQueue->Enqueue(UpstreamOrbitViewport2DEvent(
         InstanceTranslator->GetRelativeMotion(), this));
+    InstanceCursor->Update();
   }
 }

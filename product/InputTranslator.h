@@ -35,6 +35,8 @@ class InputTranslator {
 
   void ResizeViewPortDimensions(ResizedViewPortEvent Event);
 
+  std::vector<float> GetViewPortDimensions();
+
  private:
   EventBus* InputEvents;
 
