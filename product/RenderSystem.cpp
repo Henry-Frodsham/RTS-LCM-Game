@@ -9,6 +9,7 @@ RenderSystem::RenderSystem()
       OverlayControl(nullptr),
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
+      ViewPortListener(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
   RenderBus = new EventBus();
@@ -89,6 +90,9 @@ void RenderSystem::Init() {
 
   PrimaryWindow = OgreRoot->createRenderWindow(RenderWindowSettings);
 
+  ViewPortListener = new ViewPortUpdateListener();
+
+  PrimaryWindow->addListener(ViewPortListener);
   // get the window handle to bind with SDL
   size_t WindowHandle = 0;
   PrimaryWindow->getCustomAttribute("WINDOW", &WindowHandle);
@@ -114,6 +118,8 @@ void RenderSystem::Init() {
   DefaultViewPort = CreateViewPort();
 
   DefaultViewPort->setOverlaysEnabled(true);
+
+  
   IsInit = true;
 }
 
@@ -143,7 +149,6 @@ ViewPortController* RenderSystem::CreateViewPort() {
 
   ViewPorts.push_back(newController);
 
-  newController->setOverlaysEnabled(false);
   ScaleViewPorts();
 
   return newController;
@@ -173,6 +178,8 @@ void RenderSystem::InitRenderResponsibility() {
       &OverlayController::EditPanel, OverlayControl, std::placeholders::_1));
   RenderBus->Subscribe<OverlayEditTextEvent>(std::bind(
       &OverlayController::EditText, OverlayControl, std::placeholders::_1));
+  RenderBus->Subscribe<CreateOverlayEvent>(std::bind(
+      &OverlayController::CreateOverlay, OverlayControl, std::placeholders::_1));
 
   // core Ogre interactions
   RenderBus->Subscribe<CreateSceneNodeEvent>(std::bind(
@@ -183,6 +190,10 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::SetNodePositionFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<AttachEntityToScenNodeEvent>(std::bind(
       &RenderSystem::AttachEntityToNodeFromEvent, this, std::placeholders::_1));
+
+  //view port update events
+  RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(std::bind(
+      &ViewPortUpdateListener::AssignOverlayToViewport, ViewPortListener, std::placeholders::_1));
 }
 
 // initialise the basic resources (not game textures and mats etc)
@@ -261,6 +272,15 @@ void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
 void RenderSystem::AttachEntityToNodeFromEvent(
     AttachEntityToScenNodeEvent Event) {
   Event.SceneNode.get()->attachObject(Event.Entity.get());
+}
+
+ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {
+    for (ViewPortController* VPC : ViewPorts) {
+        if (VPC->IsControllerByDevice(Device)) {
+            return VPC;
+        }
+    }
+    return nullptr;
 }
 // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {

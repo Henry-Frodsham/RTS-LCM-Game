@@ -3,7 +3,7 @@
 
 #include "InputAnalyser.h"
 
-InputTranslator::InputTranslator(InputDevice* Device) {
+InputTranslator::InputTranslator(InputDevice* Device, float VPWidth, float VPHeight) {
   ManagedDevice = Device;
   InputEvents = new EventBus();
   WaitingEvents = new EventQueue(InputEvents);
@@ -22,10 +22,9 @@ InputTranslator::InputTranslator(InputDevice* Device) {
   CursorSensitivity = 100.f;
   JoystickDeadzone = 0.1f;
 
-  Ogre::RenderWindowDescription WindowInfo =
-      RenderSystem::GetInstance().GetPrimaryWindowInformation();
-  ScreenWidth = static_cast<float>(WindowInfo.width);
-  ScreenHeight = static_cast<float>(WindowInfo.height);
+
+  ViewPortWidth = VPWidth;
+  ViewPortHeight = VPHeight;
 
 #ifdef _DEBUG
   InputAnalyser::GetInstance().RegisterNew(this);
@@ -115,8 +114,11 @@ void InputTranslator::TranslateRawCursor(RawCursorEvent Event) {
   const SDL_MouseMotionEvent& Motion = Event.Cursor;
   std::vector<float> CursorVec{static_cast<float>(Motion.x),
                                static_cast<float>(Motion.y)};
+  CursorVec[0] = std::clamp(CursorVec[0], 0.f, ViewPortWidth);
+  CursorVec[1] = std::clamp(CursorVec[1], 0.f, ViewPortHeight);
   RelativeMotion = Ogre::Vector2f((CursorVec[0] - CursorPos[0]) / 100.f,
                                   (CursorVec[1] - CursorPos[1]) / 100.f);
+
   CursorPos = CursorVec;
 }
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event) {
@@ -186,9 +188,9 @@ void InputTranslator::Update(float DeltaTime) {
 
     RelativeMotion = Ogre::Vector2f(velocityX, velocityY);
 
-    CursorPos[0] = std::clamp(CursorPos[0], 0.f, ScreenWidth);
-    CursorPos[1] = std::clamp(CursorPos[1], 0.f, ScreenHeight);
   }
+  CursorPos[0] = std::clamp(CursorPos[0], 0.f, ViewPortWidth);
+  CursorPos[1] = std::clamp(CursorPos[1], 0.f, ViewPortHeight);
 }
 
 Ogre::Vector2f InputTranslator::GetRelativeMotion() { return RelativeMotion; }
@@ -197,4 +199,12 @@ bool InputTranslator::HasRelativeMotion() {
     return true;
   }
   return false;
+}
+
+std::vector<float> InputTranslator::GetViewPortDimensions() {
+  return std::vector<float>{ViewPortWidth, ViewPortHeight};
+}
+void InputTranslator::ResizeViewPortDimensions(ResizedViewPortEvent Event) {
+    ViewPortWidth = Event.X;
+    ViewPortHeight = Event.Y;
 }

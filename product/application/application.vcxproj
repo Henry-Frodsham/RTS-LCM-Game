@@ -182,6 +182,7 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OgreMain_d.lib;OgreBites_d.lib;OgreOverlay.lib;fmtd.lib;product.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib\manual-link;$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib;$(SolutionDir)x64\$(Configuration)\</AdditionalLibraryDirectories>
+      <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" "$(OutDir)"

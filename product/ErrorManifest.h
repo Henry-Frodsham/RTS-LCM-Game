@@ -48,6 +48,8 @@ enum ErrorCode : uint32_t {
   SCENE_NODE_DOESNT_EXIST = 4012,
   INSTANCE_REQUEST_NO_DEVICE = 4013,
   BAD_VIEWPORT_CONTROL_REQUEST = 4014,
+  ATTEMPT_TO_ASSIGN_VIEWPORT_TO_UNSET_OVERLAY = 4015,
+  ATTEMPT_ASSIGN_OVERLAY_TO_UNSET_VIEWPORT = 4016,
   // fatal
   OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
   SDL_FAILED_INIT = 5002,
@@ -182,6 +184,17 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
       "a request made by an instance thread to control their viewport was "
       "invalid",
       "InstanceOverseer"}},
+
+    {ErrorCode::ATTEMPT_ASSIGN_OVERLAY_TO_UNSET_VIEWPORT,
+     {ErrorCode::ATTEMPT_ASSIGN_OVERLAY_TO_UNSET_VIEWPORT, ErrorLevel::ERR,
+      "couldnt assign an overlay to a viewport because the overlay was a nullptr",
+      "ViewPortUpdateListener"}},
+
+    {ErrorCode::ATTEMPT_TO_ASSIGN_VIEWPORT_TO_UNSET_OVERLAY,
+     {ErrorCode::ATTEMPT_TO_ASSIGN_VIEWPORT_TO_UNSET_OVERLAY, ErrorLevel::ERR,
+      "couldnt assign an viewport to an overlay because the viewport was a "
+      "nullptr",
+      "ViewPortUpdateListener"}},
     // fatal
     {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
      {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

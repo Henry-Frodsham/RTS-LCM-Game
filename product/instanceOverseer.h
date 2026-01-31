@@ -13,6 +13,7 @@
 #include "InstanceEvent.h"
 #include "RenderSystem.h"
 #include "ViewPortController.h"
+#include "ResizeEvent.h"
 
 // the class that "holds the reigns" over all instances
 
@@ -33,6 +34,8 @@ class InstanceOverseer {
   ErrorReporter* InstanceReporter;
 
   void RegisterNewInstance(RegisterInstanceEvent Event);
+
+  void RecalculateViewPortSizes(RecheckViewPortSizeCommand Cmd);
 
   // non thread safe requests that must be handled here
   void MoveViewport2DOrbit(UpstreamOrbitViewport2DEvent Event);

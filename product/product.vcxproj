@@ -254,8 +254,10 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConfigManager.cpp" />
+    <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="ECSHelper.cpp" />
     <ClCompile Include="EntityConstructionTemplates.h" />
+    <ClCompile Include="EntityInteraction.cpp" />
     <ClCompile Include="ErrorReporter.cpp" />
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="GameInstance.cpp" />
@@ -266,14 +268,19 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClCompile Include="OverlayController.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="TransformationMatrix.cpp" />
     <ClCompile Include="ViewPortController.cpp" />
+    <ClCompile Include="ViewPortUpdateListener.cpp" />
     <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseComponents.h" />
     <ClInclude Include="ConfigManager.h" />
+    <ClInclude Include="Cursor.h" />
+    <ClInclude Include="CursorEvent.h" />
     <ClInclude Include="ECSFactoryEvent.h" />
     <ClInclude Include="ECSHelper.h" />
+    <ClInclude Include="EntityInteractionEvaluator.h" />
     <ClInclude Include="ErrorManifest.h" />
     <ClInclude Include="ErrorReporter.h" />
     <ClInclude Include="EventBus.h" />
@@ -293,7 +300,12 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="ResizeEvent.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="TransformationMatrix.h" />
     <ClInclude Include="ViewPortController.h" />
+    <ClInclude Include="ViewPortUpdateEvent.h" />
+    <ClInclude Include="ViewPortUpdateListener.h" />
     <ClInclude Include="WorldEvent.h" />
     <ClInclude Include="WorldManager.h" />
   </ItemGroup>

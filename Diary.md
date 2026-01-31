@@ -51,17 +51,34 @@
 10/11/25 - using ogre in static lib mode proved to be a major pain, reverting back to last stable build
 10/11/25 - after revert, used native ogre overlay support to add OverlayController (class owned by RenderSystem and is responsible soley for overlays)
 11/11/25 - stopped checking controller GUID, realised it was manufacturer id and anyone using generic controllers (like me) would have their controllers lumped onto the same id
-11/12/25 - added a debug overlay that shows activity of all input devices
-11/12/25 - when refining before final merge, i noticed that SDL2 actually has a limitation with generic controllers, that being it has literally no idea which is which, this isnt a problem if they dont disconnect but finding the right controller to connect back to is now proving extremely difficult
-11/12/25 - my first idea for solving this problem is to just reconnect controllers to the slot that doesnt have a valid controller connected, this would work perfectly fine however a foreseeable issue is if two controllers disconnect at the same time then they may end up in the wrong slot. this is the most practical solution for now however once the project is at a later stage my definitive solution is to have a prompt pop up for each disconnected user saying "press any key (player)" so the user can manually put it back in the right slot
-11/12/25 - implemented fix to controller reconnection, as suspected theres an issue where disconnected 2 controllers can cause the slots to switch
-12/12/25 - noticed that the input sensitivity of controllers depended on the frame rate the game was running on when testing on multiple clamped frame rates
-12/12/25 - implemented a dynamic delta time value that can easily be retrieved from RenderSystem and scaled input sensitivity with it
-13/12/25 - 22/12/25 - time dedicated to multiple assignments for other modules
-23/12/25 - asked myself what should i be doing for users with different display types or render preferences
-24/12/25 - utilized nlohmann json to make a generic ConfigManager usable for any config elsewhere in my codebase
-25/12/25 - implemented the new config system for video settings, including render resolution, the default render resolution is 1920x1080 since its the most common resolution
-27/12/25 - researched ECS implementations for use cases similar to mine
-28/12/25 - researched the ogre docs to see what information i should be storing for my ECS entities
-29/12/25 - initial ECS implementation with a test cube (different coloured faces) for the demo
+11/11/25 - added a debug overlay that shows activity of all input devices
+11/11/25 - when refining before final merge, i noticed that SDL2 actually has a limitation with generic controllers, that being it has literally no idea which is which, this isnt a problem if they dont disconnect but finding the right controller to connect back to is now proving extremely difficult
+11/11/25 - my first idea for solving this problem is to just reconnect controllers to the slot that doesnt have a valid controller connected, this would work perfectly fine however a foreseeable issue is if two controllers disconnect at the same time then they may end up in the wrong slot. this is the most practical solution for now however once the project is at a later stage my definitive solution is to have a prompt pop up for each disconnected user saying "press any key (player)" so the user can manually put it back in the right slot
+11/11/25 - implemented fix to controller reconnection, as suspected theres an issue where disconnected 2 controllers can cause the slots to switch
+12/11/25 - noticed that the input sensitivity of controllers depended on the frame rate the game was running on when testing on multiple clamped frame rates
+12/11/25 - implemented a dynamic delta time value that can easily be retrieved from RenderSystem and scaled input sensitivity with it
+13/11/25 - 22/12/25 - time dedicated to multiple assignments for other modules
+23/11/25 - asked myself what should i be doing for users with different display types or render preferences
+24/11/25 - utilized nlohmann json to make a generic ConfigManager usable for any config elsewhere in my codebase
+25/11/25 - implemented the new config system for video settings, including render resolution, the default render resolution is 1920x1080 since its the most common resolution
+27/11/25 - researched ECS implementations for use cases similar to mine
+28/11/25 - researched the ogre docs to see what information i should be storing for my ECS entities
+29/11/25 - initial ECS implementation with a test cube (different coloured faces) for the demo
 
+12-20/12/25 - final refinements to interim report (extension used)
+
+--- out of term development 
+12/12/25 - research similar split overlay implementations (having overlays unique to a viewport)
+14/12/25 - implemented extended functionality to rendersystem through an owned class (PreViewPortUpdateListener)
+15/12/25 - implemented unique overlay functionality by hiding other overlays at the precise moment they are about to rendered, this is done using the PreViewPortUpdate event thats dispatched automatically by ogre
+
+27/12/25 - limit the cursor position to the size of a unique overlay, this functionality will be extended in future by preventing the cursor from moving over other viewports
+
+--- term 2 start
+19/01/26 - revisited https://liacs.leidenuniv.nl/~plaata1/papers/abbadi-resources_entities_actions_a_generalized_design_pattern-118.pdf for a better understanding of resource entity action
+20/01/26 - wrote failing tests for the transformation matrix class
+20-25/01/26 - implementation of a rudimentary cursor implementation, noticed significant stability issues from this implementation
+26/01/26 - following testing of the cursor implementation, i decided that sticking to the default OS cursor for mouse was a better option for the mouse but keeping the system in place for controllers
+27/01/26 - refactored the dispatching order for events such that events are processed the same frame they are created, reducing the perceived delay from the cursor
+28/01/26 - created the entity interaction class, a class thats responsibility is to process all entity interactions and route matrixable interactions accordingly.
+29-31/01/26 - edge cases for matrix tests, stability improvements following detailed analysis from performance profiler.

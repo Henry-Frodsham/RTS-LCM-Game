@@ -46,6 +46,18 @@
     <ClCompile Include="GameInstance.cpp">
       <Filter>Source\instance</Filter>
     </ClCompile>
+    <ClCompile Include="ViewPortUpdateListener.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Cursor.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformationMatrix.cpp">
+      <Filter>Source\Matrix</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityInteraction.cpp">
+      <Filter>Source\Action</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -119,6 +131,30 @@
     </Filter>
     <Filter Include="Headers\instance">
       <UniqueIdentifier>{0a9f0a4e-774c-4a35-988f-19d566d8a519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\REA">
+      <UniqueIdentifier>{43d1d4c5-fc93-4f7f-acc6-ea5ac3d86047}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\REA">
+      <UniqueIdentifier>{22b2fcb0-4546-4598-b0c9-053679da12b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\UI">
+      <UniqueIdentifier>{8c437e23-2b60-4aff-a4cd-98eccda8bb27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\UI">
+      <UniqueIdentifier>{1ea5edfc-795b-49de-8fe2-43078d544d09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Matrix">
+      <UniqueIdentifier>{8c747afa-ca91-4665-ab32-848f3d6911e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Matrix">
+      <UniqueIdentifier>{5fc9709a-aa81-4f13-acb8-7cf9cd66f884}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Action">
+      <UniqueIdentifier>{16e0fc90-0731-49ca-b68c-61a88fb7811a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Action">
+      <UniqueIdentifier>{bee106f6-0a0d-47af-b0ba-12783cb54514}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +235,30 @@
     </ClInclude>
     <ClInclude Include="InstanceEvent.h">
       <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Headers\REA</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewPortUpdateListener.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewPortUpdateEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="ResizeEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="Cursor.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformationMatrix.h">
+      <Filter>Headers\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityInteractionEvaluator.h">
+      <Filter>Headers\Action</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

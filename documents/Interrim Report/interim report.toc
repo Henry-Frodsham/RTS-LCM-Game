@@ -26,17 +26,18 @@
 \contentsline {section}{\numberline {4.1}concurrency}{18}{section.4.1}%
 \contentsline {section}{\numberline {4.2}input handling}{18}{section.4.2}%
 \contentsline {section}{\numberline {4.3}ECS}{18}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Project CFD}{18}{section.4.4}%
-\contentsline {chapter}{\numberline {5}deployment}{19}{chapter.5}%
-\contentsline {section}{\numberline {5.1}deployment prerequisites}{19}{section.5.1}%
-\contentsline {section}{\numberline {5.2}deployment instructions}{19}{section.5.2}%
-\contentsline {chapter}{\numberline {6}Software engineering methodologies}{20}{chapter.6}%
-\contentsline {section}{\numberline {6.1}testing environment}{20}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Use of TDD}{20}{section.6.2}%
-\contentsline {section}{\numberline {6.3}system architecture}{20}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Version control}{21}{section.6.4}%
-\contentsline {chapter}{\numberline {7}Acronomys}{22}{chapter.7}%
-\contentsline {chapter}{\numberline {8}Glossary}{23}{chapter.8}%
-\contentsline {chapter}{\numberline {9}references}{24}{chapter.9}%
-\contentsline {chapter}{\numberline {10}appendices}{25}{chapter.10}%
-\contentsline {section}{\numberline {10.1}project diary}{25}{section.10.1}%
+\contentsline {section}{\numberline {4.4}The visible running state of the project}{19}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Project CFD}{19}{section.4.5}%
+\contentsline {chapter}{\numberline {5}deployment}{20}{chapter.5}%
+\contentsline {section}{\numberline {5.1}deployment prerequisites}{20}{section.5.1}%
+\contentsline {section}{\numberline {5.2}deployment instructions}{20}{section.5.2}%
+\contentsline {chapter}{\numberline {6}Software engineering methodologies}{21}{chapter.6}%
+\contentsline {section}{\numberline {6.1}testing environment}{21}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Use of TDD}{21}{section.6.2}%
+\contentsline {section}{\numberline {6.3}system architecture}{21}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Version control}{22}{section.6.4}%
+\contentsline {chapter}{\numberline {7}Acronomys}{23}{chapter.7}%
+\contentsline {chapter}{\numberline {8}Glossary}{24}{chapter.8}%
+\contentsline {chapter}{\numberline {9}bibliography}{25}{chapter.9}%
+\contentsline {chapter}{\numberline {10}appendices}{26}{chapter.10}%
+\contentsline {section}{\numberline {10.1}project diary}{26}{section.10.1}%

@@ -27,7 +27,7 @@ This report has been prepared on the basis of my own work. Where other published
 
 \vskip3em
 
-Word Count: 6577
+Word Count: 6856
 
 \vskip3em
 
@@ -35,7 +35,7 @@ Student Name:  Henry Frodsham
 
 \vskip3em
 
-Date of Submission: 18/12/25
+Date of Submission: 19/12/25
 
 \vskip3em
 
@@ -249,7 +249,7 @@ There are differing approaches to how regions of the display are divided in LCM 
 
 
 \subsection{How I chose my implementations of ECS}
-ECS can be implemented via various libraries in C++, two notable ones are Flecs and Entt. Entt uses solely sparse set to store entities whereas Flecs can use either sparse set 
+ECS can be implemented via various libraries in C++, two notable ones are Flecs and Entt. Entt uses sparse set to store entities whereas Flecs uses archetype.
 
 Flecs has an advantage over Entt in terms of ease of use due to its query engine, making multiple entity and component retrievals easier to manage. Flecs is also included in the std library in c++ meaning it has the added advantage of not adding extra dependencies to my project.
 
@@ -402,9 +402,25 @@ however, the disconnect handling is not yet complete due to a limitation with SD
 This project has implemented ECS for storage and classification of game objects. visible game objects such as the demonstration cube can easily be created through entity templates that construct ECS entities using a factory design pattern. the created ECS entities are automatically linked to ogre3d such that they are visible from a viewport.
 
 the universal Entity components have been created storing pointers to Ogre objects to allow for easy modification of the stored entities.  
+\section{The visible running state of the project}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{screenshot004}
+	\caption{a screenshot taken of the projects execution}
+	\label{fig:screenshot004}
+\end{figure}
+This is the visible state of the project when 2 input devices are connected. both input devices have their own perspective of the cube and can control their perspective simultaneously. the debug overlay also shows the current state of each input device such as the number of pressed buttons.
 
 \section{Project CFD}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{../CFD}
+	\caption{the control flow diagram of the projects execution. zooming in is required to read text clearly.}
+	\label{fig:cfd}
+\end{figure}
+
 \chapter {deployment}
+
 \section {deployment prerequisites}
  
 \textbf{at a bare minimum you should possess:} \newline
@@ -494,13 +510,18 @@ store entities \newline
 \textbf{stellaris} a real time strategy game from Paradox interactive, known to have performance issues \newline
 
 
-\chapter{references}
-[1]\url{https://www.david-colson.com/2020/02/09/making-a-simple-ecs.html} \newline
-[2]\url{https://liacs.leidenuniv.nl/~plaata1/papers/abbadi-resources_entities_actions_a_generalized_design_pattern-118.pdf} \newline
-[3]\url{https://dev.epicgames.com/documentation/en-us/unreal-engine/nanite-virtualized-geometry-in-unreal-engine} \newline
-[4]\url{https://learn.microsoft.com/en-us/gaming/gdk/docs/features/common/input/overviews/input-overview} \newline
-[5]\url{https://diglib.eg.org/items/6e291ae6-e32c-4c21-a89b-021fd9986ede}
-[6]\url{https://scholar.afit.edu/etd/5353/}
+\chapter{bibliography}
+[1] Colson, D. (2020) How to make a simple entity-component-system in C++. Available at: \url{https://www.david-colson.com/2020/02/09/making-a-simple-ecs.html} (Accessed: 10th November 2025). \newline
+
+[2] Abbadi, M., Di Giacomo, F., Orsini, R., Plaat, A., Spronck, P. and Maggiore, G. (no date) Resource Entity Action: A Generalized Design Pattern for RTS games. Università Ca' Foscari DAIS - Computer Science, Venice, Italy; Tilburg University, Netherlands; NHTV University of Applied Sciences, Breda, Netherlands. Available at: \url{https://liacs.leidenuniv.nl/~plaata1/papers/abbadi-resources_entities_actions_a_generalized_design_pattern-118.pdf} (Accessed: 10th December 2025). \newline
+
+[3] Epic Games (2025) Nanite Virtualized Geometry in Unreal Engine. Unreal Engine 5.7 Documentation. Available at: \url{https://dev.epicgames.com/documentation/en-us/unreal-engine/nanite-virtualized-geometry-in-unreal-engine} (Accessed: 5th December 2025). \newline
+
+[4] Microsoft (2025) GameInput introduction - Overview of GameInput. Microsoft Game Development Kit. Available at: \url{https://learn.microsoft.com/en-us/gaming/gdk/docs/features/common/input/overviews/input-overview} (Accessed: 25th September 2025). \newline
+
+[5] Cox, L., Williams, B., Vickers, J., Ward, D. and Headleand, C. (2025) 'Run-time Performance Comparison of Sparse-set and Archetype Entity-Component Systems', in Sheng, Y. and Slingsby, A. (eds.) Computer Graphics and Visual Computing (CGVC). The Eurographics Association. Available at: \url{https://diglib.eg.org/server/api/core/bitstreams/766b72a4-70ae-4e8e-935b-949d589ed962/content} (Accessed 10th December 2025). \newline
+
+[6] Compton, B.V. (2022) An Investigation of Data Storage in Entity-Component Systems. Master of Science thesis. Air Force Institute of Technology. Available at: \url{https://scholar.afit.edu/etd/5353/} (Accessed: 5th December 2025). \newline
 \newpage
 \chapter{appendices}
 \section{project diary}

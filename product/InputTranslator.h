@@ -11,11 +11,11 @@
 #include "InputDevice.h"
 #include "InputEvent.h"
 #include "OverlayEvent.h"
-
+#include "ResizeEvent.h"
 // listens to its registered device and converts to actual game actions
 class InputTranslator {
  public:
-  InputTranslator(InputDevice* Device);
+  InputTranslator(InputDevice* Device, float VPWidth, float VPHeight);
   //~InputTranslator();
 
   bool HasAction(GameAction Action);
@@ -33,6 +33,10 @@ class InputTranslator {
   bool HasRelativeMotion();
   void Update(float DeltaTime);
 
+  void ResizeViewPortDimensions(ResizedViewPortEvent Event);
+
+  std::vector<float> GetViewPortDimensions();
+
  private:
   EventBus* InputEvents;
 
@@ -46,8 +50,8 @@ class InputTranslator {
 
   float CursorSensitivity;
   float JoystickDeadzone;
-  float ScreenWidth;
-  float ScreenHeight;
+  float ViewPortWidth;
+  float ViewPortHeight;
 
   // std::unordered_set<> ButtonStates;
 

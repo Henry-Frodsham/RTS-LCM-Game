@@ -1,3 +1,4 @@
+// Copyright © 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 
@@ -16,4 +17,8 @@ struct UpstreamOrbitViewport2DEvent {
 
   UpstreamOrbitViewport2DEvent(Ogre::Vector2f RM, GameInstance* IR)
       : RelativeMotion(RM), InstanceRequesting(IR) {}
+};
+
+struct RecheckViewPortSizeCommand {
+
 };

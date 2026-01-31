@@ -4,17 +4,19 @@
 #include "EventQueue.h"
 #include "InputListener.h"
 #include "InputTranslator.h"
+#include "Cursor.h"
 
 class GameInstance {
  public:
   GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ, InputDevice* Device,
-               InputTranslator* DeviceTranslator);
+               InputTranslator* DeviceTranslator, int ThreadNumber);
 
   void Run(float DT);
   EventQueue* LocalQueue;
 
   InputDevice* InstanceDevice;
 
+  int InstanceNumber;
  private:
   ErrorReporter* ParentReporter;
 
@@ -28,4 +30,6 @@ class GameInstance {
 
   // thread safe commands only accessing local resources
   EventBus* LocalBus;
+
+  Cursor* InstanceCursor;
 };

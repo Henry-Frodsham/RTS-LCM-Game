@@ -12,6 +12,7 @@
     },
     "doctest",
     "imgui",
-    "fmt"
+    "fmt",
+    "eigen3"
   ]
 }

@@ -20,6 +20,8 @@
 #include "OverlayEvent.h"
 #include "ViewPortController.h"
 #include "RenderEvent.h"
+#include "ViewPortUpdateListener.h"
+#include "ViewPortUpdateEvent.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating
@@ -50,6 +52,8 @@ class RenderSystem {
 
   ViewPortController* DefaultViewPort;
 
+  ViewPortUpdateListener* ViewPortListener;
+
   Ogre::RenderWindowDescription RenderWindowSettings;
 
   EventBus* RenderBus;
@@ -74,6 +78,8 @@ class RenderSystem {
   void SetNodePositionFromEvent(SetNodePositionEvent Event);
 
   void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
+
+  
 
  public:
   static RenderSystem& GetInstance();
@@ -103,4 +109,6 @@ class RenderSystem {
   ViewPortController* GetPrimaryViewport();
 
   float GetDeltaTime();
+
+  ViewPortController* FindViewPortFromDevice(InputDevice* Device);
 };

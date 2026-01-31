@@ -4,11 +4,13 @@
 #include <OGRE/OgrePrerequisites.h>
 
 #include <vector>
+#include "InputDevice.h"
 
 // view port (camera) for each split screen instance
 class ViewPortController {
  private:
   Ogre::Viewport* ViewPort;
+  InputDevice* ControllingDevice;
 
  public:
   bool ToggleAutomaticRendering(bool Val);
@@ -32,10 +34,16 @@ class ViewPortController {
   // destroys the frame buffer
   void Clear();
 
+
+  //comparison with another viewport without allowing direct access to the viewport
+  bool Equals(Ogre::Viewport* OtherViewport);
   // motion doesnt consider a 3d coordinate because the orbit is at a fixed
   // depth
   void MoveCameraOrbitingPoint2DMotion(Ogre::Vector2f RelativeMotion,
                                        Ogre::Vector3f OrbitPoint);
+  void RegisterControllingDevice(InputDevice* Device);
+
+  bool IsControllerByDevice(InputDevice* Device);
 
   // Copy constructor - required for vector storage
   ViewPortController(const ViewPortController&) = default;

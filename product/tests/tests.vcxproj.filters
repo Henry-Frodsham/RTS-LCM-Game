@@ -23,6 +23,12 @@
     <ClCompile Include="ErrorReporterTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="MatrixTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityInteractionTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
