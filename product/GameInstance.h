@@ -9,13 +9,14 @@
 class GameInstance {
  public:
   GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ, InputDevice* Device,
-               InputTranslator* DeviceTranslator);
+               InputTranslator* DeviceTranslator, int ThreadNumber);
 
   void Run(float DT);
   EventQueue* LocalQueue;
 
   InputDevice* InstanceDevice;
 
+  int InstanceNumber;
  private:
   ErrorReporter* ParentReporter;
 

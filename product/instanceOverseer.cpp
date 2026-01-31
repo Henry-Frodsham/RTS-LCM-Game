@@ -43,8 +43,8 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
   InputTranslator* Translator = new InputTranslator(Event.InstanceDevice, ViewPortWidth, ViewPortHeight);
   DeviceListener->AddListenerQueue(Event.InstanceDevice,
                                    Translator->WaitingEvents);
-  GameInstance* NewInstance = new GameInstance(
-      InstanceReporter, InstanceQueue, Event.InstanceDevice, Translator);
+  GameInstance* NewInstance = new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice,
+                       Translator, GameInstances.size() + 1);
 
   GameInstances.push_back(NewInstance);
   InstanceViewports.emplace(NewInstance, VP);
@@ -74,8 +74,6 @@ void InstanceOverseer::RecalculateViewPortSizes(RecheckViewPortSizeCommand Cmd) 
 }
 
 void InstanceOverseer::ReviseAndUpdate(float DeltaTime) {
-  InstanceQueue->Dispatch();
-  InstanceReporter->Dispatch();
 
   std::vector<InputDevice*> NewInstanceDevices =
       DeviceListener->GetUnintegratedDevices();
@@ -93,6 +91,8 @@ void InstanceOverseer::ReviseAndUpdate(float DeltaTime) {
   for (auto& Thread : Threads) {
     Thread.join();
   }
+  InstanceQueue->Dispatch();
+  InstanceReporter->Dispatch();
 }
 
 void InstanceOverseer::MoveViewport2DOrbit(UpstreamOrbitViewport2DEvent Event) {

@@ -77,3 +77,8 @@
 --- term 2 start
 19/01/26 - revisited https://liacs.leidenuniv.nl/~plaata1/papers/abbadi-resources_entities_actions_a_generalized_design_pattern-118.pdf for a better understanding of resource entity action
 20/01/26 - wrote failing tests for the transformation matrix class
+20-25/01/26 - implementation of a rudimentary cursor implementation, noticed significant stability issues from this implementation
+26/01/26 - following testing of the cursor implementation, i decided that sticking to the default OS cursor for mouse was a better option for the mouse but keeping the system in place for controllers
+27/01/26 - refactored the dispatching order for events such that events are processed the same frame they are created, reducing the perceived delay from the cursor
+28/01/26 - created the entity interaction class, a class thats responsibility is to process all entity interactions and route matrixable interactions accordingly.
+29-31/01/26 - edge cases for matrix tests, stability improvements following detailed analysis from performance profiler.
