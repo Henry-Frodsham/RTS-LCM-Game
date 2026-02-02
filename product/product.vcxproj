@@ -265,6 +265,7 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
     <ClCompile Include="instanceOverseer.cpp" />
+    <ClCompile Include="InteractionWheel.cpp" />
     <ClCompile Include="OverlayController.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
@@ -294,6 +295,7 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClInclude Include="InputTranslator.h" />
     <ClInclude Include="InstanceEvent.h" />
     <ClInclude Include="instanceOverseer.h" />
+    <ClInclude Include="InteractionWheel.h" />
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="OverlayController.h" />
     <ClInclude Include="OverlayEvent.h" />

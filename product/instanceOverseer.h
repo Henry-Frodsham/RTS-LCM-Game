@@ -28,6 +28,7 @@ class InstanceOverseer {
 
   // viewports need to be stored
   std::unordered_map<GameInstance*, ViewPortController*> InstanceViewports;
+  std::unordered_map<GameInstance*, std::thread*> ReusableThreads;
 
   EventBus* InstanceBus;
 
@@ -42,4 +43,5 @@ class InstanceOverseer {
 
   // a new instance is made solely based on a new device being connected
   InputListener* DeviceListener;
+
 };

@@ -58,6 +58,9 @@
     <ClCompile Include="EntityInteraction.cpp">
       <Filter>Source\Action</Filter>
     </ClCompile>
+    <ClCompile Include="InteractionWheel.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -259,6 +262,9 @@
     </ClInclude>
     <ClInclude Include="EntityInteractionEvaluator.h">
       <Filter>Headers\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="InteractionWheel.h">
+      <Filter>Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

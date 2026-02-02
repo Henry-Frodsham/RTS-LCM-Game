@@ -77,7 +77,7 @@ void InstanceOverseer::ReviseAndUpdate(float DeltaTime) {
 
   std::vector<InputDevice*> NewInstanceDevices =
       DeviceListener->GetUnintegratedDevices();
-  if (NewInstanceDevices.size()) {
+  if (NewInstanceDevices.size() > 0) {
     for (InputDevice* D : NewInstanceDevices) {
       InstanceQueue->Enqueue(RegisterInstanceEvent(D));
     }
