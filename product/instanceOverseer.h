@@ -15,6 +15,8 @@
 #include "ViewPortController.h"
 #include "ResizeEvent.h"
 
+#include <BS_thread_pool.hpp>
+
 // the class that "holds the reigns" over all instances
 
 class InstanceOverseer {
@@ -28,7 +30,7 @@ class InstanceOverseer {
 
   // viewports need to be stored
   std::unordered_map<GameInstance*, ViewPortController*> InstanceViewports;
-  std::unordered_map<GameInstance*, std::thread*> ReusableThreads;
+  BS::thread_pool InstanceThreadPool;
 
   EventBus* InstanceBus;
 

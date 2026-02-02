@@ -84,3 +84,4 @@
 29-31/01/26 - edge cases for matrix tests, stability improvements following detailed analysis from performance profiler.
 
 02/02/26 - read https://stackoverflow.com/questions/26516683/reusing-thread-in-loop-c to learn about reusing threads
+02/02/26 - added BS thread pool as a dependancy, implemented into the current thread pool pattern, improved fps and stability remarkability (500->2000fps) and cpu usage of the gameinstance->run method dropped from 12.8% of 1 core to 2.7%

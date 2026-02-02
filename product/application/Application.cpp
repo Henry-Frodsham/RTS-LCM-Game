@@ -53,7 +53,7 @@ void Application::Loop() {
     Instances.ReviseAndUpdate(DT);
 
     std::thread InputAnalysisThread =
-        std::thread(&InputAnalyser::Update, &InputAnalysisSingleton);
+        std::thread(&InputAnalyser::Update, &InputAnalysisSingleton, DT);
 
     if (StateManager.CurrentState == AppState::GAME) {
     } else if (StateManager.CurrentState == AppState::MENU) {
