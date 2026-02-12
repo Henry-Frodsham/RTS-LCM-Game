@@ -266,5 +266,8 @@
     <ClInclude Include="InteractionWheel.h">
       <Filter>Headers\UI</Filter>
     </ClInclude>
+    <ClInclude Include="UIEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

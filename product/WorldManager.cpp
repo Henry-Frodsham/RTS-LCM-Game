@@ -21,8 +21,32 @@ WorldManager::WorldManager() {
       [this](const CreateMeshWorldEntityEvent& Event) {
         EntityTemplates::ConstructMeshEntity(CompFactory, Event);
       });
+
+  CreateGlobeMesh();
 }
 
+void WorldManager::CreateGlobeMesh() {
+  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
+      "GlobeNode", "PlanetBase.mesh", "GlobeBase", Ogre::Vector3(0.5f, 0.f, -5.f)));
+  WorldQueue->Enqueue(
+      CreateMeshWorldEntityEvent("GlobeNode", "antartica_n.mesh", "GlobeAntarticaN",
+                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
+  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
+      "GlobeNode", "antartica_s.mesh", "GlobeAntarticaS",
+      Ogre::Vector3(0.5f, 0.f, -5.f)));
+  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
+      "GlobeNode", "europa.mesh", "GlobeEuropa",
+      Ogre::Vector3(0.5f, 0.f, -5.f)));
+  WorldQueue->Enqueue(
+      CreateMeshWorldEntityEvent("GlobeNode", "greenland.mesh", "GlobeGreenland",
+                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
+  WorldQueue->Enqueue(
+      CreateMeshWorldEntityEvent("GlobeNode", "iceland.mesh", "GlobeIceland",
+                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
+  WorldQueue->Enqueue(
+      CreateMeshWorldEntityEvent("GlobeNode", "UK.mesh", "GlobeUK",
+                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
+}
 void WorldManager::update() {
   ECSReporter->Dispatch();
   WorldQueue->Dispatch();

@@ -1,11 +1,19 @@
 #pragma once
 #include "InputTranslator.h"
+#include "RenderSystem.h"
+#include "UIEvent.h"
 
-//the quick interaction wheel accessible through RT or right click
+// the quick interaction wheel accessible through RT or right click
 class InteractionWheel {
-public:
-	InteractionWheel(InputTranslator* Device);
+ public:
+  InteractionWheel(InputTranslator* Device, EventBus* Bus, int ThreadNum);
 
-private:
-	InputTranslator* DeviceState;
+  void ToggleVisibility(ToggleInteractionWheelEvent Event);
+
+ private:
+  InputTranslator* DeviceState;
+
+  EventBus* IssuingBus;
+
+  int ThreadID;
 };

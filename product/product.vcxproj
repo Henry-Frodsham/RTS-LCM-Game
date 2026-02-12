@@ -121,9 +121,9 @@ for %%E in (%EXTENSIONS%) do (
 )
 
 exit /b 0
-xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"
-xcopy "$(SolutionDir)resources\*.*" "$(OutDir)resources\" /E /Y /I
-xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I</Command>
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
+xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
+xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -163,9 +163,9 @@ for %%E in (%EXTENSIONS%) do (
 )
 
 exit /b 0
-xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"
-xcopy "$(SolutionDir)resources\*.*" "$(OutDir)resources\" /E /Y /I
-xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
+xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
+xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -204,9 +204,9 @@ for %%E in (%EXTENSIONS%) do (
 )
 
 exit /b 0
-xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"
-xcopy "$(SolutionDir)resources\*.*" "$(OutDir)resources\" /E /Y /I
-xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I</Command>
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
+xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
+xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -246,9 +246,9 @@ for %%E in (%EXTENSIONS%) do (
 )
 
 exit /b 0
-xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"
-xcopy "$(SolutionDir)resources\*.*" "$(OutDir)resources\" /E /Y /I
-xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
+xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
+xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -305,6 +305,7 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClInclude Include="ResizeEvent.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="TransformationMatrix.h" />
+    <ClInclude Include="UIEvent.h" />
     <ClInclude Include="ViewPortController.h" />
     <ClInclude Include="ViewPortUpdateEvent.h" />
     <ClInclude Include="ViewPortUpdateListener.h" />

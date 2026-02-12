@@ -220,7 +220,14 @@ void RenderSystem::InitBasicResourceGroups() {
   Rgm.addResourceLocation(
       PathSolDir.append(std::string("resources\\font\\")).generic_string(),
       "FileSystem", "Font");
-
+  PathSolDir = std::filesystem::current_path();
+  Rgm.addResourceLocation(
+      PathSolDir.append(std::string("resources\\globe\\mat")).generic_string(),
+      "FileSystem", "Font");
+  PathSolDir = std::filesystem::current_path();
+  Rgm.addResourceLocation(
+      PathSolDir.append(std::string("resources\\globe\\mesh")).generic_string(),
+      "FileSystem", "Font");
   Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Overlay");
   Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Mesh");
   Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Font");
@@ -259,8 +266,13 @@ Ogre::Entity* RenderSystem::CreateEntity(std::string Name,
 }
 
 void RenderSystem::CreateSceneNodeFromEvent(CreateSceneNodeEvent Event) {
-  Event.Node.get() =
-      SceneManager->getRootSceneNode()->createChildSceneNode(Event.NodeName);
+  try {
+    Event.Node.get() =
+        SceneManager->getRootSceneNode()->createChildSceneNode(Event.NodeName);
+  } catch (Ogre::ItemIdentityException) {
+    Event.Node.get() = SceneManager->getSceneNode(Event.NodeName);
+  }
+
 }
 void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event) {
   Event.Entity.get() =

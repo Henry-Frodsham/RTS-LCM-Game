@@ -8,7 +8,10 @@
 #include "WorldManager.h"
 #include "instanceOverseer.h"
 
-Application::Application() { StateManager = ApplicationStateManager(); }
+Application::Application()
+    : IndependantThreads(std::thread::hardware_concurrency()) {
+  StateManager = ApplicationStateManager();
+}
 
 // initialises game into the correct state, by default the game starts at the
 // menu so MENU state
@@ -29,31 +32,32 @@ bool Application::Init() {
 // state reactive loop
 void Application::Loop() {
   RenderSystem& RenderSingleton = RenderSystem::GetInstance();
-  // temporary test
+  
   InputListener Input = InputListener(RenderSingleton.GetSDLWindow());
   Input.Update();
 
   WorldManager WM = WorldManager();
-  WM.WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
-      "test", "cube.mesh", "test1", Ogre::Vector3(0.5f, 0.f, -5.f)));
-  // temporary measure to display all the connected devices in the overlay
+  
 
   InstanceOverseer Instances = InstanceOverseer(&Input);
 
   InputAnalyser& InputAnalysisSingleton = InputAnalyser::GetInstance();
   while (true) {
+    std::vector<std::future<void>> Futures;
+    Futures.reserve(3);
+
     RenderSingleton.RenderFrame();  // all interactions with ogre need to be run
                                     // in the main thread
 
-    std::thread WorldManagerThread = std::thread(&WorldManager::update, &WM);
-
+    Futures.push_back(IndependantThreads.submit_task([&WM]() { WM.update(); }));
     float DT = RenderSingleton.GetDeltaTime();
-    std::thread InputThread = std::thread(&InputListener::Update, &Input);
+
+    Futures.push_back(IndependantThreads.submit_task([&Input]() { Input.Update(); }));
 
     Instances.ReviseAndUpdate(DT);
 
-    std::thread InputAnalysisThread =
-        std::thread(&InputAnalyser::Update, &InputAnalysisSingleton, DT);
+    Futures.push_back(IndependantThreads.submit_task(
+        [&InputAnalysisSingleton, DT]() { InputAnalysisSingleton.Update(DT); }));
 
     if (StateManager.CurrentState == AppState::GAME) {
     } else if (StateManager.CurrentState == AppState::MENU) {
@@ -62,8 +66,8 @@ void Application::Loop() {
       // invalid state
       return;
     }
-    WorldManagerThread.join();
-    InputThread.join();
-    InputAnalysisThread.join();
+    for (auto& Future : Futures) {
+      Future.wait();
+    }
   }
 }
