@@ -269,5 +269,14 @@
     <ClInclude Include="UIEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
+    <ClInclude Include="ActionCommand.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayInfo.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedInputEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

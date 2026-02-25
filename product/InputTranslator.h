@@ -2,8 +2,10 @@
 #pragma once
 #include <OGRE/Ogre.h>
 
+#include <unordered_map>
 #include <unordered_set>
 
+#include "ActionCommand.h"
 #include "ConfigManager.h"
 #include "EventBus.h"
 #include "EventQueue.h"
@@ -12,13 +14,17 @@
 #include "InputEvent.h"
 #include "OverlayEvent.h"
 #include "ResizeEvent.h"
+
 // listens to its registered device and converts to actual game actions
 class InputTranslator {
  public:
-  InputTranslator(InputDevice* Device, float VPWidth, float VPHeight);
+  InputTranslator(InputDevice* Device, float VPWidth, float VPHeight, int ThreadNum);
   //~InputTranslator();
 
   bool HasAction(GameAction Action);
+
+  ActionContext GetActionContext(GameAction Action);
+
   bool getKeyState(char Key);
 
   EventQueue* WaitingEvents;
@@ -37,11 +43,16 @@ class InputTranslator {
 
   std::vector<float> GetViewPortDimensions();
 
+  // might seem like an odd choice, but the queue to publish here is private
+  // so this bus is soley for classes interested in listening to game actions
+  EventBus* ActionBus;
+
  private:
   EventBus* InputEvents;
 
+  EventQueue* ActionQueue;
   // active actions, remains until button/key released
-  std::unordered_set<GameAction> ActiveActions;
+  std::unordered_map<GameAction, ActionContext> ActiveActions;
 
   // actual key states, case sensitive and only used for text prompts
   std::unordered_set<char> KeyStates;
@@ -52,7 +63,8 @@ class InputTranslator {
   float JoystickDeadzone;
   float ViewPortWidth;
   float ViewPortHeight;
-
+  
+  int ThreadNumber;
   // std::unordered_set<> ButtonStates;
 
   std::vector<float> CursorPos;
@@ -67,4 +79,6 @@ class InputTranslator {
   void TranslateRawAxis(RawAxisEvent Event);
 
   float ApplyDeadzone(float Value, float Deadzone);
+
+  ErrorReporter* TranslationErrorReporter;
 };

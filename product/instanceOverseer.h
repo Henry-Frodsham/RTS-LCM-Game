@@ -14,6 +14,7 @@
 #include "RenderSystem.h"
 #include "ViewPortController.h"
 #include "ResizeEvent.h"
+#include "InteractionWheel.h"
 
 #include <BS_thread_pool.hpp>
 

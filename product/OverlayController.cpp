@@ -1,20 +1,23 @@
 // Copyright © 2025 Henry Frodsham
 #include "OverlayController.h"
+
 #include "RenderSystem.h"
 
 OverlayController::OverlayController() : OverlayErrorReporter() {
   OverlayMngr = Ogre::OverlayManager::getSingletonPtr();
-
   InitFont();
 }
 
 void OverlayController::CreateOverlay(CreateOverlayEvent Event) {
-    ManagedOverlays.emplace(Event.OverlayName, OverlayMngr->create(Event.OverlayName));
+  ManagedOverlays.emplace(Event.OverlayName,
+                          OverlayMngr->create(Event.OverlayName));
+  
+  
+  RenderSystem& Render = RenderSystem::GetInstance();
 
-    RenderSystem& Render = RenderSystem::GetInstance();
-
-
-    Render.RenderQueue->Enqueue(RegisterOverlayToViewPortEvent(ManagedOverlays.at(Event.OverlayName), Render.FindViewPortFromDevice(Event.InstanceDevice)));
+  Render.RenderQueue->Enqueue(RegisterOverlayToViewPortEvent(
+      ManagedOverlays.at(Event.OverlayName),
+      Render.FindViewPortFromDevice(Event.InstanceDevice)));
 }
 
 void OverlayController::AddBox(OverlayAddBoxEvent Event) {
@@ -33,7 +36,8 @@ void OverlayController::AddBox(OverlayAddBoxEvent Event) {
                     Event.OverlayToUse)));
     return;
   }
-
+  OverlayInfo* Info = new OverlayInfo(false, false, Event.OverlayToUse);
+  OverlayInfos.emplace(Event.Name, Info);
   Ogre::OverlayContainer* Panel = static_cast<Ogre::OverlayContainer*>(
       OverlayMngr->createOverlayElement("Panel", Event.Name));
 
@@ -73,6 +77,10 @@ void OverlayController::AddText(OverlayAddTextEvent Event) {
                     Event.OverlayToUse)));
     return;
   }
+
+  OverlayInfo* Info = new OverlayInfo(false, false, Event.OverlayToUse);
+  OverlayInfos.emplace(Event.Name, Info);
+
   Ogre::TextAreaOverlayElement* TextArea =
       static_cast<Ogre::TextAreaOverlayElement*>(
           OverlayMngr->createOverlayElement("TextArea", Event.Name));
@@ -209,4 +217,63 @@ void OverlayController::InitFont() {
   customFont->setParameter("resolution", "96");
   customFont->load();
 }
+
+void OverlayController::ChangeOverlayVisibility(
+    ChangeOverlayVisibilityEvent Event) {
+  // for some reason ogre is very selective about what getters throw errors and
+  // which throw nullptr
+  Ogre::Overlay* Overlay = OverlayMngr->getByName(Event.OverlayName);
+  if (Overlay == NULL) {
+    OverlayErrorReporter.EnqueueError(
+        ErrorDetail::CreateError(ErrorCode::OVERLAY_NOT_FOUND));
+  }
+
+  Ogre::OverlayElement* OverlayElement =
+      OverlayMngr->getOverlayElement(Event.ObjectName);
+
+  if (OverlayElement == nullptr) {
+    OverlayErrorReporter.EnqueueError(
+        ErrorDetail::CreateError(ErrorCode::ELEMENT_NOT_FOUND));
+  }
+
+  OverlayElement->setVisible(Event.Visibility);
+}
+
+void OverlayController::OverlayHovered(Ogre::OverlayElement* Element) {
+  Element->setMaterialName("BLUE", "Overlay");
+}
+void OverlayController::OverlayReleased(Ogre::OverlayElement* Element) {
+  Element->setMaterialName("RED", "Overlay");
+}
+void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
+  RenderSystem& RS = RenderSystem::GetInstance();
+  ViewPortController* EventVPC = RS.FindViewPortFromDevice(Event.Device);
+
+  // find the overlay specific to the device being moved (as to not check
+  // everything for each device)
+  std::string OverlayName = "UI_Overlay_" + std::to_string(Event.ThreadNumber);
+  Ogre::Overlay* SpecificOverlay = OverlayMngr->getByName(OverlayName);
+
+  Ogre::Overlay::OverlayContainerList ContainedElements =
+      SpecificOverlay->get2DElements();
+
+  for (Ogre::OverlayElement* Element : ContainedElements) {
+    OverlayInfo* Info = nullptr;
+    try {
+      Info = OverlayInfos.at(Element->getName());
+    } catch (std::exception e) {
+      OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::OVERLAY_MISSING_INFO));
+      return;
+    }
+
+    if (Element->findElementAt(Event.RelativeXY[0], Event.RelativeXY[1])) {
+      Info->Hovered = true;
+      OverlayHovered(Element);
+    } else {
+      Info->Hovered = false;
+      OverlayReleased(Element);
+    }
+  }
+}
+
 void OverlayController::ParentUpdate() { OverlayErrorReporter.Dispatch(); }

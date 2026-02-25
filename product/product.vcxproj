@@ -275,6 +275,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActionCommand.h" />
     <ClInclude Include="BaseComponents.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Cursor.h" />
@@ -299,11 +300,13 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="OverlayController.h" />
     <ClInclude Include="OverlayEvent.h" />
+    <ClInclude Include="OverlayInfo.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ResizeEvent.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SharedInputEvent.h" />
     <ClInclude Include="TransformationMatrix.h" />
     <ClInclude Include="UIEvent.h" />
     <ClInclude Include="ViewPortController.h" />

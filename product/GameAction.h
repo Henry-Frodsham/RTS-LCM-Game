@@ -8,3 +8,10 @@ enum GameAction {
   CONTXT,
   BACK,
 };
+
+struct ActionContext {
+  float MouseX, MouseY;
+  bool JustPressed;
+  ActionContext(float X, float Y, bool Pressed)
+      : MouseX(X), MouseY(Y), JustPressed(Pressed) {}
+};

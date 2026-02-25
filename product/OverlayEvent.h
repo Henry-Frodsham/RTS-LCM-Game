@@ -103,14 +103,24 @@ struct OverlayEditTextEvent {
 
 struct CreateOverlayEvent {
   std::string OverlayName;
-  // to prevent a long chain of communication requests, an overlay can be made with either the viewport or device
+  // to prevent a long chain of communication requests, an overlay can be made
+  // with either the viewport or device
   InputDevice* InstanceDevice;
   ViewPortController* InstanceViewPort;
 
-  //allow cases without either for a global overlay though
+  // allow cases without either for a global overlay though
   CreateOverlayEvent(std::string Overlay, InputDevice* Device = nullptr,
-      ViewPortController* Viewport = nullptr) 
-        : OverlayName(Overlay)
-        , InstanceDevice(Device)
-        , InstanceViewPort(Viewport) {}
+                     ViewPortController* Viewport = nullptr)
+      : OverlayName(Overlay),
+        InstanceDevice(Device),
+        InstanceViewPort(Viewport) {}
+};
+
+struct ChangeOverlayVisibilityEvent {
+  std::string OverlayName;
+  std::string ObjectName;
+  bool Visibility;
+
+  ChangeOverlayVisibilityEvent(std::string OName, std::string ObName, bool Vis)
+      : OverlayName(OName), ObjectName(ObName), Visibility(Vis) {}
 };

@@ -6,14 +6,16 @@
 // the quick interaction wheel accessible through RT or right click
 class InteractionWheel {
  public:
-  InteractionWheel(InputTranslator* Device, EventBus* Bus, int ThreadNum);
+  InteractionWheel(InputTranslator* Device, int ThreadNum);
 
-  void ToggleVisibility(ToggleInteractionWheelEvent Event);
+  void UpdateAndWarmupContext();
+
+  void OnContextActionCommand(ContextActionCommand Cmd);
 
  private:
   InputTranslator* DeviceState;
 
-  EventBus* IssuingBus;
+  bool Visibility;
 
   int ThreadID;
 };

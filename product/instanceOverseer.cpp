@@ -41,12 +41,15 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
   float ViewPortHeight = TotalWindowWidth * RelativeVPDimensions[3];
 
   InputTranslator* Translator =
-      new InputTranslator(Event.InstanceDevice, ViewPortWidth, ViewPortHeight);
+      new InputTranslator(Event.InstanceDevice, ViewPortWidth, ViewPortHeight,
+                          GameInstances.size() + 1);
   DeviceListener->AddListenerQueue(Event.InstanceDevice,
                                    Translator->WaitingEvents);
+  InteractionWheel* NewUIInteractionWheel =
+      new InteractionWheel(Translator, GameInstances.size() + 1);
   GameInstance* NewInstance =
-      new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice,
-                       Translator, GameInstances.size() + 1);
+      new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice, Translator,
+      NewUIInteractionWheel, GameInstances.size() + 1);
 
   GameInstances.push_back(NewInstance);
   InstanceViewports.emplace(NewInstance, VP);

@@ -12,9 +12,11 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
+#include "SharedInputEvent.h"
 
 #include "ErrorReporter.h"
 #include "OverlayEvent.h"
+#include "OverlayInfo.h"
 
 // owned by RenderSystem exclusively
 // exclusively handles Overlay item creation and management
@@ -24,13 +26,14 @@
 class OverlayController {
  private:
   std::unordered_map<std::string, Ogre::Overlay*> ManagedOverlays;
-
+  std::unordered_map<std::string, OverlayInfo*> OverlayInfos;
   ErrorReporter OverlayErrorReporter;
 
   Ogre::OverlayManager* OverlayMngr;
 
  public:
   // handlers for OverlayEvents on the renderQueue
+
   OverlayController();
 
   void AddBox(OverlayAddBoxEvent Event);
@@ -43,6 +46,13 @@ class OverlayController {
 
   void CreateOverlay(CreateOverlayEvent Event);
 
+  void ChangeOverlayVisibility(ChangeOverlayVisibilityEvent Event);
+
+  void OverlayCursorCheck(CursorMovementEvent Event);
+
+  void OverlayHovered(Ogre::OverlayElement* Element);
+
+  void OverlayReleased(Ogre::OverlayElement* Element);
   void ParentUpdate();
 
   void InitFont();
