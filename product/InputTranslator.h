@@ -77,8 +77,10 @@ class InputTranslator {
   void TranslateRawButton(RawButtonEvent Event);
   void TranslateRawCursor(RawCursorEvent Event);
   void TranslateRawAxis(RawAxisEvent Event);
-
+  void TranslateRawMouseButton(RawMouseButtonEvent Event);
   float ApplyDeadzone(float Value, float Deadzone);
+  
+  std::vector<bool> MouseButtonStates = std::vector<bool>{false, false, false};
 
   ErrorReporter* TranslationErrorReporter;
 };

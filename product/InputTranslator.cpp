@@ -23,7 +23,8 @@ InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
       &InputTranslator::TranslateRawCursor, this, std::placeholders::_1));
   InputEvents->Subscribe<RawAxisEvent>(std::bind(
       &InputTranslator::TranslateRawAxis, this, std::placeholders::_1));
-
+  InputEvents->Subscribe<RawMouseButtonEvent>(std::bind(
+      &InputTranslator::TranslateRawMouseButton, this, std::placeholders::_1));
   CursorSensitivity = 100.f;
   JoystickDeadzone = 0.1f;
 
@@ -126,6 +127,31 @@ void InputTranslator::TranslateRawKB(RawKBEvent Event) {
     }
   }
 }
+void InputTranslator::TranslateRawMouseButton(RawMouseButtonEvent Event) {
+  int ButtonIndex = -1;
+  if (Event.Button.button == SDL_BUTTON_LEFT) {
+    ButtonIndex = 0;
+  } else if (Event.Button.button == SDL_BUTTON_RIGHT) {
+    ButtonIndex = 1;
+  } else if (Event.Button.button == SDL_BUTTON_MIDDLE) {
+    ButtonIndex = 2;
+  } else {
+    TranslationErrorReporter->EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::UNRECOGNISED,
+        fmt::format("Whilst Translating a mouse button event, the pressed "
+                    "button has been corrupted. this indicates a corrupted SDL "
+                    "DLL or device driver")));
+    return;
+  }
+
+  if (!Event.Released) {
+    MouseButtonStates[ButtonIndex] = true;
+  } else {
+    MouseButtonStates[ButtonIndex] = false;
+  }
+
+
+}
 void InputTranslator::TranslateRawButton(RawButtonEvent Event) {
   Uint8 ButtonIndex = Event.Button.button;
 
@@ -196,8 +222,8 @@ void InputTranslator::TranslateRawCursor(RawCursorEvent Event) {
   RenderSystem& RS = RenderSystem::GetInstance();
   std::vector<float> RelativeCoordinates = std::vector<float>{
       CursorVec[0] / ViewPortWidth, CursorVec[1] / ViewPortHeight};
-  RS.RenderQueue->Enqueue(
-      CursorMovementEvent(CursorVec, RelativeCoordinates, ThreadNumber, ManagedDevice));
+  RS.RenderQueue->Enqueue(CursorMovementEvent(CursorVec, RelativeCoordinates,
+                                              ThreadNumber, ManagedDevice));
 }
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event) {
   const SDL_JoyAxisEvent& SDL_Ev = Event.Axis;

@@ -42,3 +42,10 @@ struct RawAxisEvent {
   SDL_JoyAxisEvent Axis;
   RawAxisEvent(SDL_JoyAxisEvent JAxis) : Axis(JAxis) {}
 };
+
+struct RawMouseButtonEvent {
+  SDL_MouseButtonEvent Button;
+  bool Released;
+  RawMouseButtonEvent(SDL_MouseButtonEvent RawButton, bool IsReleased)
+      : Button(RawButton), Released(IsReleased) {}
+};
