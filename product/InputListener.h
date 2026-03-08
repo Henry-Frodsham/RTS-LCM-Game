@@ -47,5 +47,8 @@ class InputListener {
   // Handlers
   void RemapOrCreateDevice(DeadDeviceIdError Context);
 
+  //helpers
+  bool IsAxisTrigger(SDL_Joystick* Joystick, Uint8 Axis);
+  float NormalizeTrigger(Sint16 RawValue);
   int NumJoySticks;
 };

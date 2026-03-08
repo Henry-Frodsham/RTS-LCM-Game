@@ -12,6 +12,8 @@ class InteractionWheel {
 
   void OnContextActionCommand(ContextActionCommand Cmd);
 
+  void OnPressActionCommand(PressActionCommand Cmd);
+
  private:
   InputTranslator* DeviceState;
 

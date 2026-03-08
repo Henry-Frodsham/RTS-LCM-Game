@@ -186,6 +186,10 @@ void RenderSystem::InitRenderResponsibility() {
   RenderBus->Subscribe<CursorMovementEvent>(
       std::bind(&OverlayController::OverlayCursorCheck, OverlayControl,
                 std::placeholders::_1));
+  RenderBus->Subscribe<PressActionCommand>(
+      std::bind(&OverlayController::OverlayPressedCheck, OverlayControl,
+                std::placeholders::_1));
+
 
   // core Ogre interactions
   RenderBus->Subscribe<CreateSceneNodeEvent>(std::bind(

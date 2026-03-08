@@ -25,6 +25,8 @@ InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
       &InputTranslator::TranslateRawAxis, this, std::placeholders::_1));
   InputEvents->Subscribe<RawMouseButtonEvent>(std::bind(
       &InputTranslator::TranslateRawMouseButton, this, std::placeholders::_1));
+  InputEvents->Subscribe<RawTriggerEvent>(std::bind(
+      &InputTranslator::TranslateRawTriggerEvent, this, std::placeholders::_1));
   CursorSensitivity = 100.f;
   JoystickDeadzone = 0.1f;
 
@@ -63,9 +65,10 @@ void InputTranslator::TranslateRawKB(RawKBEvent Event) {
       ActiveActions.erase(GameAction::USE);
     } else if (!ActiveActions.contains(GameAction::USE)) {
       ActiveActions.emplace(GameAction::USE,
-                            ActionContext(CursorPos[0], CursorPos[1], true));
-      ActionQueue->Enqueue(
-          UseActionCommand(ActionContext(CursorPos[0], CursorPos[1], true)));
+                            ActionContext(CursorPos[0], CursorPos[1], true,
+                                          ThreadNumber, ManagedDevice));
+      ActionQueue->Enqueue(UseActionCommand(ActionContext(
+          CursorPos[0], CursorPos[1], true, ThreadNumber, ManagedDevice)));
     } else {
       // using at is safe since prev selection eliminates risk of ActiveActions
       // not containing the action (and no risk of another thread causing issues
@@ -81,9 +84,10 @@ void InputTranslator::TranslateRawKB(RawKBEvent Event) {
       ActiveActions.erase(GameAction::BACK);
     } else if (!ActiveActions.contains(GameAction::BACK)) {
       ActiveActions.emplace(GameAction::BACK,
-                            ActionContext(CursorPos[0], CursorPos[1], true));
-      ActionQueue->Enqueue(
-          BackActionCommand(ActionContext(CursorPos[0], CursorPos[1], true)));
+                            ActionContext(CursorPos[0], CursorPos[1], true,
+                                          ThreadNumber, ManagedDevice));
+      ActionQueue->Enqueue(BackActionCommand(ActionContext(
+          CursorPos[0], CursorPos[1], true, ThreadNumber, ManagedDevice)));
     } else {
       ActionContext& Context = ActiveActions.at(GameAction::BACK);
       Context.JustPressed = false;
@@ -95,9 +99,10 @@ void InputTranslator::TranslateRawKB(RawKBEvent Event) {
       ActiveActions.erase(GameAction::CONTXT);
     } else if (!ActiveActions.contains(GameAction::CONTXT)) {
       ActiveActions.emplace(GameAction::CONTXT,
-                            ActionContext(CursorPos[0], CursorPos[1], true));
-      ActionQueue->Enqueue(ContextActionCommand(
-          ActionContext(CursorPos[0], CursorPos[1], true)));
+                            ActionContext(CursorPos[0], CursorPos[1], true,
+                                          ThreadNumber, ManagedDevice));
+      ActionQueue->Enqueue(ContextActionCommand(ActionContext(
+          CursorPos[0], CursorPos[1], true, ThreadNumber, ManagedDevice)));
     } else {
       ActionContext& Context = ActiveActions.at(GameAction::CONTXT);
       Context.JustPressed = false;
@@ -143,14 +148,103 @@ void InputTranslator::TranslateRawMouseButton(RawMouseButtonEvent Event) {
                     "DLL or device driver")));
     return;
   }
-
+  RenderSystem& RS = RenderSystem::GetInstance();
+  std::vector<float> RelativeCoordinates = std::vector<float>{
+      CursorPos[0] / ViewPortWidth, CursorPos[1] / ViewPortHeight};
   if (!Event.Released) {
-    MouseButtonStates[ButtonIndex] = true;
+    if (!MouseButtonStates[ButtonIndex]) {
+      MouseButtonStates[ButtonIndex] = true;
+      // button was just pressed so send the event
+      if (ButtonIndex == 0) {
+        RS.RenderQueue->Enqueue(PressActionCommand(
+            ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
+                          ThreadNumber, ManagedDevice),
+            false));
+      }
+    }
+
   } else {
-    MouseButtonStates[ButtonIndex] = false;
+    if (MouseButtonStates[ButtonIndex]) {
+      MouseButtonStates[ButtonIndex] = false;
+      // button was just released so send the event
+      if (ButtonIndex == 0) {
+        RS.RenderQueue->Enqueue(PressActionCommand(
+            ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
+                          ThreadNumber, ManagedDevice),
+            true));
+      }
+    }
+  }
+}
+void InputTranslator::TranslateRawTriggerEvent(RawTriggerEvent Event) {
+  SDL_JoystickID InstanceID = Event.AxisEvent.which;
+  Uint8 IncomingAxis = Event.AxisEvent.axis;
+  Sint16 AxisValue = Event.AxisEvent.value;
+
+  // this methodology isnt perfect because the controller bindings
+  // may not exist in the GameController DB
+  // however this works for my offbrand xbox 360 and ps4 controllers (and
+  // official ones) ill have to find a controller where a failing situation
+  // applies
+  SDL_GameController* Controller = SDL_GameControllerFromInstanceID(InstanceID);
+  bool BShouldClose = false;
+  if (!Controller) {
+    for (int i = 0; i < SDL_NumJoysticks(); i++) {
+      if (SDL_JoystickGetDeviceInstanceID(i) != InstanceID) {
+        continue;
+      }
+      if (!SDL_IsGameController(i)) {
+        return;
+      }
+      Controller = SDL_GameControllerOpen(i);
+      BShouldClose = true;
+      break;
+    }
+  }
+  if (!Controller) {
+    return;
   }
 
+  SDL_GameControllerButtonBind LeftBind = SDL_GameControllerGetBindForAxis(
+      Controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+  SDL_GameControllerButtonBind RightBind = SDL_GameControllerGetBindForAxis(
+      Controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
 
+  bool Released = (AxisValue > 0);
+  RenderSystem& RS = RenderSystem::GetInstance();
+  std::vector<float> RelativeCoordinates = std::vector<float>{
+      CursorPos[0] / ViewPortWidth, CursorPos[1] / ViewPortHeight};
+  if (LeftBind.bindType == SDL_CONTROLLER_BINDTYPE_AXIS &&
+      LeftBind.value.axis == IncomingAxis) {
+    TriggerStates[0] = !Released;
+
+  } else if (RightBind.bindType == SDL_CONTROLLER_BINDTYPE_AXIS &&
+             RightBind.value.axis == IncomingAxis) {
+    if (!Released) {
+      if (!TriggerStates[1]) {
+        TriggerStates[1] = true;
+        // trigger was just pressed so send the event
+        RS.RenderQueue->Enqueue(PressActionCommand(
+            ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
+                          ThreadNumber, ManagedDevice),
+            false));
+      }
+
+    } else {
+      if (TriggerStates[1]) {
+        TriggerStates[1] = false;
+        // trigger was just released so send the event
+        RS.RenderQueue->Enqueue(PressActionCommand(
+            ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
+                          ThreadNumber, ManagedDevice),
+            true));
+      }
+    }
+  }
+
+  if (BShouldClose) {
+    SDL_GameControllerClose(Controller);
+  }
 }
 void InputTranslator::TranslateRawButton(RawButtonEvent Event) {
   Uint8 ButtonIndex = Event.Button.button;
@@ -160,9 +254,10 @@ void InputTranslator::TranslateRawButton(RawButtonEvent Event) {
       ActiveActions.erase(GameAction::USE);
     } else if (!ActiveActions.contains(GameAction::USE)) {
       ActiveActions.emplace(GameAction::USE,
-                            ActionContext(CursorPos[0], CursorPos[1], true));
-      ActionQueue->Enqueue(
-          UseActionCommand(ActionContext(CursorPos[0], CursorPos[1], true)));
+                            ActionContext(CursorPos[0], CursorPos[1], true,
+                                          ThreadNumber, ManagedDevice));
+      ActionQueue->Enqueue(UseActionCommand(ActionContext(
+          CursorPos[0], CursorPos[1], true, ThreadNumber, ManagedDevice)));
     } else {
       ActionContext& Context = ActiveActions.at(GameAction::USE);
       Context.JustPressed = false;
@@ -174,9 +269,10 @@ void InputTranslator::TranslateRawButton(RawButtonEvent Event) {
       ActiveActions.erase(GameAction::BACK);
     } else if (!ActiveActions.contains(GameAction::BACK)) {
       ActiveActions.emplace(GameAction::BACK,
-                            ActionContext(CursorPos[0], CursorPos[1], true));
-      ActionQueue->Enqueue(
-          BackActionCommand(ActionContext(CursorPos[0], CursorPos[1], true)));
+                            ActionContext(CursorPos[0], CursorPos[1], true,
+                                          ThreadNumber, ManagedDevice));
+      ActionQueue->Enqueue(BackActionCommand(ActionContext(
+          CursorPos[0], CursorPos[1], true, ThreadNumber, ManagedDevice)));
     } else {
       ActionContext& Context = ActiveActions.at(GameAction::BACK);
       Context.JustPressed = false;
@@ -188,9 +284,10 @@ void InputTranslator::TranslateRawButton(RawButtonEvent Event) {
       ActiveActions.erase(GameAction::CONTXT);
     } else if (!ActiveActions.contains(GameAction::CONTXT)) {
       ActiveActions.emplace(GameAction::CONTXT,
-                            ActionContext(CursorPos[0], CursorPos[1], true));
-      ActionQueue->Enqueue(ContextActionCommand(
-          ActionContext(CursorPos[0], CursorPos[1], true)));
+                            ActionContext(CursorPos[0], CursorPos[1], true,
+                                          ThreadNumber, ManagedDevice));
+      ActionQueue->Enqueue(ContextActionCommand(ActionContext(
+          CursorPos[0], CursorPos[1], true, ThreadNumber, ManagedDevice)));
     } else {
       ActionContext& Context = ActiveActions.at(GameAction::CONTXT);
       Context.JustPressed = false;

@@ -13,19 +13,38 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum) {
       "UI_Overlay_" + std::to_string(ThreadID), DeviceState->ManagedDevice));
 
   RS.RenderQueue->Enqueue(
-      OverlayAddBoxEvent({0.f, 0.f}, {0.01f, 0.01f},
-                         "interaction_wheel_" + std::to_string(ThreadID), "RED",
-                         "UI_Overlay_" + std::to_string(ThreadID)));
+      OverlayAddBoxEvent({0.f, 0.f}, {0.03f, 0.03f},
+                         "interaction_wheel_A" + std::to_string(ThreadID),
+                         "RED", "UI_Overlay_" + std::to_string(ThreadID)));
+  RS.RenderQueue->Enqueue(
+      OverlayAddBoxEvent({0.f, 0.f}, {0.03f, 0.03f},
+                         "interaction_wheel_B" + std::to_string(ThreadID),
+                         "RED", "UI_Overlay_" + std::to_string(ThreadID)));
+  RS.RenderQueue->Enqueue(
+      OverlayAddBoxEvent({0.f, 0.f}, {0.03f, 0.03f},
+                         "interaction_wheel_C" + std::to_string(ThreadID),
+                         "RED", "UI_Overlay_" + std::to_string(ThreadID)));
+  RS.RenderQueue->Enqueue(
+      OverlayAddBoxEvent({0.f, 0.f}, {0.03f, 0.03f},
+                         "interaction_wheel_D" + std::to_string(ThreadID),
+                         "RED", "UI_Overlay_" + std::to_string(ThreadID)));
 
   RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
-      "interaction_wheel_" + std::to_string(ThreadID), false));
+      "interaction_wheel_A" + std::to_string(ThreadID), false));
+  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_B" + std::to_string(ThreadID), false));
+  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_C" + std::to_string(ThreadID), false));
+  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_D" + std::to_string(ThreadID), false));
   Visibility = false;
 }
 
-void InteractionWheel::UpdateAndWarmupContext() {
-
-}
+void InteractionWheel::UpdateAndWarmupContext() {}
 
 void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   ActionContext Context = Cmd.Context;
@@ -35,10 +54,37 @@ void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   RenderSystem& RS = RenderSystem::GetInstance();
   RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
-      "interaction_wheel_" + std::to_string(ThreadID), Visibility));
+      "interaction_wheel_A" + std::to_string(ThreadID), Visibility));
+  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_B" + std::to_string(ThreadID), Visibility));
+  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_C" + std::to_string(ThreadID), Visibility));
+  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_D" + std::to_string(ThreadID), Visibility));
 
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
-      "interaction_wheel_" + std::to_string(ThreadID),
+      "interaction_wheel_A" + std::to_string(ThreadID),
       "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
       {Context.MouseX / Dimensions[0], Context.MouseY / Dimensions[1]}));
+  RS.RenderQueue->Enqueue(
+      OverlayEditPanelEvent("interaction_wheel_B" + std::to_string(ThreadID),
+                            "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
+                            {(Context.MouseX / Dimensions[0]) + 0.03f,
+                             Context.MouseY / Dimensions[1]}));
+  RS.RenderQueue->Enqueue(
+      OverlayEditPanelEvent("interaction_wheel_C" + std::to_string(ThreadID),
+                            "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
+                            {Context.MouseX / Dimensions[0],
+                             (Context.MouseY / Dimensions[1]) - 0.03f}));
+  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
+      "interaction_wheel_D" + std::to_string(ThreadID),
+      "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
+      {(Context.MouseX / Dimensions[0]) + 0.03f, (Context.MouseY / Dimensions[1]) - 0.03f}));
+}
+
+void InteractionWheel::OnPressActionCommand(PressActionCommand Cmd) {
+  ActionContext Context = Cmd.Context;
 }

@@ -245,6 +245,9 @@ void OverlayController::OverlayHovered(Ogre::OverlayElement* Element) {
 void OverlayController::OverlayReleased(Ogre::OverlayElement* Element) {
   Element->setMaterialName("RED", "Overlay");
 }
+void OverlayController::OverlayPressed(Ogre::OverlayElement* Element) {
+  Element->setMaterialName("PURPLE", "Overlay");
+}
 void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
   RenderSystem& RS = RenderSystem::GetInstance();
   ViewPortController* EventVPC = RS.FindViewPortFromDevice(Event.Device);
@@ -268,10 +271,47 @@ void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
 
     if (Element->findElementAt(Event.RelativeXY[0], Event.RelativeXY[1])) {
       Info->Hovered = true;
-      OverlayHovered(Element);
+      //pressing the overlay should always override hovering
+      if (!Info->Pressed) {
+        OverlayHovered(Element);
+      }
     } else {
       Info->Hovered = false;
       OverlayReleased(Element);
+    }
+  }
+}
+void OverlayController::OverlayPressedCheck(PressActionCommand Cmd) {
+  RenderSystem& RS = RenderSystem::GetInstance();
+  ActionContext Cntxt = Cmd.Context;
+  ViewPortController* EventVPC = RS.FindViewPortFromDevice(Cntxt.ActioningDevice);
+
+
+  std::string OverlayName = "UI_Overlay_" + std::to_string(Cntxt.ThreadId);
+  Ogre::Overlay* SpecificOverlay = OverlayMngr->getByName(OverlayName);
+
+  Ogre::Overlay::OverlayContainerList ContainedElements =
+      SpecificOverlay->get2DElements();
+
+  for (Ogre::OverlayElement* Element : ContainedElements) {
+    OverlayInfo* Info = nullptr;
+    try {
+      Info = OverlayInfos.at(Element->getName());
+    } catch (std::exception e) {
+      OverlayErrorReporter.EnqueueError(
+          ErrorDetail::CreateError(ErrorCode::OVERLAY_MISSING_INFO));
+      return;
+    }
+
+    
+    if (Element->findElementAt(Cntxt.MouseX, Cntxt.MouseY) && !Cmd.Released) {
+      Info->Pressed = true;
+      OverlayPressed(Element);
+    } else {
+      Info->Pressed = false;
+      if (Info->Hovered) {
+        OverlayHovered(Element);
+      }
     }
   }
 }

@@ -17,6 +17,7 @@
 #include "ErrorReporter.h"
 #include "OverlayEvent.h"
 #include "OverlayInfo.h"
+#include "ActionCommand.h"
 
 // owned by RenderSystem exclusively
 // exclusively handles Overlay item creation and management
@@ -49,9 +50,10 @@ class OverlayController {
   void ChangeOverlayVisibility(ChangeOverlayVisibilityEvent Event);
 
   void OverlayCursorCheck(CursorMovementEvent Event);
+  void OverlayPressedCheck(PressActionCommand Cmd);
 
   void OverlayHovered(Ogre::OverlayElement* Element);
-
+  void OverlayPressed(Ogre::OverlayElement* Element);
   void OverlayReleased(Ogre::OverlayElement* Element);
   void ParentUpdate();
 

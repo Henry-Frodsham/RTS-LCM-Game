@@ -14,3 +14,10 @@ struct BackActionCommand {
   ActionContext Context;
   BackActionCommand(ActionContext Cntx) : Context(Cntx) {}
 };
+
+struct PressActionCommand {
+  ActionContext Context;
+  bool Released;
+  PressActionCommand(ActionContext Cntx, bool Release)
+      : Context(Cntx), Released(Release) {}
+};

@@ -49,3 +49,7 @@ struct RawMouseButtonEvent {
   RawMouseButtonEvent(SDL_MouseButtonEvent RawButton, bool IsReleased)
       : Button(RawButton), Released(IsReleased) {}
 };
+struct RawTriggerEvent {
+  SDL_JoyAxisEvent AxisEvent;
+  float NormalizedValue;
+};
