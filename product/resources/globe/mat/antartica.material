@@ -1,0 +1,21 @@
+material antartica
+{
+    receive_shadows off
+    technique
+    {
+        pass
+        {
+            lighting off
+            depth_check on
+            depth_write on
+            depth_bias 2 2
+            diffuse 0.77 0.75 0.8 1.0
+            ambient 0.77 0.75 0.8 1.0
+            texture_unit
+            {
+                colour_op_ex source1 src_current src_current
+                alpha_op_ex source1 src_current src_current
+            }
+        }
+    }
+}

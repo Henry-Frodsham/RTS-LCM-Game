@@ -1,0 +1,21 @@
+material grass
+{
+    receive_shadows off
+    technique
+    {
+        pass
+        {
+            lighting off
+            depth_check on
+            depth_write on
+            depth_bias 1 1
+            diffuse 0.2 0.8 0.1 1.0
+            ambient 0.2 0.8 0.1 1.0
+            texture_unit
+            {
+                colour_op_ex source1 src_current src_current
+                alpha_op_ex source1 src_current src_current
+            }
+        }
+    }
+}

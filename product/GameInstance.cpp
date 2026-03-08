@@ -5,12 +5,14 @@
 
 GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
                            InputDevice* Device,
-                           InputTranslator* DeviceTranslator, int ThreadNumber)
+                           InputTranslator* DeviceTranslator,
+                           InteractionWheel* NewUIInteractionWheel, int ThreadNumber)
     : ParentReporter(ParentR),
       UpstreamQueue(ParentQ),
       InstanceDevice(Device),
       InstanceTranslator(DeviceTranslator),
-      InstanceNumber(ThreadNumber){
+      InstanceNumber(ThreadNumber),
+      InstanceUIWheel(NewUIInteractionWheel){
   LocalBus = new EventBus();
   LocalQueue = new EventQueue(LocalBus);
 
@@ -27,6 +29,7 @@ void GameInstance::Run(float DT) {
     UpstreamQueue->Enqueue(UpstreamOrbitViewport2DEvent(
         InstanceTranslator->GetRelativeMotion(), this));
     InstanceCursor->Update();
+    InstanceUIWheel->UpdateAndWarmupContext();
   }
   LocalQueue->Dispatch();
 }

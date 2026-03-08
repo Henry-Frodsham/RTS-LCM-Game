@@ -50,6 +50,9 @@ enum ErrorCode : uint32_t {
   BAD_VIEWPORT_CONTROL_REQUEST = 4014,
   ATTEMPT_TO_ASSIGN_VIEWPORT_TO_UNSET_OVERLAY = 4015,
   ATTEMPT_ASSIGN_OVERLAY_TO_UNSET_VIEWPORT = 4016,
+  INVALID_ORDER_OF_OPERATIONS = 4017,
+  ILLEGAL_OVERLAY_COMMAND = 4018,
+  OVERLAY_MISSING_INFO = 4019,
   // fatal
   OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
   SDL_FAILED_INIT = 5002,
@@ -187,7 +190,8 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
 
     {ErrorCode::ATTEMPT_ASSIGN_OVERLAY_TO_UNSET_VIEWPORT,
      {ErrorCode::ATTEMPT_ASSIGN_OVERLAY_TO_UNSET_VIEWPORT, ErrorLevel::ERR,
-      "couldnt assign an overlay to a viewport because the overlay was a nullptr",
+      "couldnt assign an overlay to a viewport because the overlay was a "
+      "nullptr",
       "ViewPortUpdateListener"}},
 
     {ErrorCode::ATTEMPT_TO_ASSIGN_VIEWPORT_TO_UNSET_OVERLAY,
@@ -195,6 +199,14 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
       "couldnt assign an viewport to an overlay because the viewport was a "
       "nullptr",
       "ViewPortUpdateListener"}},
+    {ErrorCode::INVALID_ORDER_OF_OPERATIONS,
+     {ErrorCode::INVALID_ORDER_OF_OPERATIONS, ErrorLevel::ERR,
+      "A chain transaction has executed in the wrong order, requesting a "
+      "resource before it was available",
+      "General"}},
+    {ErrorCode::OVERLAY_MISSING_INFO,
+     {ErrorCode::OVERLAY_MISSING_INFO, ErrorLevel::ERR,
+      "an overlay is missing info, does it exist?", "OverlayController"}},
     // fatal
     {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
      {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

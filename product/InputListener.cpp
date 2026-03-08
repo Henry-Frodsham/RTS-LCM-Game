@@ -49,6 +49,12 @@ void InputListener::Update() {
         // SDL2 doesnt have any device index for KBM so just use -1
         SdlDeviceIndex = -1;
         break;
+      case SDL_MOUSEBUTTONDOWN:
+        SdlDeviceIndex = -1; 
+        break;
+      case SDL_MOUSEBUTTONUP:
+        SdlDeviceIndex = -1;
+        break;
       case SDL_JOYBUTTONDOWN:
         SdlDeviceIndex = Event.cbutton.which;
         break;
@@ -113,9 +119,20 @@ void InputListener::Update() {
       case SDL_MOUSEMOTION:
         QueueToNotify->Enqueue(RawCursorEvent{Event.motion});
         break;
-
+      //this case covers both joystick and trigger motion, hence both are handled here
       case SDL_JOYAXISMOTION:
-        QueueToNotify->Enqueue(RawAxisEvent{Event.jaxis});
+        if (IsAxisTrigger(Device->Controller, Event.jaxis.axis)) {
+          QueueToNotify->Enqueue(RawTriggerEvent{
+              Event.jaxis, NormalizeTrigger(Event.jaxis.value)});
+        } else {
+          QueueToNotify->Enqueue(RawAxisEvent{Event.jaxis});
+        }
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+        QueueToNotify->Enqueue(RawMouseButtonEvent{Event.button, false});
+        break;
+      case SDL_MOUSEBUTTONUP:
+        QueueToNotify->Enqueue(RawMouseButtonEvent{Event.button, true});
         break;
     }
   }
@@ -230,6 +247,18 @@ InputDevice* InputListener::GetDeviceFromSDLId(Sint32 ID) {
                     "Device id: {}",
                     ID)));
   }
+}
+bool InputListener::IsAxisTrigger(SDL_Joystick* Joystick, Uint8 Axis) {
+  Sint16 InitialState = 0;
+  if (SDL_JoystickGetAxisInitialState(Joystick, Axis, &InitialState)) {
+    return InitialState == SDL_JOYSTICK_AXIS_MIN;
+  }
+  return false;
+}
+
+float InputListener::NormalizeTrigger(Sint16 RawValue) {
+  return (RawValue - SDL_JOYSTICK_AXIS_MIN) /
+         static_cast<float>(SDL_JOYSTICK_AXIS_MAX - SDL_JOYSTICK_AXIS_MIN);
 }
 
 void InputListener::DeviceSetup() {

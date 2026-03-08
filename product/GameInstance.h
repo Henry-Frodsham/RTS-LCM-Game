@@ -4,12 +4,13 @@
 #include "EventQueue.h"
 #include "InputListener.h"
 #include "InputTranslator.h"
+#include "InteractionWheel.h"
 #include "Cursor.h"
 
 class GameInstance {
  public:
   GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ, InputDevice* Device,
-               InputTranslator* DeviceTranslator, int ThreadNumber);
+               InputTranslator* DeviceTranslator, InteractionWheel* UIWheel, int ThreadNumber);
 
   void Run(float DT);
   EventQueue* LocalQueue;
@@ -32,4 +33,6 @@ class GameInstance {
   EventBus* LocalBus;
 
   Cursor* InstanceCursor;
+
+  InteractionWheel* InstanceUIWheel;
 };

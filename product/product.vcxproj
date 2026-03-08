@@ -121,9 +121,9 @@ for %%E in (%EXTENSIONS%) do (
 )
 
 exit /b 0
-xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"
-xcopy "$(SolutionDir)resources\*.*" "$(OutDir)resources\" /E /Y /I
-xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I</Command>
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
+xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
+xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -163,9 +163,9 @@ for %%E in (%EXTENSIONS%) do (
 )
 
 exit /b 0
-xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"
-xcopy "$(SolutionDir)resources\*.*" "$(OutDir)resources\" /E /Y /I
-xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
+xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
+xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -204,9 +204,9 @@ for %%E in (%EXTENSIONS%) do (
 )
 
 exit /b 0
-xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(OutDir)"
-xcopy "$(SolutionDir)resources\*.*" "$(OutDir)resources\" /E /Y /I
-xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I</Command>
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
+xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
+xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -246,9 +246,9 @@ for %%E in (%EXTENSIONS%) do (
 )
 
 exit /b 0
-xcopy /Y /D "$(SolutionDir)plugins.cfg" "$(OutDir)"
-xcopy "$(SolutionDir)resources\*.*" "$(OutDir)resources\" /E /Y /I
-xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
+xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
+xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
+xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -265,6 +265,7 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
     <ClCompile Include="instanceOverseer.cpp" />
+    <ClCompile Include="InteractionWheel.cpp" />
     <ClCompile Include="OverlayController.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
@@ -274,6 +275,7 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActionCommand.h" />
     <ClInclude Include="BaseComponents.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Cursor.h" />
@@ -294,15 +296,19 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I
     <ClInclude Include="InputTranslator.h" />
     <ClInclude Include="InstanceEvent.h" />
     <ClInclude Include="instanceOverseer.h" />
+    <ClInclude Include="InteractionWheel.h" />
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="OverlayController.h" />
     <ClInclude Include="OverlayEvent.h" />
+    <ClInclude Include="OverlayInfo.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ResizeEvent.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SharedInputEvent.h" />
     <ClInclude Include="TransformationMatrix.h" />
+    <ClInclude Include="UIEvent.h" />
     <ClInclude Include="ViewPortController.h" />
     <ClInclude Include="ViewPortUpdateEvent.h" />
     <ClInclude Include="ViewPortUpdateListener.h" />

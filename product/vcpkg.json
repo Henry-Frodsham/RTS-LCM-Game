@@ -13,6 +13,7 @@
     "doctest",
     "imgui",
     "fmt",
-    "eigen3"
+    "eigen3",
+    "bshoshany-thread-pool"
   ]
 }

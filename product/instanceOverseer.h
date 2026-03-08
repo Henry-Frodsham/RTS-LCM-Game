@@ -14,6 +14,9 @@
 #include "RenderSystem.h"
 #include "ViewPortController.h"
 #include "ResizeEvent.h"
+#include "InteractionWheel.h"
+
+#include <BS_thread_pool.hpp>
 
 // the class that "holds the reigns" over all instances
 
@@ -28,6 +31,7 @@ class InstanceOverseer {
 
   // viewports need to be stored
   std::unordered_map<GameInstance*, ViewPortController*> InstanceViewports;
+  BS::thread_pool InstanceThreadPool;
 
   EventBus* InstanceBus;
 
@@ -42,4 +46,5 @@ class InstanceOverseer {
 
   // a new instance is made solely based on a new device being connected
   InputListener* DeviceListener;
+
 };

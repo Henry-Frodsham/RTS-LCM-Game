@@ -31,4 +31,6 @@ class WorldManager {
 
   // all of the world objects are stored here
   entt::registry Registry;
+
+  void CreateGlobeMesh();
 };

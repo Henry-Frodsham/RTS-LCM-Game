@@ -32,7 +32,7 @@ class InputAnalyser {
 
   void RegisterNew(InputTranslator* NewTranslator);
 
-  void Update();
+  void Update(float DeltaTime);
 
   EventQueue* MetricQueue;
 };

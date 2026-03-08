@@ -27,9 +27,12 @@ void InputAnalyser::RegisterNew(InputTranslator* NewTranslator) {
       {0.02f, 0.04f}, {1.f, 1.f},
       "M_MET_C" + std::to_string(Translators.size()), "RED", "DEBUG_" + std::to_string(Translators.size()),
       "AXIS/CURSOR " + std::to_string(Translators.size())));
+  Renderer.RenderQueue->Enqueue(OverlayAddTextEvent(
+      {0.02f, 0.06f}, {1.f, 1.f}, "M_FPS" + std::to_string(Translators.size()),
+      "RED", "DEBUG_" + std::to_string(Translators.size()), "FPS - 0"));
 }
 
-void InputAnalyser::Update() {
+void InputAnalyser::Update(float DeltaTime) {
   MetricQueue->Dispatch();
   MetricError->Dispatch();
   RenderSystem& Renderer = RenderSystem::GetInstance();
@@ -47,6 +50,13 @@ void InputAnalyser::Update() {
         "M_MET_C" + std::to_string(i + 1), "DEBUG_" + std::to_string(i+1), {-1.f, -1.f}, {-1.f, -1.f},
         "USE_OLD",
         fmt::format("AXIS X : {} AXIS Y : {}", VecPos[0], VecPos[1])));
+    //avoid division by 0
+    if (DeltaTime != 0.f) {
+      Renderer.RenderQueue->Enqueue(OverlayEditTextEvent(
+          "M_FPS" + std::to_string(i + 1), "DEBUG_" + std::to_string(i + 1),
+          {-1.f, -1.f}, {-1.f, -1.f}, "USE_OLD",
+          fmt::format("FPS - {}", 1 / DeltaTime)));
+    }
   }
 }
 InputAnalyser& InputAnalyser::GetInstance() {

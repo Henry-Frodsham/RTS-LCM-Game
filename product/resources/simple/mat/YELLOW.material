@@ -9,7 +9,7 @@ material YELLOW {
             scene_blend alpha_blend
             
             texture_unit {
-                colour_op_ex source1 src_manual src_current 1 1 0
+                colour_op_ex source1 src_manual src_current 0.1 0.1 0.8
             }
         }
     }

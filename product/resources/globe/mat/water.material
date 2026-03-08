@@ -1,0 +1,34 @@
+material water
+{
+    receive_shadows off
+    technique
+    {
+        // Pass 1: Render back faces, write depth only, no colour.
+        // This populates the depth buffer for the far hemisphere
+        // so all back-side geometry gets correctly occluded.
+        pass depth_prepass
+        {
+            lighting off
+            depth_check on
+            depth_write on
+            colour_write off
+            cull_hardware front
+        }
+
+        // Pass 2: Render front faces normally
+        pass
+        {
+            lighting off
+            depth_check on
+            depth_write on
+            cull_hardware back
+            diffuse 0.1 0.1 0.8 1.0
+            ambient 0.1 0.1 0.8 1.0
+            texture_unit
+            {
+                colour_op_ex source1 src_current src_current
+                alpha_op_ex source1 src_current src_current
+            }
+        }
+    }
+}
