@@ -59,6 +59,15 @@ std::vector<float> ViewPortController::GetCameraAngle() {
   return Angles;
 }
 
+EndRayTraceResultEvent ViewPortController::TraceRay(StartRayTraceEvent Event) {
+  Ogre::Camera* RayC = ViewPort->getCamera();
+
+  float MouseX = (float)Event.Point[0] / (float)ViewPort->getActualWidth();
+  float MouseY = (float)Event.Point[1] / (float)ViewPort->getActualHeight();
+
+  Ogre::Ray MouseRay = RayC->getCameraToViewportRay(MouseX, MouseY);
+}
+
 // get the dimensions of a specific split screen instance
 std::vector<float> ViewPortController::GetViewPortDimensions() {
   return std::vector<float>{ViewPort->getLeft(), ViewPort->getTop(),

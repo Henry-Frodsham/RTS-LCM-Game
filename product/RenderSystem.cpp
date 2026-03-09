@@ -200,6 +200,8 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::SetNodePositionFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<AttachEntityToScenNodeEvent>(std::bind(
       &RenderSystem::AttachEntityToNodeFromEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<StartRayTraceEvent>(std::bind(
+      &RenderSystem::AssembleRayTraceEvent, this, std::placeholders::_1));
 
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
@@ -294,6 +296,10 @@ void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
 void RenderSystem::AttachEntityToNodeFromEvent(
     AttachEntityToScenNodeEvent Event) {
   Event.SceneNode.get()->attachObject(Event.Entity.get());
+}
+
+void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
+  ViewPortController* RayVPC = FindViewPortFromDevice(Event.Device);
 }
 
 ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {

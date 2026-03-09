@@ -5,6 +5,7 @@
 
 #include <vector>
 #include "InputDevice.h"
+#include "RayTraceEvent.h"
 
 // view port (camera) for each split screen instance
 class ViewPortController {
@@ -45,6 +46,7 @@ class ViewPortController {
 
   bool IsControllerByDevice(InputDevice* Device);
 
+  EndRayTraceResultEvent TraceRay(StartRayTraceEvent Event);
   // Copy constructor - required for vector storage
   ViewPortController(const ViewPortController&) = default;
   // Move constructor

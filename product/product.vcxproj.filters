@@ -61,6 +61,9 @@
     <ClCompile Include="InteractionWheel.cpp">
       <Filter>Source\UI</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerGeneralControl.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -276,6 +279,15 @@
       <Filter>Headers\Render</Filter>
     </ClInclude>
     <ClInclude Include="SharedInputEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTraceEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerGeneralControl.h">
+      <Filter>Headers\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerControlEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>

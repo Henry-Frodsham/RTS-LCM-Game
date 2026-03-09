@@ -268,6 +268,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="InteractionWheel.cpp" />
     <ClCompile Include="OverlayController.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerGeneralControl.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="TransformationMatrix.cpp" />
     <ClCompile Include="ViewPortController.cpp" />
@@ -302,6 +303,9 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="OverlayEvent.h" />
     <ClInclude Include="OverlayInfo.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerControlEvent.h" />
+    <ClInclude Include="PlayerGeneralControl.h" />
+    <ClInclude Include="RayTraceEvent.h" />
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ResizeEvent.h" />

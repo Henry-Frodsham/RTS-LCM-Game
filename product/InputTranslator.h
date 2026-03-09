@@ -37,6 +37,7 @@ class InputTranslator {
   Ogre::Vector2f GetRelativeMotion();
 
   bool HasRelativeMotion();
+  bool HoldingRMBorRT();
   void Update(float DeltaTime);
 
   void ResizeViewPortDimensions(ResizedViewPortEvent Event);

@@ -22,6 +22,7 @@
 #include "RenderEvent.h"
 #include "ViewPortUpdateListener.h"
 #include "ViewPortUpdateEvent.h"
+#include "RayTraceEvent.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating
@@ -78,6 +79,8 @@ class RenderSystem {
   void SetNodePositionFromEvent(SetNodePositionEvent Event);
 
   void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
+
+  void AssembleRayTraceEvent(StartRayTraceEvent Event);
 
   
 

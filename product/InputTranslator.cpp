@@ -409,6 +409,7 @@ bool InputTranslator::HasRelativeMotion() {
   }
   return false;
 }
+bool InputTranslator::HoldingRMBorRT() { return MouseButtonStates[1] || TriggerStates[1]; }
 
 std::vector<float> InputTranslator::GetViewPortDimensions() {
   return std::vector<float>{ViewPortWidth, ViewPortHeight};

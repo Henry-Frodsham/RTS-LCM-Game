@@ -6,6 +6,7 @@
 #include "InputTranslator.h"
 #include "InteractionWheel.h"
 #include "Cursor.h"
+#include "PlayerGeneralControl.h"
 
 class GameInstance {
  public:
@@ -35,4 +36,8 @@ class GameInstance {
   Cursor* InstanceCursor;
 
   InteractionWheel* InstanceUIWheel;
+
+  PlayerGeneralControl* PlayerControl;
+
+  void SetUpResponsibility();
 };
