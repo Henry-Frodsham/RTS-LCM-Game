@@ -10,6 +10,7 @@ RenderSystem::RenderSystem()
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
       ViewPortListener(nullptr),
+      RaySceneQuery(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
   RenderBus = new EventBus();
@@ -119,6 +120,8 @@ void RenderSystem::Init() {
 
   DefaultViewPort->setOverlaysEnabled(true);
 
+  RaySceneQuery = SceneManager->createRayQuery(Ogre::Ray());
+  RaySceneQuery->setSortByDistance(true);
   IsInit = true;
 }
 
@@ -300,6 +303,9 @@ void RenderSystem::AttachEntityToNodeFromEvent(
 
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
   ViewPortController* RayVPC = FindViewPortFromDevice(Event.Device);
+  //populate here because i dont want a tonne of ogre singleton ptrs around
+  Event.RaySceneQuery = RaySceneQuery;
+  EndRayTraceResultEvent ResultEvent = RayVPC->TraceRay(Event);
 }
 
 ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {

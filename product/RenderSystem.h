@@ -41,6 +41,8 @@ class RenderSystem {
   Ogre::Root* OgreRoot;
   Ogre::SceneManager* SceneManager;
 
+  Ogre::RaySceneQuery* RaySceneQuery;
+
   SDL_Window* SDLWindow;
 
   Ogre::OverlaySystem* OverlaySystem;

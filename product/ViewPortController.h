@@ -12,7 +12,6 @@ class ViewPortController {
  private:
   Ogre::Viewport* ViewPort;
   InputDevice* ControllingDevice;
-
  public:
   bool ToggleAutomaticRendering(bool Val);
 

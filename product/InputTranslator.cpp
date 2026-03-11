@@ -156,10 +156,12 @@ void InputTranslator::TranslateRawMouseButton(RawMouseButtonEvent Event) {
       MouseButtonStates[ButtonIndex] = true;
       // button was just pressed so send the event
       if (ButtonIndex == 0) {
-        RS.RenderQueue->Enqueue(PressActionCommand(
+        PressActionCommand Action = PressActionCommand(
             ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
                           ThreadNumber, ManagedDevice),
-            false));
+            false);
+        RS.RenderQueue->Enqueue(Action);
+        ActionQueue->Enqueue(Action);
       }
     }
 
@@ -168,10 +170,12 @@ void InputTranslator::TranslateRawMouseButton(RawMouseButtonEvent Event) {
       MouseButtonStates[ButtonIndex] = false;
       // button was just released so send the event
       if (ButtonIndex == 0) {
-        RS.RenderQueue->Enqueue(PressActionCommand(
+        PressActionCommand Action = PressActionCommand(
             ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
                           ThreadNumber, ManagedDevice),
-            true));
+            true);
+        RS.RenderQueue->Enqueue(Action);
+        ActionQueue->Enqueue(Action);
       }
     }
   }

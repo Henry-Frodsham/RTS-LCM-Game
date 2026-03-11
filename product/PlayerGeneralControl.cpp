@@ -8,7 +8,6 @@ PlayerGeneralControl::PlayerGeneralControl(InputTranslator* Translator,
 
   PlayerTranslator->ActionBus->Subscribe<PressActionCommand>(
       std::bind(&PlayerGeneralControl::OnPress, this, std::placeholders::_1));
-
 }
 
 void PlayerGeneralControl::Update(float Dt) {
@@ -23,8 +22,9 @@ void PlayerGeneralControl::Update(float Dt) {
 }
 
 void PlayerGeneralControl::OnPress(PressActionCommand Cmd) {
-  RenderSystem &RS = RenderSystem::GetInstance();
+  RenderSystem& RS = RenderSystem::GetInstance();
   std::vector<float> Position =
       std::vector<float>{Cmd.Context.MouseX, Cmd.Context.MouseY};
-  RS.RenderQueue->Enqueue(StartRayTraceEvent(Position,PlayerTranslator->ManagedDevice));
+  RS.RenderQueue->Enqueue(
+      StartRayTraceEvent(Position, PlayerTranslator->ManagedDevice));
 }
