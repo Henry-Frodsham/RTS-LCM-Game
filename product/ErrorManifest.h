@@ -53,6 +53,7 @@ enum ErrorCode : uint32_t {
   INVALID_ORDER_OF_OPERATIONS = 4017,
   ILLEGAL_OVERLAY_COMMAND = 4018,
   OVERLAY_MISSING_INFO = 4019,
+  CALLBACK_FAILED = 4020,
   // fatal
   OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
   SDL_FAILED_INIT = 5002,
@@ -207,6 +208,9 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
     {ErrorCode::OVERLAY_MISSING_INFO,
      {ErrorCode::OVERLAY_MISSING_INFO, ErrorLevel::ERR,
       "an overlay is missing info, does it exist?", "OverlayController"}},
+    {ErrorCode::CALLBACK_FAILED,
+    {ErrorCode::CALLBACK_FAILED, ErrorLevel::ERR,
+        "An Overlay's interaction callback failed", "OverlayController"}},
     // fatal
     {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
      {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

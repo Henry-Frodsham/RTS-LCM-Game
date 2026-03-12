@@ -22,7 +22,6 @@ WorldManager::WorldManager() {
         EntityTemplates::ConstructMeshEntity(CompFactory, Event);
       });
 
-  CreateGlobeMesh();
 }
 
 void WorldManager::CreateGlobeMesh() {

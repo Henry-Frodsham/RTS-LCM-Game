@@ -1,4 +1,6 @@
 // Copyright © 2025 Henry Frodsham
 #include "Player.h"
 
-// here for future implementation
+Player::Player(Empire* Emp) : PlayerEmpire(Emp){
+
+}

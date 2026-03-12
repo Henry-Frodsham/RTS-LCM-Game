@@ -51,10 +51,10 @@ class OverlayController {
 
   void OverlayCursorCheck(CursorMovementEvent Event);
   void OverlayPressedCheck(PressActionCommand Cmd);
-
-  void OverlayHovered(Ogre::OverlayElement* Element);
-  void OverlayPressed(Ogre::OverlayElement* Element);
-  void OverlayReleased(Ogre::OverlayElement* Element);
+  void RegisterOnPressCallBack(RegisterOnPressCallBackEvent Event);
+  void OverlayHovered(Ogre::OverlayElement* Element, OverlayInfo* Info);
+  void OverlayPressed(Ogre::OverlayElement* Element, OverlayInfo* Info);
+  void OverlayReleased(Ogre::OverlayElement* Element, OverlayInfo* Info);
   void ParentUpdate();
 
   void InitFont();

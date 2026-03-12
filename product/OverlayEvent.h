@@ -124,3 +124,18 @@ struct ChangeOverlayVisibilityEvent {
   ChangeOverlayVisibilityEvent(std::string OName, std::string ObName, bool Vis)
       : OverlayName(OName), ObjectName(ObName), Visibility(Vis) {}
 };
+
+struct RegisterOnPressCallBackEvent {
+  std::string OverlayName;
+  std::string ObjectName;
+
+
+  std::function<void(EventQueue&)> Callback;
+  EventQueue* CallQueue;
+  RegisterOnPressCallBackEvent(std::string Overlay, std::string Object,
+                               std::function<void(EventQueue&)> Call, EventQueue* Queue)
+      : OverlayName(Overlay),
+        ObjectName(Object),
+        Callback(Call),
+        CallQueue(Queue){}
+};

@@ -64,6 +64,15 @@
     <ClCompile Include="PlayerGeneralControl.cpp">
       <Filter>Source\Player</Filter>
     </ClCompile>
+    <ClCompile Include="City.cpp">
+      <Filter>Source\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Empire.cpp">
+      <Filter>Source\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit.cpp">
+      <Filter>Source\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -161,6 +170,12 @@
     </Filter>
     <Filter Include="Headers\Action">
       <UniqueIdentifier>{bee106f6-0a0d-47af-b0ba-12783cb54514}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Game">
+      <UniqueIdentifier>{338fa682-dc2c-4872-aa06-efaa0af9743b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Game">
+      <UniqueIdentifier>{dfa68ebc-3c16-437c-9a63-65fc20a52999}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -289,6 +304,15 @@
     </ClInclude>
     <ClInclude Include="PlayerControlEvent.h">
       <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="City.h">
+      <Filter>Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Empire.h">
+      <Filter>Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit.h">
+      <Filter>Headers\Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

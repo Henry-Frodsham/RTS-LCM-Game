@@ -239,14 +239,22 @@ void OverlayController::ChangeOverlayVisibility(
   OverlayElement->setVisible(Event.Visibility);
 }
 
-void OverlayController::OverlayHovered(Ogre::OverlayElement* Element) {
+void OverlayController::OverlayHovered(Ogre::OverlayElement* Element,
+                                       OverlayInfo* Info) {
   Element->setMaterialName("BLUE", "Overlay");
 }
-void OverlayController::OverlayReleased(Ogre::OverlayElement* Element) {
+void OverlayController::OverlayReleased(Ogre::OverlayElement* Element,
+                                        OverlayInfo* Info) {
   Element->setMaterialName("RED", "Overlay");
 }
-void OverlayController::OverlayPressed(Ogre::OverlayElement* Element) {
+void OverlayController::OverlayPressed(Ogre::OverlayElement* Element,
+                                       OverlayInfo* Info) {
   Element->setMaterialName("PURPLE", "Overlay");
+
+
+  if (Info->PressCallBack != nullptr) {
+    Info->PressCallBack(*Info->CallQueue);
+  }
 }
 void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
   RenderSystem& RS = RenderSystem::GetInstance();
@@ -273,11 +281,11 @@ void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
       Info->Hovered = true;
       //pressing the overlay should always override hovering
       if (!Info->Pressed) {
-        OverlayHovered(Element);
+        OverlayHovered(Element, Info);
       }
     } else {
       Info->Hovered = false;
-      OverlayReleased(Element);
+      OverlayReleased(Element,Info);
     }
   }
 }
@@ -306,14 +314,29 @@ void OverlayController::OverlayPressedCheck(PressActionCommand Cmd) {
     
     if (Element->findElementAt(Cntxt.MouseX, Cntxt.MouseY) && !Cmd.Released) {
       Info->Pressed = true;
-      OverlayPressed(Element);
+      OverlayPressed(Element, Info);
     } else {
       Info->Pressed = false;
       if (Info->Hovered) {
-        OverlayHovered(Element);
+        OverlayHovered(Element, Info);
       }
     }
   }
+}
+
+void OverlayController::RegisterOnPressCallBack(
+    RegisterOnPressCallBackEvent Event) {
+  OverlayInfo* Info = nullptr;
+  try {
+    Info = OverlayInfos.at(Event.ObjectName);
+  } catch (std::exception e) {
+    OverlayErrorReporter.EnqueueError(
+        ErrorDetail::CreateError(ErrorCode::OVERLAY_MISSING_INFO));
+    return;
+  }
+
+  Info->PressCallBack = Event.Callback;
+  Info->CallQueue = Event.CallQueue;
 }
 
 void OverlayController::ParentUpdate() { OverlayErrorReporter.Dispatch(); }
