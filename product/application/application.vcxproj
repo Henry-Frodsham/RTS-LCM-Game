@@ -265,8 +265,10 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\StateEvent.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="ApplicationStateManager.h" />
+    <ClInclude Include="AppState.h" />
     <ClInclude Include="GamePlayState.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="PausedState.h" />

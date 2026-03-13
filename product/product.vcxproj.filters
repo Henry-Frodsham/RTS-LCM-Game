@@ -73,6 +73,9 @@
     <ClCompile Include="Unit.cpp">
       <Filter>Source\Game</Filter>
     </ClCompile>
+    <ClCompile Include="GenericButton.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -313,6 +316,9 @@
     </ClInclude>
     <ClInclude Include="Unit.h">
       <Filter>Headers\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="GenericButton.h">
+      <Filter>Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

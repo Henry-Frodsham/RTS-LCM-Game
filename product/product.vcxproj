@@ -263,6 +263,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="ErrorReporter.cpp" />
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="GameInstance.cpp" />
+    <ClCompile Include="GenericButton.cpp" />
     <ClCompile Include="InputAnalyser.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
@@ -295,6 +296,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="GameAction.h" />
     <ClInclude Include="GameInstance.h" />
+    <ClInclude Include="GenericButton.h" />
     <ClInclude Include="InputAnalyser.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="InputEvent.h" />
