@@ -9,24 +9,37 @@
 #include "MenuState.h"
 #include "PausedState.h"
 #include "GamePlayState.h"
-
+#include "InputAnalyser.h"
+#include "InputListener.h"
+#include "InputTranslator.h"
+#include "RenderSystem.h"
+#include "StateEvent.h"
+#include "WorldManager.h"
+#include "instanceOverseer.h"
 class Application {
  public:
   Application();
   ~Application() {};
   void Start();
 
-  EventQueue* AppQueue;
  private:
+  EventBus* Appbus;
+  EventQueue* AppQueue;
   bool Init();
 
   void Loop();
+  SDL_Window* InitAndGetWindow(RenderSystem& Render);
+  InputListener& UpdateAndReturn();
   BS::thread_pool IndependantThreads;
   ApplicationStateManager StateManager;
+  RenderSystem& RenderSingleton;
 
+  InputListener Input;
+  WorldManager WM;
+  InstanceOverseer Instances;
   MenuState Menu;
   GameState Game;
   PauseState Pause;
 
-  EventBus* Appbus;
+  
 };

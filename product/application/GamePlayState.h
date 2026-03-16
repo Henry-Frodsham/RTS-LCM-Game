@@ -8,7 +8,7 @@ class GameState {
   EventQueue* AppQueue;
  public:
   GameState(EventQueue* CallBacksQueue);
-  ~GameState();
+  ~GameState(){}
 
   void Init();
   void OnChangeState(ChangeStateEvent Event);

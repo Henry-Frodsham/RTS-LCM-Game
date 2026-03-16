@@ -10,7 +10,7 @@ class MenuState {
   GenericButton* PlayButton;
  public:
   MenuState(EventQueue* CallBacksQueue);
-  ~MenuState();
+  ~MenuState(){}
 
   void Init();
   void OnChangeState(ChangeStateEvent Event);

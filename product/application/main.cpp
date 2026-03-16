@@ -3,6 +3,9 @@
 
 #include "Application.h"
 
+//stop SDL hijacking main
+#undef main
+
 // startup function, delegates responsibility to the application class
 int main(int argc, char** argv) {
   Application* MainApp = new Application();

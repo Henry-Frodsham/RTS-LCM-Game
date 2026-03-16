@@ -9,15 +9,19 @@ OverlayController::OverlayController() : OverlayErrorReporter() {
 }
 
 void OverlayController::CreateOverlay(CreateOverlayEvent Event) {
-  ManagedOverlays.emplace(Event.OverlayName,
-                          OverlayMngr->create(Event.OverlayName));
-  
+
+    if (OverlayMngr->getByName(Event.OverlayName) == nullptr) {
+        ManagedOverlays.emplace(Event.OverlayName,
+            OverlayMngr->create(Event.OverlayName));
+    }
   
   RenderSystem& Render = RenderSystem::GetInstance();
 
-  Render.RenderQueue->Enqueue(RegisterOverlayToViewPortEvent(
-      ManagedOverlays.at(Event.OverlayName),
-      Render.FindViewPortFromDevice(Event.InstanceDevice)));
+  if (Event.InstanceDevice != nullptr) {
+      Render.RenderQueue->Enqueue(RegisterOverlayToViewPortEvent(
+          ManagedOverlays.at(Event.OverlayName),
+          Render.FindViewPortFromDevice(Event.InstanceDevice)));
+  }
 }
 
 void OverlayController::AddBox(OverlayAddBoxEvent Event) {
@@ -45,7 +49,7 @@ void OverlayController::AddBox(OverlayAddBoxEvent Event) {
   Panel->setMetricsMode(Ogre::GMM_RELATIVE);
   Panel->setPosition(Event.Position[0], Event.Position[1]);
   Panel->setDimensions(Event.Dimensions[0], Event.Dimensions[1]);
-
+  
   try {
     Panel->setMaterialName(Event.MaterialName, "Overlay");
   } catch (const std::exception& e) {
@@ -113,7 +117,8 @@ void OverlayController::AddText(OverlayAddTextEvent Event) {
   TextPanel->setDimensions(Event.Dimensions[0], Event.Dimensions[1]);
   TextPanel->setParameter("transparent", "true");
   TextPanel->addChild(TextArea);
-
+  OverlayInfo* PanelInfo = new OverlayInfo(false, false, Event.OverlayToUse);
+  OverlayInfos.emplace(Event.Name + "_Panel", PanelInfo);
   OverlayUsed->add2D(TextPanel);
   OverlayUsed->show();
 }
