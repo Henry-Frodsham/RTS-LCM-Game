@@ -18,7 +18,7 @@ class ECSHelper {
   ECSHelper() = default;
 
   EventQueue* FactoryQueue;
-
+  void ChangeEntityVisibility(ChangeEntityVisibilityEvent Event);
  private:
   EventBus* FactoryBus;
 
@@ -31,4 +31,7 @@ class ECSHelper {
   void CreateAndAddOgreComponent(AddOgreComponentEvent Event);
 
   void CreateAndAddMeshComponent(AddMeshComponentEvent Event);
+
+  OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
+  
 };

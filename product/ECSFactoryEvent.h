@@ -46,3 +46,10 @@ struct AddMeshComponentEvent {
                         std::string EntN)
       : Entity(ent), MeshName(MeshN), EntityName(EntN) {}
 };
+
+struct ChangeEntityVisibilityEvent {
+  bool Visible;
+  std::string NodeName;
+  ChangeEntityVisibilityEvent(std::string ent, bool Vis)
+      : NodeName(ent), Visible(Vis) {}
+};

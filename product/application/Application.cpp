@@ -4,8 +4,17 @@
 
 
 Application::Application()
-    : IndependantThreads(std::thread::hardware_concurrency()),RenderSingleton(RenderSystem::GetInstance()), Input(InputListener(InitAndGetWindow(RenderSingleton))), WM(WorldManager()), Instances(InstanceOverseer(&UpdateAndReturn())), StateManager(ApplicationStateManager()), Appbus(new EventBus()), AppQueue(new EventQueue(Appbus)), Menu(MenuState(AppQueue)), Game(GameState(AppQueue)), Pause(PauseState(AppQueue)) {
-}
+    : IndependantThreads(std::thread::hardware_concurrency()),
+      RenderSingleton(RenderSystem::GetInstance()),
+      Input(InputListener(InitAndGetWindow(RenderSingleton))),
+      WM(WorldManager()),
+      Instances(InstanceOverseer(&UpdateAndReturn())),
+      StateManager(ApplicationStateManager()),
+      Appbus(new EventBus()),
+      AppQueue(new EventQueue(Appbus)),
+      Menu(MenuState(AppQueue)),
+      Game(GameState(AppQueue, &WM)),
+      Pause(PauseState(AppQueue)) {}
 
 // initialises game into the correct state, by default the game starts at the
 // menu so MENU state

@@ -22,6 +22,13 @@ WorldManager::WorldManager() {
         EntityTemplates::ConstructMeshEntity(CompFactory, Event);
       });
 
+  WorldBus->Subscribe<ChangeEntityVisibilityEvent>([this](
+      const ChangeEntityVisibilityEvent& Event) {
+    CompFactory->ChangeEntityVisibility(Event);
+  });
+  WorldBus->Subscribe<ChangeGlobeVisibilityEvent>(std::bind(
+      &WorldManager::ChangeGlobeVisibility, this, std::placeholders::_1));
+  CreateGlobeMesh();
 }
 
 void WorldManager::CreateGlobeMesh() {
@@ -44,7 +51,11 @@ void WorldManager::CreateGlobeMesh() {
                                  Ogre::Vector3(0.5f, 0.f, -5.f)));
   WorldQueue->Enqueue(
       CreateMeshWorldEntityEvent("GlobeNode", "UK.mesh", "GlobeUK",
-                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
+                                 Ogre::Vector3(0.5f, 0.f, -5.f))); 
+}
+
+void WorldManager::ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event) {
+  WorldQueue->Enqueue(ChangeEntityVisibilityEvent("GlobeNode", Event.Visible));
 }
 void WorldManager::update() {
   ECSReporter->Dispatch();

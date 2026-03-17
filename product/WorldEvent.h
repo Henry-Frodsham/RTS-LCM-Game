@@ -35,4 +35,7 @@ struct CreateMeshWorldEntityEvent {
         InitialPosition(InitP) {}
 };
 
-// edit already created entities
+struct ChangeGlobeVisibilityEvent {
+  bool Visible;
+  ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}
+};

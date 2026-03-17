@@ -57,3 +57,34 @@ void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
     return;
   }
 }
+
+void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+   
+
+  try {
+    OgreComponent Comp = FindEntityFromSceneNodeName(Event.NodeName);
+    if (Comp.EntityNode != nullptr) {
+      Comp.EntityNode->setVisible(Event.Visible);
+    }
+
+  } catch (std::exception& e) {
+    ParentReporter->EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::ECS_WRONG_CREATION_ORDER,
+        "failed to create MeshComponent due to this entity not having a "
+        "OgreComponent to attach to"));
+    return;
+  }
+}
+
+OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
+  auto View = RegistryToUse->view<OgreComponent>();
+  for (auto Entity : View) {
+    OgreComponent EntComp = View.get<OgreComponent>(Entity);
+
+    if (EntComp.NodeName == NodeName) {
+      return EntComp;
+    }
+  }
+  return OgreComponent(nullptr, "");
+}
