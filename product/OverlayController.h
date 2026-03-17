@@ -40,7 +40,7 @@ class OverlayController {
   void AddBox(OverlayAddBoxEvent Event);
 
   void AddText(OverlayAddTextEvent Event);
-
+  void AddTextToPanel(OverlayAddTextToPanelEvent Event);
   void EditPanel(OverlayEditPanelEvent Event);
 
   void EditText(OverlayEditTextEvent Event);

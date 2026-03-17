@@ -100,7 +100,24 @@ struct OverlayEditTextEvent {
         NewText(Text),
         NameOfExisting(Name) {}
 };
-
+struct OverlayAddTextToPanelEvent {
+  std::string PanelName;     
+  std::string TextName;      
+  std::string Text;          
+  std::string MaterialName;  
+  std::vector<float>
+      Position;  
+  std::vector<float> Dimensions;
+  OverlayAddTextToPanelEvent(std::string Pn, std::string Tn, std::string txt,
+                             std::string Mname, std::vector<float> Pos,
+                             std::vector<float> Dim)
+      : PanelName(Pn),
+        TextName(Tn),
+        Text(txt),
+        MaterialName(Mname),
+        Position(Pos),
+        Dimensions(Dim) {}
+};
 struct CreateOverlayEvent {
   std::string OverlayName;
   // to prevent a long chain of communication requests, an overlay can be made

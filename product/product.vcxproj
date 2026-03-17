@@ -283,6 +283,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="ActionCommand.h" />
     <ClInclude Include="BaseComponents.h" />
     <ClInclude Include="City.h" />
+    <ClInclude Include="CommonGameObjectComponents.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Cursor.h" />
     <ClInclude Include="CursorEvent.h" />
@@ -321,6 +322,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="TransformationMatrix.h" />
     <ClInclude Include="UIEvent.h" />
     <ClInclude Include="Unit.h" />
+    <ClInclude Include="UnitComponents.h" />
     <ClInclude Include="ViewPortController.h" />
     <ClInclude Include="ViewPortUpdateEvent.h" />
     <ClInclude Include="ViewPortUpdateListener.h" />

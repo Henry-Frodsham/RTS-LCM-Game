@@ -7,6 +7,7 @@
 #include "InteractionWheel.h"
 #include "Cursor.h"
 #include "PlayerGeneralControl.h"
+#include "Player.h"
 
 class GameInstance {
  public:
@@ -19,6 +20,8 @@ class GameInstance {
   InputDevice* InstanceDevice;
 
   int InstanceNumber;
+
+  Player* PlayerForInstance;
  private:
   ErrorReporter* ParentReporter;
 

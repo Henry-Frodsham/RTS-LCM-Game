@@ -122,7 +122,71 @@ void OverlayController::AddText(OverlayAddTextEvent Event) {
   OverlayUsed->add2D(TextPanel);
   OverlayUsed->show();
 }
+void OverlayController::AddTextToPanel(OverlayAddTextToPanelEvent Event) {
+  if (!OverlayMngr) {
+    OverlayErrorReporter.EnqueueError(
+        ErrorDetail::CreateError(ErrorCode::OVERLAY_UNITIALISED));
+    return;
+  }
 
+  Ogre::OverlayElement* Found = nullptr;
+  try {
+    Found = OverlayMngr->getOverlayElement(Event.PanelName);
+  } catch (std::exception& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::ELEMENT_NOT_FOUND,
+        fmt::format("panel {} not found for text attachment",
+                    Event.PanelName)));
+    return;
+  }
+
+  Ogre::OverlayContainer* Panel = dynamic_cast<Ogre::OverlayContainer*>(Found);
+  if (!Panel) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::ELEMENT_NOT_FOUND,
+        fmt::format("{} exists but is not a container", Event.PanelName)));
+    return;
+  }
+
+  Ogre::TextAreaOverlayElement* TextArea =
+      static_cast<Ogre::TextAreaOverlayElement*>(
+          OverlayMngr->createOverlayElement("TextArea", Event.TextName));
+
+  TextArea->setMetricsMode(Ogre::GMM_RELATIVE);
+  TextArea->setPosition(Event.Position[0], Event.Position[1]);
+  TextArea->setDimensions(Event.Dimensions[0], Event.Dimensions[1]);
+  TextArea->setCaption(Event.Text);
+  TextArea->setCharHeight(0.025f);
+  TextArea->setColour(Ogre::ColourValue(1.0f, 1.0f, 1.0f, 1.0f));
+  TextArea->setFontName("OverlayFont");
+
+  try {
+    //TextArea->setMaterialName(Event.MaterialName, "Overlay");
+  } catch (const std::exception& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::MATERIAL_NOT_FOUND,
+        fmt::format("material {} not found in resource group \"Overlay\"",
+                    Event.MaterialName)));
+    return;
+  }
+
+  Panel->addChild(TextArea);
+
+  // track it using the parent panel's overlay name from OverlayInfos
+  OverlayInfo* ParentInfo = nullptr;
+  try {
+    ParentInfo = OverlayInfos.at(Event.PanelName);
+  } catch (std::exception& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::OVERLAY_MISSING_INFO,
+        fmt::format("no OverlayInfo found for parent panel {}",
+                    Event.PanelName)));
+    return;
+  }
+
+  OverlayInfo* Info = new OverlayInfo(false, false, ParentInfo->OwnedByOverlay);
+  OverlayInfos.emplace(Event.TextName, Info);
+}
 void OverlayController::EditPanel(OverlayEditPanelEvent Event) {
   if (!OverlayMngr) {
     OverlayErrorReporter.EnqueueError(

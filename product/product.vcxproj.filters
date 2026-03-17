@@ -320,5 +320,11 @@
     <ClInclude Include="GenericButton.h">
       <Filter>Headers\UI</Filter>
     </ClInclude>
+    <ClInclude Include="CommonGameObjectComponents.h">
+      <Filter>Entity Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitComponents.h">
+      <Filter>Entity Components</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

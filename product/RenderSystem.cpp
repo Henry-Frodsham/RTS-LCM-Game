@@ -195,6 +195,9 @@ void RenderSystem::InitRenderResponsibility() {
   RenderBus->Subscribe<RegisterOnPressCallBackEvent>(
       std::bind(&OverlayController::RegisterOnPressCallBack, OverlayControl,
                 std::placeholders::_1));
+  RenderBus->Subscribe<OverlayAddTextToPanelEvent>(
+      std::bind(&OverlayController::AddTextToPanel, OverlayControl,
+                std::placeholders::_1));
 
   // core Ogre interactions
   RenderBus->Subscribe<CreateSceneNodeEvent>(std::bind(

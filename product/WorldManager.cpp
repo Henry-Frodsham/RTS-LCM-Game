@@ -51,7 +51,11 @@ void WorldManager::CreateGlobeMesh() {
                                  Ogre::Vector3(0.5f, 0.f, -5.f)));
   WorldQueue->Enqueue(
       CreateMeshWorldEntityEvent("GlobeNode", "UK.mesh", "GlobeUK",
-                                 Ogre::Vector3(0.5f, 0.f, -5.f))); 
+                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
+  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
+      "GlobeNode", "unit.mesh", "unit_test", Ogre::Vector3(0.5f, 0.f, -3.f)));
+  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
+      "GlobeNode", "city.mesh", "city_test", Ogre::Vector3(1.f, 0.f, -3.f)));
 }
 
 void WorldManager::ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event) {
