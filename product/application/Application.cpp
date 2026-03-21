@@ -8,7 +8,7 @@ Application::Application()
       RenderSingleton(RenderSystem::GetInstance()),
       Input(InputListener(InitAndGetWindow(RenderSingleton))),
       WM(WorldManager()),
-      Instances(InstanceOverseer(&UpdateAndReturn())),
+      Instances(InstanceOverseer(&UpdateAndReturn(), WM.CompFactory)),
       StateManager(ApplicationStateManager()),
       Appbus(new EventBus()),
       AppQueue(new EventQueue(Appbus)),

@@ -1,15 +1,19 @@
 #include "PlayerGeneralControl.h"
 
 PlayerGeneralControl::PlayerGeneralControl(InputTranslator* Translator,
-                                           EventQueue* Queue)
-    : PlayerTranslator(Translator), ControlQueue(Queue) {
+                                           EventQueue* Queue,
+                                           InteractionWheel* Wheel)
+    : PlayerTranslator(Translator), ControlQueue(Queue), InteractionWheelToNotify(Wheel) {
   TriggerBus = new EventBus();
   TriggerQueue = new EventQueue(TriggerBus);
 
   PlayerTranslator->ActionBus->Subscribe<PressActionCommand>(
       std::bind(&PlayerGeneralControl::OnPress, this, std::placeholders::_1));
-  PlayerTranslator->ActionBus->Subscribe<EndRayTraceResultEvent>(std::bind(
+  TriggerBus->Subscribe<EndRayTraceResultEvent>(std::bind(
       &PlayerGeneralControl::OnCompletedTrace, this, std::placeholders::_1));
+
+  SelectedEntity = nullptr;
+  LastDeltaLatLon = Ogre::Vector2f();
 }
 
 void PlayerGeneralControl::Update(float Dt) {
@@ -37,6 +41,34 @@ void PlayerGeneralControl::OnPress(PressActionCommand Cmd) {
 
 void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
   if (Event.RayResult.size() != 0) {
-    int x = 0;
+    for (auto Node : Event.RayResult) {
+      if (Node.movable->getParentSceneNode()->getName() != "GlobeNode") {
+        // downcast because we dont need Ogre::Movable
+        SelectedEntity = static_cast<Ogre::Entity*>(Node.movable);
+        InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
+            NotifySelectedEntity(SelectedEntity));
+      } else {
+        if (SelectedEntity != nullptr) {
+          Ogre::Vector3 HitPoint = Event.Ray.getPoint(Node.distance);
+
+          LastDeltaLatLon = HitPointToDeltaLatLon(
+              SelectedEntity->getParentSceneNode()->getPosition(), HitPoint);
+          InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
+              NotifyLatLonEvent(LastDeltaLatLon));
+        }
+      }
+    }
   }
+}
+
+Ogre::Vector2f PlayerGeneralControl::HitPointToDeltaLatLon(
+    Ogre::Vector3 UnitPos,
+                                                 Ogre::Vector3 HitPoint) {
+  Ogre::Vector3 From = UnitPos.normalisedCopy();
+  Ogre::Vector3 To = HitPoint.normalisedCopy();
+
+  float DeltaLon = std::atan2(To.x, To.z) - std::atan2(From.x, From.z);
+  float DeltaLat = std::asin(To.y) - std::asin(From.y);
+
+  return Ogre::Vector2f(DeltaLat, DeltaLon);
 }

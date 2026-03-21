@@ -1,13 +1,32 @@
 #include "InteractionWheel.h"
 
-InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum) {
+InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
+                                   ECSHelper* Interactor) {
   DeviceState = Device;
   ThreadID = ThreadNum;
+  Factory = Interactor;
   RenderSystem& RS = RenderSystem::GetInstance();
-
+  ForeignNotifBus = new EventBus();
+  ForeignNotifQueue = new EventQueue(ForeignNotifBus);
+  SelectedEntity = nullptr;
+  LatLonR =
+      Ogre::Vector2f();
   Device->ActionBus->Subscribe<ContextActionCommand>(std::bind(
       &InteractionWheel::OnContextActionCommand, this, std::placeholders::_1));
-
+  ForeignNotifBus->Subscribe<NotifySelectedEntity>(
+      std::bind(&InteractionWheel::ShareInfoSelectedEntReceive, this,
+                std::placeholders::_1));
+  ForeignNotifBus->Subscribe<NotifyLatLonEvent>(
+      std::bind(&InteractionWheel::ShareInfoLatLonReceive, this,
+                std::placeholders::_1));
+  ForeignNotifBus->Subscribe<CallBackACommand>(std::bind(
+      &InteractionWheel::CallBackButtonA, this, std::placeholders::_1));
+  ForeignNotifBus->Subscribe<CallBackBCommand>(std::bind(
+      &InteractionWheel::CallBackButtonB, this, std::placeholders::_1));
+  ForeignNotifBus->Subscribe<CallBackCCommand>(std::bind(
+      &InteractionWheel::CallBackButtonC, this, std::placeholders::_1));
+  ForeignNotifBus->Subscribe<CallBackDCommand>(std::bind(
+      &InteractionWheel::CallBackButtonD, this, std::placeholders::_1));
   // events processed in serial so chaining like this isnt careless
   RS.RenderQueue->Enqueue(CreateOverlayEvent(
       "UI_Overlay_" + std::to_string(ThreadID), DeviceState->ManagedDevice));
@@ -83,8 +102,16 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum) {
   Visibility = false;
 }
 
-void InteractionWheel::UpdateAndWarmupContext() {}
+void InteractionWheel::UpdateAndWarmupContext() {
+  ForeignNotifQueue->Dispatch();
+}
 
+void InteractionWheel::ShareInfoSelectedEntReceive(NotifySelectedEntity Event) {
+  SelectedEntity = Event.Entity;
+}
+void InteractionWheel::ShareInfoLatLonReceive(NotifyLatLonEvent Event) {
+  LatLonR = Event.LatLon;
+}
 void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   ActionContext Context = Cmd.Context;
 
@@ -129,12 +156,44 @@ void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
                             "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
                             {Context.MouseX / Dimensions[0],
                              (Context.MouseY / Dimensions[1]) - 0.03f}));
-  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
+  RS.RenderQueue->Enqueue(
+      OverlayEditPanelEvent("interaction_wheel_D" + std::to_string(ThreadID),
+                            "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
+                            {(Context.MouseX / Dimensions[0]) + 0.03f,
+                             (Context.MouseY / Dimensions[1]) - 0.03f}));
+
+  RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_A" + std::to_string(ThreadID),
+      [](EventQueue& queue) { queue.Enqueue(CallBackACommand{}); },
+      ForeignNotifQueue));
+  RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_B" + std::to_string(ThreadID),
+      [](EventQueue& queue) { queue.Enqueue(CallBackBCommand{}); },
+      ForeignNotifQueue));
+  RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
+      "interaction_wheel_C" + std::to_string(ThreadID),
+      [](EventQueue& queue) { queue.Enqueue(CallBackCCommand{}); },
+      ForeignNotifQueue));
+  RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
+      "UI_Overlay_" + std::to_string(ThreadID),
       "interaction_wheel_D" + std::to_string(ThreadID),
-      "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
-      {(Context.MouseX / Dimensions[0]) + 0.03f, (Context.MouseY / Dimensions[1]) - 0.03f}));
+      [](EventQueue& queue) { queue.Enqueue(CallBackDCommand{}); },
+      ForeignNotifQueue));
 }
 
 void InteractionWheel::OnPressActionCommand(PressActionCommand Cmd) {
   ActionContext Context = Cmd.Context;
 }
+
+void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) { 
+    if (SelectedEntity != nullptr) {
+        Factory->FactoryQueue->Enqueue(MoveEntityAlongSphericalEvent(SelectedEntity->getParentSceneNode(),1.f,LatLonR));
+    }
+    
+}
+void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) { int x = 0; }
+void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) { int x = 0; }
+void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) { int x = 0; }

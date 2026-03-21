@@ -15,6 +15,7 @@
 #include "ViewPortController.h"
 #include "ResizeEvent.h"
 #include "InteractionWheel.h"
+#include "ECSHelper.h"
 
 #include <BS_thread_pool.hpp>
 
@@ -22,7 +23,7 @@
 
 class InstanceOverseer {
  public:
-  InstanceOverseer(InputListener* ParentListener);
+  InstanceOverseer(InputListener* ParentListener, ECSHelper* Interactor);
   EventQueue* InstanceQueue;
   void ReviseAndUpdate(float DeltaTime);
 
@@ -34,7 +35,7 @@ class InstanceOverseer {
   BS::thread_pool InstanceThreadPool;
 
   EventBus* InstanceBus;
-
+  ECSHelper* Factory;
   ErrorReporter* InstanceReporter;
 
   void RegisterNewInstance(RegisterInstanceEvent Event);

@@ -8,7 +8,9 @@
 
 struct EndRayTraceResultEvent {
   Ogre::RaySceneQueryResult& RayResult;
-  EndRayTraceResultEvent(Ogre::RaySceneQueryResult& Ray) : RayResult(Ray) {}
+  Ogre::Ray Ray;
+  EndRayTraceResultEvent(Ogre::RaySceneQueryResult& Ray,Ogre::Ray R)
+      : RayResult(Ray), Ray(R) {}
 };
 struct StartRayTraceEvent {
   std::vector<float> Point;

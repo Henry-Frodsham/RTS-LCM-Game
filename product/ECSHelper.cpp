@@ -77,6 +77,23 @@ void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
   }
 }
 
+void ECSHelper::MoveEntityAlongSpherical(MoveEntityAlongSphericalEvent Event) {
+  Ogre::Vector3 pos = Event.Unit->getPosition();
+
+  Ogre::Quaternion lonRot(Ogre::Radian(Event.DeltaLatLon.y),
+                          Ogre::Vector3::UNIT_Y);
+  pos = lonRot * pos;
+
+  Ogre::Vector3 latAxis =
+      Ogre::Vector3::UNIT_Y.crossProduct(pos.normalisedCopy());
+  if (latAxis.squaredLength() > 1e-6f) {
+    latAxis.normalise();
+    pos = Ogre::Quaternion(Ogre::Radian(Event.DeltaLatLon.x), latAxis) * pos;
+  }
+
+  Event.Unit->setPosition(pos.normalisedCopy() * Event.Radius);
+}
+
 OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
   auto View = RegistryToUse->view<OgreComponent>();
   for (auto Entity : View) {

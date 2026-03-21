@@ -307,6 +307,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="InstanceEvent.h" />
     <ClInclude Include="instanceOverseer.h" />
     <ClInclude Include="InteractionWheel.h" />
+    <ClInclude Include="InteractionWheelCallbackCommands.h" />
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="OverlayController.h" />
     <ClInclude Include="OverlayEvent.h" />
@@ -320,6 +321,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="ResizeEvent.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SharedInputEvent.h" />
+    <ClInclude Include="ShareInfoEvent.h" />
     <ClInclude Include="TransformationMatrix.h" />
     <ClInclude Include="UIEvent.h" />
     <ClInclude Include="Unit.h" />

@@ -23,13 +23,14 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
 
   InstanceCursor = new Cursor(LocalBus, InstanceTranslator, InstanceNumber);
 
-  PlayerControl = new PlayerGeneralControl(InstanceTranslator, UpstreamQueue);
+  PlayerControl = new PlayerGeneralControl(InstanceTranslator, UpstreamQueue,
+                                           InstanceUIWheel);
   SetUpResponsibility();
 }
 
 void GameInstance::Run(float DT) {
   InstanceTranslator->Update(DT);
-
+  InstanceUIWheel->UpdateAndWarmupContext();
   PlayerControl->Update(DT);
   LocalQueue->Dispatch();
 }

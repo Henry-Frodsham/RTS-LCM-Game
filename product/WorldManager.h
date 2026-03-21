@@ -21,11 +21,11 @@ class WorldManager {
 
   // any thread can queue events but cant directly publish to bus
   EventQueue* WorldQueue;
+  ECSHelper* CompFactory;
 
   void ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event);
  private:
-  ECSHelper* CompFactory;
-
+  
   EventBus* WorldBus;
 
   ErrorReporter* ECSReporter;

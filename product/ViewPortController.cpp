@@ -68,7 +68,7 @@ EndRayTraceResultEvent ViewPortController::TraceRay(StartRayTraceEvent Event) {
   Event.RaySceneQuery->setRay(MouseRay);
   Ogre::RaySceneQueryResult& Result = Event.RaySceneQuery->execute();
 
-  return (EndRayTraceResultEvent(Result));
+  return (EndRayTraceResultEvent(Result, MouseRay));
 }
 
 // get the dimensions of a specific split screen instance

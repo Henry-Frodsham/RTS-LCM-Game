@@ -1,0 +1,20 @@
+material WHITE
+{
+    receive_shadows off
+    technique
+    {
+        pass
+        {
+            lighting off
+            depth_check on
+            depth_write on
+            diffuse 0.1 0.1 0.8 1.0
+            ambient 0.1 0.1 0.8 1.0
+            texture_unit
+            {
+		colour_op_ex source1 src_manual src_current 1 1 1
+                alpha_op_ex source1 src_current src_current
+            }
+        }
+    }
+}

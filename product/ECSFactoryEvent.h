@@ -53,3 +53,10 @@ struct ChangeEntityVisibilityEvent {
   ChangeEntityVisibilityEvent(std::string ent, bool Vis)
       : NodeName(ent), Visible(Vis) {}
 };
+
+struct MoveEntityAlongSphericalEvent {
+  Ogre::SceneNode* Unit;
+  Ogre::Real Radius;
+  Ogre::Vector2f DeltaLatLon;
+  MoveEntityAlongSphericalEvent(Ogre::SceneNode* U, Ogre::Real R, Ogre::Vector2f DLL) : Unit(U),Radius(R),DeltaLatLon(DLL) {}
+};

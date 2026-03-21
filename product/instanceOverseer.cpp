@@ -1,9 +1,9 @@
 // Copyright © 2025 Henry Frodsham
 #include "instanceOverseer.h"
 
-InstanceOverseer::InstanceOverseer(InputListener* ParentListener)
+InstanceOverseer::InstanceOverseer(InputListener* ParentListener, ECSHelper* Interactor)
     : DeviceListener(ParentListener),
-      InstanceThreadPool(std::thread::hardware_concurrency()) {
+      InstanceThreadPool(std::thread::hardware_concurrency()), Factory(Interactor) {
   InstanceBus = new EventBus();
   InstanceQueue = new EventQueue(InstanceBus);
   InstanceReporter = new ErrorReporter();
@@ -46,7 +46,7 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
   DeviceListener->AddListenerQueue(Event.InstanceDevice,
                                    Translator->WaitingEvents);
   InteractionWheel* NewUIInteractionWheel =
-      new InteractionWheel(Translator, GameInstances.size() + 1);
+      new InteractionWheel(Translator, GameInstances.size() + 1, Factory);
   GameInstance* NewInstance =
       new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice, Translator,
       NewUIInteractionWheel, GameInstances.size() + 1);

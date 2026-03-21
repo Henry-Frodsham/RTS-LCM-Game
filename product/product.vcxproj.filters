@@ -329,5 +329,11 @@
     <ClInclude Include="EmpireEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
+    <ClInclude Include="ShareInfoEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="InteractionWheelCallbackCommands.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
