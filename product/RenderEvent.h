@@ -40,3 +40,10 @@ struct AttachEntityToScenNodeEvent {
   AttachEntityToScenNodeEvent(Ogre::Entity*& Ent, Ogre::SceneNode*& N)
       : Entity(Ent), SceneNode(N) {}
 };
+
+struct ScaleEntityEvent {
+  std::string EntName;
+  float NewScale;
+  ScaleEntityEvent(std::string EntN, float NewS)
+      : EntName(EntN), NewScale(NewS) {}
+};

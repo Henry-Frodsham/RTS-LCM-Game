@@ -326,5 +326,8 @@
     <ClInclude Include="UnitComponents.h">
       <Filter>Entity Components</Filter>
     </ClInclude>
+    <ClInclude Include="EmpireEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

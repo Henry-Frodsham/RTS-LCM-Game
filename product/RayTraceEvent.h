@@ -3,15 +3,24 @@
 
 #include <vector>
 
+#include "EventQueue.h"
 #include "InputDevice.h"
-struct StartRayTraceEvent {
-  std::vector<float> Point;
-  Ogre::RaySceneQuery* RaySceneQuery = nullptr;
-  InputDevice* Device;
-  StartRayTraceEvent(std::vector<float> Pos, InputDevice* Dev)
-      : Point(Pos), Device(Dev) {}
-};
+
 struct EndRayTraceResultEvent {
   Ogre::RaySceneQueryResult& RayResult;
   EndRayTraceResultEvent(Ogre::RaySceneQueryResult& Ray) : RayResult(Ray) {}
 };
+struct StartRayTraceEvent {
+  std::vector<float> Point;
+  Ogre::RaySceneQuery* RaySceneQuery = nullptr;
+  InputDevice* Device;
+
+  std::function<void(EventQueue*, EndRayTraceResultEvent)> Callback;
+  EventQueue* CallQueue;
+
+  StartRayTraceEvent(std::vector<float> Pos, InputDevice* Dev,
+      std::function<void(EventQueue*, EndRayTraceResultEvent)> Cb,
+      EventQueue* Cq)
+      : Point(Pos), Device(Dev), Callback(Cb), CallQueue(Cq) {}
+};
+

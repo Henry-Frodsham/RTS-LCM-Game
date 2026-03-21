@@ -10,5 +10,7 @@ class Player {
 
   Empire* PlayerEmpire;
  private:
-  
+  void OnCityPlace();
+  void OnUnitPlace();
+  void OnIncome();
 };

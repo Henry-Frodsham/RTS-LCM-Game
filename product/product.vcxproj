@@ -290,6 +290,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="ECSFactoryEvent.h" />
     <ClInclude Include="ECSHelper.h" />
     <ClInclude Include="Empire.h" />
+    <ClInclude Include="EmpireEvent.h" />
     <ClInclude Include="EntityInteractionEvaluator.h" />
     <ClInclude Include="ErrorManifest.h" />
     <ClInclude Include="ErrorReporter.h" />

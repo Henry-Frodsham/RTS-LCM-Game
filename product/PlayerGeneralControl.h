@@ -14,7 +14,7 @@ class PlayerGeneralControl {
 
   void Update(float Dt);
   void OnPress(PressActionCommand Cmd);
-
+  void OnCompletedTrace(EndRayTraceResultEvent Event);
   EventBus* TriggerBus;
  private:
   EventQueue* TriggerQueue;

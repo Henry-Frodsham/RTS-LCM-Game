@@ -13,7 +13,7 @@ material grass
             ambient 0.2 0.8 0.1 1.0
             texture_unit
             {
-                colour_op_ex source1 src_current src_current
+		colour_op_ex source1 src_manual src_current 0.2 0.8 0.1
                 alpha_op_ex source1 src_current src_current
             }
         }

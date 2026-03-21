@@ -210,6 +210,8 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::AttachEntityToNodeFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<StartRayTraceEvent>(std::bind(
       &RenderSystem::AssembleRayTraceEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<ScaleEntityEvent>(std::bind(
+      &RenderSystem::ScaleEntityFromEvent, this, std::placeholders::_1));
 
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
@@ -305,12 +307,19 @@ void RenderSystem::AttachEntityToNodeFromEvent(
     AttachEntityToScenNodeEvent Event) {
   Event.SceneNode.get()->attachObject(Event.Entity.get());
 }
+void RenderSystem::ScaleEntityFromEvent(ScaleEntityEvent Event) {
+  Ogre::Entity* Ent = SceneManager->getEntity(Event.EntName);
+  Ogre::SceneNode* Node = Ent->getParentSceneNode();
+  // to make my life easier ill just be scaling every axis
+  Node->scale(Event.NewScale, Event.NewScale, Event.NewScale); 
+}
 
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
   ViewPortController* RayVPC = FindViewPortFromDevice(Event.Device);
   //populate here because i dont want a tonne of ogre singleton ptrs around
   Event.RaySceneQuery = RaySceneQuery;
   EndRayTraceResultEvent ResultEvent = RayVPC->TraceRay(Event);
+  Event.Callback(Event.CallQueue, ResultEvent);
 }
 
 ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {

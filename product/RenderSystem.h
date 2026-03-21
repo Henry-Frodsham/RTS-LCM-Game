@@ -83,7 +83,8 @@ class RenderSystem {
   void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
 
   void AssembleRayTraceEvent(StartRayTraceEvent Event);
-
+  
+  void ScaleEntityFromEvent(ScaleEntityEvent Event);
   
 
  public:
