@@ -55,8 +55,10 @@ struct ChangeEntityVisibilityEvent {
 };
 
 struct MoveEntityAlongSphericalEvent {
-  Ogre::SceneNode* Unit;
+  Ogre::Entity* Unit;
   Ogre::Real Radius;
   Ogre::Vector2f DeltaLatLon;
-  MoveEntityAlongSphericalEvent(Ogre::SceneNode* U, Ogre::Real R, Ogre::Vector2f DLL) : Unit(U),Radius(R),DeltaLatLon(DLL) {}
+  MoveEntityAlongSphericalEvent(Ogre::Entity* U, Ogre::Real R,
+                                Ogre::Vector2f DLL)
+      : Unit(U), Radius(R), DeltaLatLon(DLL) {}
 };

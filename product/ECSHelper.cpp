@@ -14,6 +14,8 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::CreateAndAddOgreComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddMeshComponentEvent>(std::bind(
       &ECSHelper::CreateAndAddMeshComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<MoveEntityAlongSphericalEvent>(std::bind(
+      &ECSHelper::MoveEntityAlongSpherical, this, std::placeholders::_1));
 }
 
 void ECSHelper::CreateAndAddEntity(CreateEntityEvent Event) {
@@ -78,20 +80,24 @@ void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
 }
 
 void ECSHelper::MoveEntityAlongSpherical(MoveEntityAlongSphericalEvent Event) {
-  Ogre::Vector3 pos = Event.Unit->getPosition();
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  Ogre::Vector3 Pos = Event.Unit->getParentSceneNode()->getPosition();
 
   Ogre::Quaternion lonRot(Ogre::Radian(Event.DeltaLatLon.y),
                           Ogre::Vector3::UNIT_Y);
-  pos = lonRot * pos;
+  Pos = lonRot * Pos;
 
   Ogre::Vector3 latAxis =
-      Ogre::Vector3::UNIT_Y.crossProduct(pos.normalisedCopy());
+      Ogre::Vector3::UNIT_Y.crossProduct(Pos.normalisedCopy());
   if (latAxis.squaredLength() > 1e-6f) {
     latAxis.normalise();
-    pos = Ogre::Quaternion(Ogre::Radian(Event.DeltaLatLon.x), latAxis) * pos;
+    Pos = Ogre::Quaternion(Ogre::Radian(Event.DeltaLatLon.x), latAxis) * Pos;
   }
 
-  Event.Unit->setPosition(pos.normalisedCopy() * Event.Radius);
+  
+
+  Rs.RenderQueue->Enqueue(SetEntPositionEvent(Event.Unit, Pos));
+
 }
 
 OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {

@@ -55,6 +55,8 @@ void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
               SelectedEntity->getParentSceneNode()->getPosition(), HitPoint);
           InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
               NotifyLatLonEvent(LastDeltaLatLon));
+          InteractionWheelToNotify->ForeignNotifQueue->Enqueue(NotifyPosEvent(
+              SelectedEntity->getParentSceneNode()->getPosition()));
         }
       }
     }

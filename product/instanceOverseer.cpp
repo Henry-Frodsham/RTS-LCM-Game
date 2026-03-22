@@ -45,8 +45,9 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
                           GameInstances.size() + 1);
   DeviceListener->AddListenerQueue(Event.InstanceDevice,
                                    Translator->WaitingEvents);
-  InteractionWheel* NewUIInteractionWheel =
-      new InteractionWheel(Translator, GameInstances.size() + 1, Factory);
+  Player* InstancePlayer = new Player(new Empire(), GameInstances.size() + 1);
+  InteractionWheel* NewUIInteractionWheel = new InteractionWheel(
+      Translator, GameInstances.size() + 1, Factory, InstancePlayer);
   GameInstance* NewInstance =
       new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice, Translator,
       NewUIInteractionWheel, GameInstances.size() + 1);

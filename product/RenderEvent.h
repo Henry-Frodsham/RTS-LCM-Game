@@ -47,3 +47,9 @@ struct ScaleEntityEvent {
   ScaleEntityEvent(std::string EntN, float NewS)
       : EntName(EntN), NewScale(NewS) {}
 };
+
+struct SetEntPositionEvent {
+  Ogre::Entity* Ent;
+  Ogre::Vector3f Vec;
+  SetEntPositionEvent(Ogre::Entity* N, Ogre::Vector3f P) : Ent(N), Vec(P) {}
+};

@@ -9,3 +9,8 @@ struct NotifyLatLonEvent {
   Ogre::Vector2f LatLon;
   NotifyLatLonEvent(Ogre::Vector2f L) : LatLon(L) {}
 };
+
+struct NotifyPosEvent {
+  Ogre::Vector3f Pos;
+  NotifyPosEvent(Ogre::Vector3f Position) : Pos(Position) {}
+};

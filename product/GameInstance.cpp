@@ -12,7 +12,6 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
       InstanceDevice(Device),
       InstanceTranslator(DeviceTranslator),
       InstanceNumber(ThreadNumber),
-      PlayerForInstance(new Player(new Empire())),
       InstanceUIWheel(NewUIInteractionWheel) {
   LocalBus = new EventBus();
   LocalQueue = new EventQueue(LocalBus);

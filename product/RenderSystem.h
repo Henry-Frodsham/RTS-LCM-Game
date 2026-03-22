@@ -80,6 +80,7 @@ class RenderSystem {
 
   void SetNodePositionFromEvent(SetNodePositionEvent Event);
 
+  void SetEntPosFromEvent(SetEntPositionEvent Event);
   void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
 
   void AssembleRayTraceEvent(StartRayTraceEvent Event);

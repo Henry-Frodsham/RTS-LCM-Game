@@ -21,7 +21,6 @@ class GameInstance {
 
   int InstanceNumber;
 
-  Player* PlayerForInstance;
  private:
   ErrorReporter* ParentReporter;
 
