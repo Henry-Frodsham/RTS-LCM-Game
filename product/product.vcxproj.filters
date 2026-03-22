@@ -335,5 +335,8 @@
     <ClInclude Include="InteractionWheelCallbackCommands.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerConstructionInfo.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

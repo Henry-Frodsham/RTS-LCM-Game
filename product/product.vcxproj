@@ -313,6 +313,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="OverlayEvent.h" />
     <ClInclude Include="OverlayInfo.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerConstructionInfo.h" />
     <ClInclude Include="PlayerControlEvent.h" />
     <ClInclude Include="PlayerGeneralControl.h" />
     <ClInclude Include="RayTraceEvent.h" />

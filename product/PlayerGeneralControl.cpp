@@ -48,16 +48,14 @@ void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
         InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
             NotifySelectedEntity(SelectedEntity));
       } else {
+        Ogre::Vector3 HitPoint = Event.Ray.getPoint(Node.distance);
         if (SelectedEntity != nullptr) {
-          Ogre::Vector3 HitPoint = Event.Ray.getPoint(Node.distance);
-
           LastDeltaLatLon = HitPointToDeltaLatLon(
               SelectedEntity->getParentSceneNode()->getPosition(), HitPoint);
           InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
               NotifyLatLonEvent(LastDeltaLatLon));
-          InteractionWheelToNotify->ForeignNotifQueue->Enqueue(NotifyPosEvent(
-              SelectedEntity->getParentSceneNode()->getPosition()));
         }
+        InteractionWheelToNotify->ForeignNotifQueue->Enqueue(NotifyPosEvent(HitPoint));
       }
     }
   }

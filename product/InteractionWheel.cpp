@@ -1,5 +1,5 @@
 #include "InteractionWheel.h"
-
+#include "EntityConstructionTemplates.h"
 InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
                                    ECSHelper* Interactor, Player* Play) {
   DeviceState = Device;
@@ -197,7 +197,12 @@ void InteractionWheel::OnPressActionCommand(PressActionCommand Cmd) {
 void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
   // place
   if (!Position.isNaN()) {
-    GamePlayer->PlaceCity(Factory,Position);
+    CityConstructionInfo Info = GamePlayer->PreCityPlace();
+
+    EntityTemplates::ConstructMeshEntity(
+        Factory, CreateMeshWorldEntityEvent(Info.NodeName, "city.mesh",
+                                            Info.EntName, Position));
+    //GamePlayer->PlaceCity(Factory,Position);
   }
 }
 void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {

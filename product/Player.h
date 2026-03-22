@@ -1,8 +1,7 @@
 // Copyright © 2025 Henry Frodsham
 #pragma once
 #include "Empire.h"
-#include "ECSHelper.h"
-#include "WorldEvent.h"
+#include "PlayerConstructionInfo.h"
 
 // stores and handles player information, unique to a game instance thread
 class Player {
@@ -12,9 +11,11 @@ class Player {
 
   Empire* PlayerEmpire;
 
-  void PlaceCity(ECSHelper* Factory, Ogre::Vector3 Pos);
+  //void PlaceCity(ECSHelper* Factory, Ogre::Vector3 Pos);
+
+  CityConstructionInfo PreCityPlace();
  private:
-  void OnCityPlace();
+  
   void OnUnitPlace();
   void OnIncome();
 
