@@ -213,8 +213,15 @@ void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
   //move
   if (SelectedEntity != nullptr &&
       SelectedEntity->getParentSceneNode() != nullptr) {
+
+    RenderSystem& RS = RenderSystem::GetInstance();
+    RS.RenderQueue->Enqueue(SetEntPositionEvent(SelectedEntity,Position));
+    RS.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
+        SelectedEntity, Ogre::Vector3(0.5f, 0.f, -5.f)));
+    /*
     Factory->FactoryQueue->Enqueue(
-        MoveEntityAlongSphericalEvent(SelectedEntity, 1.f, LatLonR));
+        MoveEntityAlongSphericalEvent(SelectedEntity, 1.f, Position));
+    */
   }
 }
 void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) { 

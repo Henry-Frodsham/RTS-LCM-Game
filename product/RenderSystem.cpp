@@ -214,7 +214,8 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::ScaleEntityFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<SetEntPositionEvent>(std::bind(
       &RenderSystem::SetEntPosFromEvent, this, std::placeholders::_1));
-
+  RenderBus->Subscribe<RotateEntToSurfaceNormalEvent>(std::bind(
+      &RenderSystem::RotateEntityToSurfaceNormal, this, std::placeholders::_1));
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
       std::bind(&ViewPortUpdateListener::AssignOverlayToViewport,
@@ -304,6 +305,20 @@ void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event) {
 }
 void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
   Event.NodeToChange.get()->setPosition(Event.NewPosition);
+}
+void RenderSystem::RotateEntityToSurfaceNormal(
+    RotateEntToSurfaceNormalEvent Event) {
+  
+  Ogre::SceneNode* UnitSN = Event.Entity->getParentSceneNode();
+  Ogre::Vector3 HitPoint = UnitSN->getPosition();
+  Ogre::Vector3 SphereCenter = Event.RelativeRotCentre;
+
+  Ogre::Vector3 SurfaceNormal = (HitPoint - SphereCenter).normalisedCopy();
+
+  Ogre::Quaternion Rotation =
+      Ogre::Vector3::UNIT_Y.getRotationTo(SurfaceNormal);
+
+  UnitSN->setOrientation(Rotation);
 }
 void RenderSystem::SetEntPosFromEvent(SetEntPositionEvent Event) {
   Ogre::SceneNode* SN = Event.Ent->getParentSceneNode();

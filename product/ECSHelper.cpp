@@ -83,21 +83,13 @@ void ECSHelper::MoveEntityAlongSpherical(MoveEntityAlongSphericalEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
   Ogre::Vector3 Pos = Event.Unit->getParentSceneNode()->getPosition();
 
-  Ogre::Quaternion lonRot(Ogre::Radian(Event.DeltaLatLon.y),
-                          Ogre::Vector3::UNIT_Y);
-  Pos = lonRot * Pos;
+  Ogre::Vector3 globeCenter = Ogre::Vector3(0.5f, 0.f, -5.f);
+  float radius = (Pos - globeCenter).length();
 
-  Ogre::Vector3 latAxis =
-      Ogre::Vector3::UNIT_Y.crossProduct(Pos.normalisedCopy());
-  if (latAxis.squaredLength() > 1e-6f) {
-    latAxis.normalise();
-    Pos = Ogre::Quaternion(Ogre::Radian(Event.DeltaLatLon.x), latAxis) * Pos;
-  }
+  Ogre::Vector3 newDir = (Event.TargetPos - globeCenter).normalisedCopy();
+  Ogre::Vector3 newPos = globeCenter + newDir * radius;
 
-  
-
-  Rs.RenderQueue->Enqueue(SetEntPositionEvent(Event.Unit, Pos));
-
+  Rs.RenderQueue->Enqueue(SetEntPositionEvent(Event.Unit, newPos));
 }
 
 OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {

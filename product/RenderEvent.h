@@ -53,3 +53,10 @@ struct SetEntPositionEvent {
   Ogre::Vector3f Vec;
   SetEntPositionEvent(Ogre::Entity* N, Ogre::Vector3f P) : Ent(N), Vec(P) {}
 };
+
+struct RotateEntToSurfaceNormalEvent {
+  Ogre::Entity* Entity;
+  Ogre::Vector3f RelativeRotCentre;
+  RotateEntToSurfaceNormalEvent(Ogre::Entity* Ent, Ogre::Vector3f RRC)
+      : Entity(Ent), RelativeRotCentre(RRC) {}
+};

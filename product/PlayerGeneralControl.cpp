@@ -3,7 +3,9 @@
 PlayerGeneralControl::PlayerGeneralControl(InputTranslator* Translator,
                                            EventQueue* Queue,
                                            InteractionWheel* Wheel)
-    : PlayerTranslator(Translator), ControlQueue(Queue), InteractionWheelToNotify(Wheel) {
+    : PlayerTranslator(Translator),
+      ControlQueue(Queue),
+      InteractionWheelToNotify(Wheel) {
   TriggerBus = new EventBus();
   TriggerQueue = new EventQueue(TriggerBus);
 
@@ -33,7 +35,7 @@ void PlayerGeneralControl::OnPress(PressActionCommand Cmd) {
       std::vector<float>{Cmd.Context.MouseX, Cmd.Context.MouseY};
   RS.RenderQueue->Enqueue(StartRayTraceEvent(
       Position, PlayerTranslator->ManagedDevice,
-      [](EventQueue* queue,EndRayTraceResultEvent Event) {
+      [](EventQueue* queue, EndRayTraceResultEvent Event) {
         queue->Enqueue(Event);
       },
       TriggerQueue));
@@ -49,21 +51,26 @@ void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
             NotifySelectedEntity(SelectedEntity));
       } else {
         Ogre::Vector3 HitPoint = Event.Ray.getPoint(Node.distance);
+        Ogre::Vector3 SurfaceNormal =
+            (HitPoint - Ogre::Vector3(0.5f, 0.f, -5.f)).normalisedCopy();
+        Ogre::Vector3 SnappedPos =
+            Ogre::Vector3(0.5f, 0.f, -5.f) + SurfaceNormal * 1.f;
+
         if (SelectedEntity != nullptr) {
           LastDeltaLatLon = HitPointToDeltaLatLon(
-              SelectedEntity->getParentSceneNode()->getPosition(), HitPoint);
+              SelectedEntity->getParentSceneNode()->getPosition(), SnappedPos);
           InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
               NotifyLatLonEvent(LastDeltaLatLon));
         }
-        InteractionWheelToNotify->ForeignNotifQueue->Enqueue(NotifyPosEvent(HitPoint));
+        InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
+            NotifyPosEvent(SnappedPos));
       }
     }
   }
 }
 
 Ogre::Vector2f PlayerGeneralControl::HitPointToDeltaLatLon(
-    Ogre::Vector3 UnitPos,
-                                                 Ogre::Vector3 HitPoint) {
+    Ogre::Vector3 UnitPos, Ogre::Vector3 HitPoint) {
   Ogre::Vector3 From = UnitPos.normalisedCopy();
   Ogre::Vector3 To = HitPoint.normalisedCopy();
 
