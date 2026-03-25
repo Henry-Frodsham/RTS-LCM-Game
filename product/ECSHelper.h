@@ -3,6 +3,7 @@
 #include <entt/entt.hpp>
 
 #include "BaseComponents.h"
+#include "CommonGameObjectComponents.h"
 #include "ECSFactoryEvent.h"
 #include "EventBus.h"
 #include "EventQueue.h"
@@ -38,6 +39,7 @@ class ECSHelper {
 
   void CreateAndAddMeshComponent(AddMeshComponentEvent Event);
 
+  void CreateAndAddOwnerShipComponent(AddOwnerShipComponentEvent Event);
   
   OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
   

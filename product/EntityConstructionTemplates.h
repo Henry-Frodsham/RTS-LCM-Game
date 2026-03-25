@@ -41,6 +41,17 @@ inline std::shared_ptr<entt::entity> ConstructMeshEntity(
 
   return Entity;
 }
+inline std::shared_ptr<entt::entity> CreateGameObject(
+    ECSHelper* Factory, CreateGameObjectEvent Event) {
+  auto Entity = ConstructMeshEntity(
+      Factory,
+      CreateMeshWorldEntityEvent(Event.NodeName, Event.MeshName,
+                                 Event.EntityName, Event.InitialPosition));
 
+    Factory->FactoryQueue->Enqueue<AddOwnerShipComponentEvent>(
+      AddOwnerShipComponentEvent(Entity, Event.PlayerId));
+
+  return Entity;
+}
 
 }  // namespace EntityTemplates

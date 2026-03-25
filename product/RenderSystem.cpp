@@ -74,7 +74,11 @@ void RenderSystem::Init() {
 
   const Ogre::RenderSystemList& RenderSystems =
       OgreRoot->getAvailableRenderers();
-
+  auto SharedParams =
+      Ogre::GpuProgramManager::getSingleton().createSharedParameters(
+          "ViewerParams");
+  SharedParams->addConstantDefinition("viewingPlayerID", Ogre::GCT_FLOAT1);
+  SharedParams->setNamedConstant("viewingPlayerID", 0.0f);
   if (RenderSystems.size() == 0) {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM));
@@ -122,6 +126,8 @@ void RenderSystem::Init() {
 
   RaySceneQuery = SceneManager->createRayQuery(Ogre::Ray());
   RaySceneQuery->setSortByDistance(true);
+
+
   IsInit = true;
 }
 
@@ -218,6 +224,8 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::RotateEntityToSurfaceNormal, this, std::placeholders::_1));
   RenderBus->Subscribe<ChangeEntMaterialEvent>(std::bind(
       &RenderSystem::ChangeEntityMaterial, this, std::placeholders::_1));
+  RenderBus->Subscribe<AddOwnerShipToEntEvent>(std::bind(
+      &RenderSystem::AddOwnerShipToEnt, this, std::placeholders::_1));
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
       std::bind(&ViewPortUpdateListener::AssignOverlayToViewport,
@@ -359,6 +367,16 @@ void RenderSystem::ChangeEntityMaterial(ChangeEntMaterialEvent Event) {
     Event.Ent->setMaterialName(Event.MatName);
   } catch (std::exception e){
     RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::MATERIAL_NOT_FOUND));
+  }
+}
+
+void RenderSystem::AddOwnerShipToEnt(AddOwnerShipToEntEvent Event) {
+  for (auto Ent : Event.Node->getAttachedObjects()) {
+    Ogre::Entity* Entity = static_cast<Ogre::Entity*>(Ent);
+    for (unsigned i = 0; i < Entity->getNumSubEntities(); ++i) {
+      Entity->getSubEntity(i)->setCustomParameter(
+          0, Ogre::Vector4(Event.OwnershipId, 0.0f, 0.0f, 0.0f));
+    }
   }
 }
     // singleton access to prevent 2 Ogre roots being made

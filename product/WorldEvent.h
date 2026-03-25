@@ -35,6 +35,19 @@ struct CreateMeshWorldEntityEvent {
         InitialPosition(InitP) {}
 };
 
+struct CreateGameObjectEvent {
+  std::string NodeName;
+  Ogre::Vector3 InitialPosition;
+  std::string MeshName;
+  std::string EntityName;
+  int PlayerId;
+  CreateGameObjectEvent(std::string NodeN, std::string MeshN,
+                             std::string EntN, Ogre::Vector3 InitP, int Id)
+      : NodeName(NodeN),
+        MeshName(MeshN),
+        EntityName(EntN),
+        InitialPosition(InitP), PlayerId(Id) {}
+};
 struct ChangeGlobeVisibilityEvent {
   bool Visible;
   ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}

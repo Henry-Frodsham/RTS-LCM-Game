@@ -67,3 +67,10 @@ struct ChangeEntMaterialEvent {
   ChangeEntMaterialEvent(Ogre::Entity* Entity, std::string Material)
       : Ent(Entity), MatName(Material) {}
 };
+
+struct AddOwnerShipToEntEvent {
+  Ogre::SceneNode* Node;
+  int OwnershipId;
+  AddOwnerShipToEntEvent(Ogre::SceneNode* N, int Id)
+      : Node(N), OwnershipId(Id) {}
+};

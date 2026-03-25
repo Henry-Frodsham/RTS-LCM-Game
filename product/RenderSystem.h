@@ -90,6 +90,8 @@ class RenderSystem {
   void RotateEntityToSurfaceNormal(RotateEntToSurfaceNormalEvent Event);
 
   void ChangeEntityMaterial(ChangeEntMaterialEvent Event);
+
+  void AddOwnerShipToEnt(AddOwnerShipToEntEvent Event);
  public:
   static RenderSystem& GetInstance();
   // RenderSystem(const RenderSystem&) = delete;

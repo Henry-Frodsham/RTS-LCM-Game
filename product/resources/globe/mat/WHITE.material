@@ -1,19 +1,27 @@
+vertex_program UnitVP glsl
+{
+    source unit_vp.glsl
+}
+
+fragment_program UnitFP glsl
+{
+    source unit_fp.glsl
+}
+
 material WHITE
 {
-    receive_shadows off
     technique
     {
         pass
         {
-            lighting off
-            depth_check on
-            depth_write on
-            diffuse 0.1 0.1 0.8 1.0
-            ambient 0.1 0.1 0.8 1.0
-            texture_unit
+            vertex_program_ref UnitVP
             {
-		colour_op_ex source1 src_manual src_current 1 1 1
-                alpha_op_ex source1 src_current src_current
+		param_named_auto worldViewProj worldviewproj_matrix
+            }
+            fragment_program_ref UnitFP
+            {
+		shared_params_ref ViewerParams
+                param_named_auto ownerID custom 0
             }
         }
     }

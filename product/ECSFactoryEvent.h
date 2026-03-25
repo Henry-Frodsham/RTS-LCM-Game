@@ -47,6 +47,12 @@ struct AddMeshComponentEvent {
       : Entity(ent), MeshName(MeshN), EntityName(EntN) {}
 };
 
+struct AddOwnerShipComponentEvent {
+  std::shared_ptr<entt::entity> Entity;
+  int PlayerID;
+  AddOwnerShipComponentEvent(std::shared_ptr<entt::entity> Ent, int Id)
+      : Entity(Ent), PlayerID(Id) {}
+};
 struct ChangeEntityVisibilityEvent {
   bool Visible;
   std::string NodeName;
