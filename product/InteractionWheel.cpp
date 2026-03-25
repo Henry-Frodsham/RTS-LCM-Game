@@ -199,9 +199,11 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
   if (!Position.isNaN()) {
     CityConstructionInfo Info = GamePlayer->PreCityPlace();
 
-    EntityTemplates::ConstructMeshEntity(
+    std::shared_ptr<entt::entity> Ent = EntityTemplates::ConstructMeshEntity(
         Factory, CreateMeshWorldEntityEvent(Info.NodeName, "city.mesh",
                                             Info.EntName, Position));
+
+
     //GamePlayer->PlaceCity(Factory,Position);
   }
 }

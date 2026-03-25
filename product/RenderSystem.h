@@ -88,6 +88,8 @@ class RenderSystem {
   void ScaleEntityFromEvent(ScaleEntityEvent Event);
   
   void RotateEntityToSurfaceNormal(RotateEntToSurfaceNormalEvent Event);
+
+  void ChangeEntityMaterial(ChangeEntMaterialEvent Event);
  public:
   static RenderSystem& GetInstance();
   // RenderSystem(const RenderSystem&) = delete;

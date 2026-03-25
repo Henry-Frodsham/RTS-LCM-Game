@@ -60,3 +60,10 @@ struct RotateEntToSurfaceNormalEvent {
   RotateEntToSurfaceNormalEvent(Ogre::Entity* Ent, Ogre::Vector3f RRC)
       : Entity(Ent), RelativeRotCentre(RRC) {}
 };
+
+struct ChangeEntMaterialEvent {
+  Ogre::Entity* Ent;
+  std::string MatName;
+  ChangeEntMaterialEvent(Ogre::Entity* Entity, std::string Material)
+      : Ent(Entity), MatName(Material) {}
+};

@@ -41,4 +41,6 @@ inline std::shared_ptr<entt::entity> ConstructMeshEntity(
 
   return Entity;
 }
+
+
 }  // namespace EntityTemplates

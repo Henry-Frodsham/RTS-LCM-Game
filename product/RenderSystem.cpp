@@ -216,6 +216,8 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::SetEntPosFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<RotateEntToSurfaceNormalEvent>(std::bind(
       &RenderSystem::RotateEntityToSurfaceNormal, this, std::placeholders::_1));
+  RenderBus->Subscribe<ChangeEntMaterialEvent>(std::bind(
+      &RenderSystem::ChangeEntityMaterial, this, std::placeholders::_1));
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
       std::bind(&ViewPortUpdateListener::AssignOverlayToViewport,
@@ -351,7 +353,15 @@ ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {
   }
   return nullptr;
 }
-// singleton access to prevent 2 Ogre roots being made
+
+void RenderSystem::ChangeEntityMaterial(ChangeEntMaterialEvent Event) {
+  try {
+    Event.Ent->setMaterialName(Event.MatName);
+  } catch (std::exception e){
+    RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::MATERIAL_NOT_FOUND));
+  }
+}
+    // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {
   static RenderSystem Instance;
   return Instance;

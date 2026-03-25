@@ -173,7 +173,7 @@ void InputListener::RemapOrCreateDevice(DeadDeviceIdError Context) {
         Sint32 NewKey = SDL_JoystickInstanceID(Context.JoyStick);
         InputDevice* Device =
             new InputDevice(Context.JoyStick, InputDeviceType::CONTROLLER);
-
+        CacheTriggerAxes(Device, NewKey);
         EventQueue* OldQueue = ListeningQueues[Value];
 
         it = Devices.erase(it);
@@ -197,8 +197,9 @@ void InputListener::RemapOrCreateDevice(DeadDeviceIdError Context) {
     // alloc to the heap since its a pointer
     InputDevice* NewDevice =
         new InputDevice{Context.JoyStick, InputDeviceType::CONTROLLER};
-    Sint32 Key = Context.SupposedId;
 
+    Sint32 Key = Context.SupposedId;
+    CacheTriggerAxes(NewDevice, Key);
     Devices[Key] = NewDevice;
 
     InputErrorReporter.EnqueueError(ErrorDetail::CreateError(
@@ -294,7 +295,33 @@ void InputListener::DeviceSetup() {
     InputErrorReporter.EnqueueError(DeadDeviceIdError{nullptr, -1});
   }
 }
+void InputListener::CacheTriggerAxes(InputDevice* Device, Sint32 InstanceId) {
+  for (int i = 0; i < SDL_NumJoysticks(); i++) {
+    if (SDL_JoystickGetDeviceInstanceID(i) != InstanceId) {
+      continue;
+    }
+    if (!SDL_IsGameController(i)) {
+      return;
+    }
+    SDL_GameController* GC = SDL_GameControllerOpen(i);
+    if (!GC) {
+      return;
+    }
+    SDL_GameControllerButtonBind LeftBind =
+        SDL_GameControllerGetBindForAxis(GC, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+    SDL_GameControllerButtonBind RightBind =
+        SDL_GameControllerGetBindForAxis(GC, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
 
+    if (LeftBind.bindType == SDL_CONTROLLER_BINDTYPE_AXIS) {
+      Device->LeftTriggerRawAxis = LeftBind.value.axis;
+    }
+    if (RightBind.bindType == SDL_CONTROLLER_BINDTYPE_AXIS) {
+      Device->RightTriggerRawAxis = RightBind.value.axis;
+    }
+    SDL_GameControllerClose(GC);
+    return;
+  }
+}
 std::vector<InputDevice*> InputListener::GetUnintegratedDevices() {
   std::vector<InputDevice*> DeviceList;
   // return early to prevent iterating over the devices unnecessarily

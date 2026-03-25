@@ -17,6 +17,11 @@ class ECSHelper {
   ECSHelper(entt::registry* Registry, ErrorReporter* Reporter);
   ECSHelper() = default;
 
+  template <typename T>
+  T* TryGetComponent(entt::entity entity) {
+    return RegistryToUse->try_get<T>(entity);
+  }
+
   EventQueue* FactoryQueue;
   void ChangeEntityVisibility(ChangeEntityVisibilityEvent Event);
   void MoveEntityAlongSpherical(MoveEntityAlongSphericalEvent Event);

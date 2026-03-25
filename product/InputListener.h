@@ -49,6 +49,7 @@ class InputListener {
 
   //helpers
   bool IsAxisTrigger(SDL_Joystick* Joystick, Uint8 Axis);
+  void CacheTriggerAxes(InputDevice* Device, Sint32 InstanceId);
   float NormalizeTrigger(Sint16 RawValue);
   int NumJoySticks;
 };

@@ -20,7 +20,7 @@ PlayerGeneralControl::PlayerGeneralControl(InputTranslator* Translator,
 
 void PlayerGeneralControl::Update(float Dt) {
   if (PlayerTranslator->HasRelativeMotion() &&
-      PlayerTranslator->HoldingRMBorRT()) {
+      PlayerTranslator->HoldingRMBorLT()) {
     TriggerQueue->Enqueue(CameraControlTrigger());
   }
   if (PlayerTranslator->HasRelativeMotion()) {
@@ -42,13 +42,20 @@ void PlayerGeneralControl::OnPress(PressActionCommand Cmd) {
 }
 
 void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
+  RenderSystem& RS = RenderSystem::GetInstance();
   if (Event.RayResult.size() != 0) {
     for (auto Node : Event.RayResult) {
       if (Node.movable->getParentSceneNode()->getName() != "GlobeNode") {
         // downcast because we dont need Ogre::Movable
+        if (SelectedEntity != static_cast<Ogre::Entity*>(Node.movable) && SelectedEntity != nullptr) {
+          RS.RenderQueue->Enqueue(
+              ChangeEntMaterialEvent(SelectedEntity, "WHITE"));
+        } 
         SelectedEntity = static_cast<Ogre::Entity*>(Node.movable);
+        RS.RenderQueue->Enqueue(ChangeEntMaterialEvent(SelectedEntity, "RED"));
         InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
             NotifySelectedEntity(SelectedEntity));
+        
       } else {
         Ogre::Vector3 HitPoint = Event.Ray.getPoint(Node.distance);
         Ogre::Vector3 SurfaceNormal =

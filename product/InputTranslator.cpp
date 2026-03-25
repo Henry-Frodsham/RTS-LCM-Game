@@ -27,7 +27,7 @@ InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
       &InputTranslator::TranslateRawMouseButton, this, std::placeholders::_1));
   InputEvents->Subscribe<RawTriggerEvent>(std::bind(
       &InputTranslator::TranslateRawTriggerEvent, this, std::placeholders::_1));
-  CursorSensitivity = 100.f;
+  CursorSensitivity = 1500.f;
   JoystickDeadzone = 0.1f;
 
   ThreadNumber = ThreadNum;
@@ -181,73 +181,44 @@ void InputTranslator::TranslateRawMouseButton(RawMouseButtonEvent Event) {
   }
 }
 void InputTranslator::TranslateRawTriggerEvent(RawTriggerEvent Event) {
-  SDL_JoystickID InstanceID = Event.AxisEvent.which;
   Uint8 IncomingAxis = Event.AxisEvent.axis;
-  Sint16 AxisValue = Event.AxisEvent.value;
+  float NormalizedValue = Event.NormalizedValue;
 
-  // this methodology isnt perfect because the controller bindings
-  // may not exist in the GameController DB
-  // however this works for my offbrand xbox 360 and ps4 controllers (and
-  // official ones) ill have to find a controller where a failing situation
-  // applies
-  SDL_GameController* Controller = SDL_GameControllerFromInstanceID(InstanceID);
-  bool BShouldClose = false;
-  if (!Controller) {
-    for (int i = 0; i < SDL_NumJoysticks(); i++) {
-      if (SDL_JoystickGetDeviceInstanceID(i) != InstanceID) {
-        continue;
-      }
-      if (!SDL_IsGameController(i)) {
-        return;
-      }
-      Controller = SDL_GameControllerOpen(i);
-      BShouldClose = true;
-      break;
-    }
-  }
-  if (!Controller) {
-    return;
-  }
+  // Use the normalized 0.0–1.0 value with a threshold
+  static constexpr float TriggerThreshold = 0.1f;
+  bool Pressed = (NormalizedValue > TriggerThreshold);
 
-  SDL_GameControllerButtonBind LeftBind = SDL_GameControllerGetBindForAxis(
-      Controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
-  SDL_GameControllerButtonBind RightBind = SDL_GameControllerGetBindForAxis(
-      Controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-
-  bool Released = (AxisValue > 0);
   RenderSystem& RS = RenderSystem::GetInstance();
   std::vector<float> RelativeCoordinates = std::vector<float>{
       CursorPos[0] / ViewPortWidth, CursorPos[1] / ViewPortHeight};
-  if (LeftBind.bindType == SDL_CONTROLLER_BINDTYPE_AXIS &&
-      LeftBind.value.axis == IncomingAxis) {
-    TriggerStates[0] = !Released;
 
-  } else if (RightBind.bindType == SDL_CONTROLLER_BINDTYPE_AXIS &&
-             RightBind.value.axis == IncomingAxis) {
-    if (!Released) {
-      if (!TriggerStates[1]) {
-        TriggerStates[1] = true;
-        // trigger was just pressed so send the event
-        RS.RenderQueue->Enqueue(PressActionCommand(
-            ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
-                          ThreadNumber, ManagedDevice),
-            false));
-      }
+  if (ManagedDevice->RightTriggerRawAxis >= 0 &&
+      IncomingAxis == ManagedDevice->RightTriggerRawAxis) {
+    if (Pressed && !TriggerStates[1]) {
+      TriggerStates[1] = true;
+      PressActionCommand Action = PressActionCommand(
+          ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
+                        ThreadNumber, ManagedDevice),
+          false);
+      RS.RenderQueue->Enqueue(Action);
+      ActionQueue->Enqueue(Action);
 
-    } else {
-      if (TriggerStates[1]) {
-        TriggerStates[1] = false;
-        // trigger was just released so send the event
-        RS.RenderQueue->Enqueue(PressActionCommand(
-            ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
-                          ThreadNumber, ManagedDevice),
-            true));
-      }
+    } else if (!Pressed && TriggerStates[1]) {
+      TriggerStates[1] = false;
+      PressActionCommand Action = PressActionCommand(
+          ActionContext(RelativeCoordinates[0], RelativeCoordinates[1], true,
+                        ThreadNumber, ManagedDevice),
+          false);
+      RS.RenderQueue->Enqueue(Action);
+      ActionQueue->Enqueue(Action);
     }
-  }
-
-  if (BShouldClose) {
-    SDL_GameControllerClose(Controller);
+  } else if (ManagedDevice->LeftTriggerRawAxis >= 0 &&
+             IncomingAxis == ManagedDevice->LeftTriggerRawAxis) {
+    if (Pressed && !TriggerStates[0]) {
+      TriggerStates[0] = true;
+    } else if (!Pressed && TriggerStates[0]) {
+      TriggerStates[0] = false;
+    }
   }
 }
 void InputTranslator::TranslateRawButton(RawButtonEvent Event) {
@@ -398,7 +369,7 @@ void InputTranslator::Update(float DeltaTime) {
     CursorPos[0] += velocityX;
     CursorPos[1] += velocityY;
 
-    RelativeMotion = Ogre::Vector2f(velocityX, velocityY);
+    RelativeMotion = Ogre::Vector2f(velocityX / 100.f, velocityY / 100.f);
   }
   CursorPos[0] = std::clamp(CursorPos[0], 0.f, ViewPortWidth);
   CursorPos[1] = std::clamp(CursorPos[1], 0.f, ViewPortHeight);
@@ -413,7 +384,9 @@ bool InputTranslator::HasRelativeMotion() {
   }
   return false;
 }
-bool InputTranslator::HoldingRMBorRT() { return MouseButtonStates[1] || TriggerStates[1]; }
+bool InputTranslator::HoldingRMBorLT() {
+  return MouseButtonStates[1] || TriggerStates[0];
+}
 
 std::vector<float> InputTranslator::GetViewPortDimensions() {
   return std::vector<float>{ViewPortWidth, ViewPortHeight};
