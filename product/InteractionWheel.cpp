@@ -53,7 +53,7 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
   RS.RenderQueue->Enqueue(OverlayAddTextToPanelEvent{
       "interaction_wheel_A" + std::to_string(ThreadID),
       "interaction_wheel_A_text_" + std::to_string(ThreadID),
-      "PLACE",
+      "CITY",
       "WHITE",
       {0.f, 0.f},
       {1.f, 1.f}});
@@ -74,7 +74,7 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
   RS.RenderQueue->Enqueue(OverlayAddTextToPanelEvent{
       "interaction_wheel_D" + std::to_string(ThreadID),
       "interaction_wheel_D_text_" + std::to_string(ThreadID),
-      "IDK",
+      "UNIT",
       "WHITE",
       {0.f, 0.f},
       {1.f, 1.f}});
@@ -197,12 +197,16 @@ void InteractionWheel::OnPressActionCommand(PressActionCommand Cmd) {
 void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
   // place
   if (!Position.isNaN()) {
-    CityConstructionInfo Info = GamePlayer->PreCityPlace();
+    if (GamePlayer->AvailableCities >= 1) {
+      CityConstructionInfo Info = GamePlayer->PreCityPlace();
 
-    std::shared_ptr<entt::entity> Ent = EntityTemplates::CreateGameObject(
-        Factory, CreateGameObjectEvent(Info.NodeName, "city.mesh", Info.EntName,
-                                       Position, ThreadID));
-
+      std::shared_ptr<entt::entity> Ent =
+          EntityTemplates::CreateUnitProducingGameObject(
+          Factory,
+          CreateUnitProducingGameObjectEvent(Info.NodeName, "city.mesh", Info.EntName,
+                                Position, GamePlayer,30, ThreadID));
+      GamePlayer->AvailableCities -= 1;
+    }
 
     //GamePlayer->PlaceCity(Factory,Position);
   }
@@ -227,5 +231,18 @@ void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
   }
 }
 void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) { 
-  //idk
+  //unit
+  if (!Position.isNaN()) {
+    
+
+    if (GamePlayer->AvailableUnits >= 1) {
+      UnitConstructionInfo Info = GamePlayer->PreUnitPlace();
+      std::shared_ptr<entt::entity> Ent = EntityTemplates::CreateGameObject(
+          Factory,
+          CreateGameObjectEvent(Info.NodeName, "unit.mesh", Info.EntName,
+                                Position, GamePlayer, ThreadID));
+      GamePlayer->AvailableUnits -= 1;
+    }
+    // GamePlayer->PlaceCity(Factory,Position);
+  }
 }

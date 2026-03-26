@@ -6,13 +6,17 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
                            InputDevice* Device,
                            InputTranslator* DeviceTranslator,
                            InteractionWheel* NewUIInteractionWheel,
+                           PlayerUI* PlayerInterface,
+                           Player* InstancePlayer,
                            int ThreadNumber)
     : ParentReporter(ParentR),
       UpstreamQueue(ParentQ),
       InstanceDevice(Device),
       InstanceTranslator(DeviceTranslator),
       InstanceNumber(ThreadNumber),
-      InstanceUIWheel(NewUIInteractionWheel) {
+      PlayerUIOverlay(PlayerInterface),
+      InstanceUIWheel(NewUIInteractionWheel),
+      GamePlayer(InstancePlayer){
   LocalBus = new EventBus();
   LocalQueue = new EventQueue(LocalBus);
 
@@ -30,8 +34,10 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
 void GameInstance::Run(float DT) {
   InstanceTranslator->Update(DT);
   InstanceUIWheel->UpdateAndWarmupContext();
+  PlayerUIOverlay->Update();
   PlayerControl->Update(DT);
   LocalQueue->Dispatch();
+  GamePlayer->Update();
 }
 
 void GameInstance::SetUpResponsibility() {

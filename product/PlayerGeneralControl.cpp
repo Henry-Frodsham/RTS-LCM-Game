@@ -54,9 +54,10 @@ void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
         SelectedEntity = static_cast<Ogre::Entity*>(Node.movable);
         RS.RenderQueue->Enqueue(ChangeEntMaterialEvent(SelectedEntity, "RED"));
         InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
-            NotifySelectedEntity(SelectedEntity));
+            NotifySelectedEntity(SelectedEntity, false));
+        return;
         
-      } else {
+      } else if (Node.movable->getName() != "GlobeBase") {
         Ogre::Vector3 HitPoint = Event.Ray.getPoint(Node.distance);
         Ogre::Vector3 SurfaceNormal =
             (HitPoint - Ogre::Vector3(0.5f, 0.f, -5.f)).normalisedCopy();

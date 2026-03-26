@@ -18,6 +18,10 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::CreateAndAddOwnerShipComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<MoveEntityAlongSphericalEvent>(std::bind(
       &ECSHelper::MoveEntityAlongSpherical, this, std::placeholders::_1));
+  FactoryBus->Subscribe<OrientateEntityEvent>(std::bind(
+      &ECSHelper::OrientateAndAdditionalSetup, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddUnitProductionEvent>(std::bind(
+      &ECSHelper::CreateandAddUnitProductionComponent, this, std::placeholders::_1));
 }
 
 void ECSHelper::CreateAndAddEntity(CreateEntityEvent Event) {
@@ -62,6 +66,12 @@ void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
   }
 }
 
+void ECSHelper::CreateandAddUnitProductionComponent(
+    AddUnitProductionEvent Event) {
+  auto& Component = RegistryToUse->emplace<ProducesUnitsComponent>(
+      *Event.Entity, Event.ProdPerM);
+}
+
 void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
    
@@ -103,7 +113,7 @@ void ECSHelper::CreateAndAddOwnerShipComponent(
 
     if (RegistryToUse->try_get<OwnershipComponent>(*Event.Entity) == nullptr) {
       auto& Component = RegistryToUse->emplace<OwnershipComponent>(
-          *Event.Entity, Event.PlayerID);
+          *Event.Entity, Event.PlayerID, Event.GamePlayer);
     }
 
 
@@ -120,6 +130,23 @@ void ECSHelper::CreateAndAddOwnerShipComponent(
 
   } catch (std::exception e){
 
+  }
+}
+
+void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  try {
+    MeshComponent* EntOgreComp =
+        RegistryToUse->try_get<MeshComponent>(*Event.Entity);
+
+    if (EntOgreComp->Entity != nullptr) {
+      Rs.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
+          EntOgreComp->Entity, Ogre::Vector3(0.5f, 0.f, -5.f)));
+    } else {
+      FactoryQueue->Enqueue(Event);
+    }
+
+  } catch (std::exception e) {
   }
 }
     OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {

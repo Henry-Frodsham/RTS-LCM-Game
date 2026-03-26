@@ -2,8 +2,11 @@
 #pragma once
 #include "Empire.h"
 #include "PlayerConstructionInfo.h"
+#include "EventQueue.h"
+#include "EventBus.h"
+#include "PlayerEvent.h"
 
-// stores and handles player information, unique to a game instance thread
+    // stores and handles player information, unique to a game instance thread
 class Player {
  public:
   Player(Empire* Emp, int PlayerId);
@@ -14,13 +17,26 @@ class Player {
   //void PlaceCity(ECSHelper* Factory, Ogre::Vector3 Pos);
 
   CityConstructionInfo PreCityPlace();
- private:
-  
-  void OnUnitPlace();
-  void OnIncome();
+  UnitConstructionInfo PreUnitPlace();
+
+  void Update();
 
   int Cities = 0;
   int Units = 0;
+  int AvailableCities = 1;
+  int AvailableUnits = 0;
+
+  int UnitProduction = 0;
+  //0-100
+  float UnitProdProg = 0.f;
+
+  EventQueue* PlayerQueue;
+ private:
+  EventBus* PlayerBus;
+  void OnUnitPlace();
+  void OnIncome();
+
+  void UpdateUnitProgress(UpdateUnitProgressEvent Event);
 
   int Id;
 };

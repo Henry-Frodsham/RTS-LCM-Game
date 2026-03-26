@@ -1,6 +1,6 @@
 #pragma once
 #include <Ogre/Ogre.h>
-
+#include "Player.h"
 #include <entt/entt.hpp>
 
 // an event solely used to create a new registry entry
@@ -50,8 +50,16 @@ struct AddMeshComponentEvent {
 struct AddOwnerShipComponentEvent {
   std::shared_ptr<entt::entity> Entity;
   int PlayerID;
-  AddOwnerShipComponentEvent(std::shared_ptr<entt::entity> Ent, int Id)
-      : Entity(Ent), PlayerID(Id) {}
+  Player* GamePlayer;
+  AddOwnerShipComponentEvent(std::shared_ptr<entt::entity> Ent, int Id, Player* P)
+      : Entity(Ent), PlayerID(Id), GamePlayer(P) {}
+};
+
+struct AddUnitProductionEvent {
+  std::shared_ptr<entt::entity> Entity;
+  int ProdPerM;
+  AddUnitProductionEvent(std::shared_ptr<entt::entity> Ent, int PPM)
+      : Entity(Ent), ProdPerM(PPM) {}
 };
 struct ChangeEntityVisibilityEvent {
   bool Visible;
@@ -67,4 +75,9 @@ struct MoveEntityAlongSphericalEvent {
   MoveEntityAlongSphericalEvent(Ogre::Entity* U, Ogre::Real R,
                                 Ogre::Vector3f TP)
       : Unit(U), Radius(R), TargetPos(TP) {}
+};
+
+struct OrientateEntityEvent {
+  std::shared_ptr<entt::entity> Entity;
+  OrientateEntityEvent(std::shared_ptr<entt::entity> Ent) : Entity(Ent) {}
 };

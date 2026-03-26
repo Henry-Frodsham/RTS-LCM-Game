@@ -16,6 +16,7 @@
 #include "ResizeEvent.h"
 #include "InteractionWheel.h"
 #include "ECSHelper.h"
+#include "PlayerUI.h"
 
 #include <BS_thread_pool.hpp>
 

@@ -1,7 +1,7 @@
 // Copyright © 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
-
+#include "Player.h"
 #include <entt/entt.hpp>
 #include <string>
 
@@ -40,13 +40,34 @@ struct CreateGameObjectEvent {
   Ogre::Vector3 InitialPosition;
   std::string MeshName;
   std::string EntityName;
+  Player* GamePlayer;
   int PlayerId;
-  CreateGameObjectEvent(std::string NodeN, std::string MeshN,
-                             std::string EntN, Ogre::Vector3 InitP, int Id)
+  CreateGameObjectEvent(std::string NodeN, std::string MeshN, std::string EntN,
+                        Ogre::Vector3 InitP, Player* P, int Id)
       : NodeName(NodeN),
         MeshName(MeshN),
         EntityName(EntN),
-        InitialPosition(InitP), PlayerId(Id) {}
+        InitialPosition(InitP), GamePlayer(P), PlayerId(Id) {}
+};
+
+struct CreateUnitProducingGameObjectEvent {
+  std::string NodeName;
+  Ogre::Vector3 InitialPosition;
+  std::string MeshName;
+  std::string EntityName;
+  Player* GamePlayer;
+  int UnitProdPerM;
+  int PlayerId;
+  CreateUnitProducingGameObjectEvent(std::string NodeN, std::string MeshN,
+                                     std::string EntN, Ogre::Vector3 InitP,
+                                     Player* P, int UPM, int Id)
+      : NodeName(NodeN),
+        MeshName(MeshN),
+        EntityName(EntN),
+        InitialPosition(InitP),
+        GamePlayer(P),
+        UnitProdPerM(UPM),
+        PlayerId(Id) {}
 };
 struct ChangeGlobeVisibilityEvent {
   bool Visible;

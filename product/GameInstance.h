@@ -8,11 +8,13 @@
 #include "Cursor.h"
 #include "PlayerGeneralControl.h"
 #include "Player.h"
+#include "PlayerUI.h"
 
 class GameInstance {
  public:
   GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ, InputDevice* Device,
-               InputTranslator* DeviceTranslator, InteractionWheel* UIWheel, int ThreadNumber);
+               InputTranslator* DeviceTranslator, InteractionWheel* UIWheel,
+               PlayerUI* PlayerInterface, Player* InstancePlayer, int ThreadNumber);
 
   void Run(float DT);
   EventQueue* LocalQueue;
@@ -39,6 +41,8 @@ class GameInstance {
 
   InteractionWheel* InstanceUIWheel;
 
+  PlayerUI* PlayerUIOverlay;
+  Player* GamePlayer;
   PlayerGeneralControl* PlayerControl;
 
   void SetUpResponsibility();

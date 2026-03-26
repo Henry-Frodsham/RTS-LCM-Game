@@ -61,8 +61,10 @@ void Application::Loop() {
 
     RenderSingleton.RenderFrame();  // all interactions with ogre need to be run
                                     // in the main thread
-    Futures.push_back(IndependantThreads.submit_task([this]() { WM.update(); }));
     float DT = RenderSingleton.GetDeltaTime();
+    Futures.push_back(
+        IndependantThreads.submit_task([this, DT]() { WM.update(DT); }));
+    
 
     Futures.push_back(
         IndependantThreads.submit_task([this]() { Input.Update(); }));

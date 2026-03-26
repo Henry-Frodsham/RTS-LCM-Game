@@ -49,7 +49,21 @@ inline std::shared_ptr<entt::entity> CreateGameObject(
                                  Event.EntityName, Event.InitialPosition));
 
     Factory->FactoryQueue->Enqueue<AddOwnerShipComponentEvent>(
-      AddOwnerShipComponentEvent(Entity, Event.PlayerId));
+      AddOwnerShipComponentEvent(Entity, Event.PlayerId, Event.GamePlayer));
+
+    Factory->FactoryQueue->Enqueue<OrientateEntityEvent>(
+        OrientateEntityEvent(Entity));
+  return Entity;
+}
+
+inline std::shared_ptr<entt::entity> CreateUnitProducingGameObject(
+    ECSHelper* Factory, CreateUnitProducingGameObjectEvent Event) {
+  auto Entity = CreateGameObject(
+      Factory, CreateGameObjectEvent(Event.NodeName, Event.MeshName,
+                                 Event.EntityName, Event.InitialPosition, Event.GamePlayer, Event.PlayerId));
+
+  Factory->FactoryQueue->Enqueue<AddUnitProductionEvent>(
+      AddUnitProductionEvent(Entity, Event.UnitProdPerM));
 
   return Entity;
 }

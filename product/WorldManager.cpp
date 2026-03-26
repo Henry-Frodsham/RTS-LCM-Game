@@ -1,5 +1,6 @@
 // Copyright © 2025 Henry Frodsham
 #include "WorldManager.h"
+#include "Player.h"
 
 WorldManager::WorldManager() {
   WorldBus = new EventBus();
@@ -58,8 +59,31 @@ void WorldManager::CreateGlobeMesh() {
 void WorldManager::ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event) {
   WorldQueue->Enqueue(ChangeEntityVisibilityEvent("GlobeNode", Event.Visible));
 }
-void WorldManager::update() {
+void WorldManager::update(float DT) {
   ECSReporter->Dispatch();
   WorldQueue->Dispatch();
   CompFactory->FactoryQueue->Dispatch();
+  EvaluateTickerComponents(DT);
+}
+
+void WorldManager::EvaluateTickerComponents(float DT) {
+  // Unit production
+  std::unordered_map<int, std::vector<entt::entity>> PlayerProductionMap;
+
+  auto View = Registry.view<ProducesUnitsComponent, OwnershipComponent>();
+
+  for (auto [Entity, Produces, Ownership] : View.each()) {
+    PlayerProductionMap[Ownership.PlayerID].push_back(Entity);
+  }
+
+  for (auto& [PlayerID, Entities] : PlayerProductionMap) {
+    for (entt::entity Entity : Entities) {
+      auto& Produces = View.get<ProducesUnitsComponent>(Entity);
+      auto& Ownership = View.get<OwnershipComponent>(Entity);
+
+      const float ProgressPerSecond = (Produces.NumPerMinute / 60.f) * 100.f;
+      Ownership.GamePlayer->PlayerQueue->Enqueue(
+          UpdateUnitProgressEvent(ProgressPerSecond * DT));
+    }
+  }
 }

@@ -76,6 +76,9 @@
     <ClCompile Include="GenericButton.cpp">
       <Filter>Source\UI</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerUI.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -336,6 +339,15 @@
       <Filter>Event Templates</Filter>
     </ClInclude>
     <ClInclude Include="PlayerConstructionInfo.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerUI.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="CityComponents.h">
+      <Filter>Entity Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>

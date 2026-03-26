@@ -1,6 +1,7 @@
 #pragma once
-
+#include "Player.h"
 struct OwnershipComponent {
   int PlayerID;
-  OwnershipComponent(int Id) : PlayerID(Id) {}
+  Player* GamePlayer;
+  OwnershipComponent(int Id, Player* P) : PlayerID(Id), GamePlayer(P) {}
 };

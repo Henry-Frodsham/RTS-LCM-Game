@@ -48,9 +48,11 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
   Player* InstancePlayer = new Player(new Empire(), GameInstances.size() + 1);
   InteractionWheel* NewUIInteractionWheel = new InteractionWheel(
       Translator, GameInstances.size() + 1, Factory, InstancePlayer);
+  PlayerUI* NewPlayerUI =
+      new PlayerUI(InstancePlayer, GameInstances.size() + 1);
   GameInstance* NewInstance =
-      new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice, Translator,
-      NewUIInteractionWheel, GameInstances.size() + 1);
+      new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice, Translator, NewUIInteractionWheel, NewPlayerUI,
+                       InstancePlayer, GameInstances.size() + 1);
 
   GameInstances.push_back(NewInstance);
   InstanceViewports.emplace(NewInstance, VP);

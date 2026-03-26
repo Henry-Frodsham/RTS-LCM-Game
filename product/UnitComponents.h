@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 
+/*
 struct MovementComponent {
   bool CanMove;
   bool IsMoving;
@@ -14,3 +15,4 @@ struct MovementComponent {
         MoveSpeed(MSpeed),
         TargetPoint(TPoint) {}
 };
+*/

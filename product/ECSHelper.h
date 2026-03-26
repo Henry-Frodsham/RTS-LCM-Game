@@ -4,6 +4,7 @@
 
 #include "BaseComponents.h"
 #include "CommonGameObjectComponents.h"
+#include "CityComponents.h"
 #include "ECSFactoryEvent.h"
 #include "EventBus.h"
 #include "EventQueue.h"
@@ -40,7 +41,10 @@ class ECSHelper {
   void CreateAndAddMeshComponent(AddMeshComponentEvent Event);
 
   void CreateAndAddOwnerShipComponent(AddOwnerShipComponentEvent Event);
+
+  void CreateandAddUnitProductionComponent(AddUnitProductionEvent Event);
   
+  void OrientateAndAdditionalSetup(OrientateEntityEvent Event);
   OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
   
 };

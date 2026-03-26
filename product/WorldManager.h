@@ -10,6 +10,7 @@
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "WorldEvent.h"
+#include "PlayerEvent.h"
 
 // direct owner of the ECS registry, all game objects on the game map are stored
 // here however game logic is delegated
@@ -17,7 +18,7 @@ class WorldManager {
  public:
   WorldManager();
 
-  void update();
+  void update(float DT);
 
   // any thread can queue events but cant directly publish to bus
   EventQueue* WorldQueue;
@@ -34,4 +35,6 @@ class WorldManager {
   entt::registry Registry;
 
   void CreateGlobeMesh();
+
+  void EvaluateTickerComponents(float DT);
 };

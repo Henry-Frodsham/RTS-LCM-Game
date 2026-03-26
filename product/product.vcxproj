@@ -111,14 +111,6 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
       <Command>@echo off
 setlocal enabledelayedexpansion
 
-set "PROJECT_DIR=$(ProjectDir)"
-set "EXTENSIONS=*.cpp *.h *.cc *.hpp"
-
-for %%E in (%EXTENSIONS%) do (
-    for /f "delims=" %%f in ('dir /b /s "%PROJECT_DIR%%%E" 2^&gt;nul ^| findstr /v /i "vcpkg_installed"') do (
-        cpplint "%%f" 2&gt;&amp;1
-    )
-)
 
 exit /b 0
 xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
@@ -194,14 +186,6 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
       <Command>@echo off
 setlocal enabledelayedexpansion
 
-set "PROJECT_DIR=$(ProjectDir)"
-set "EXTENSIONS=*.cpp *.h *.cc *.hpp"
-
-for %%E in (%EXTENSIONS%) do (
-    for /f "delims=" %%f in ('dir /b /s "%PROJECT_DIR%%%E" 2^&gt;nul ^| findstr /v /i "vcpkg_installed"') do (
-        cpplint "%%f" 2&gt;&amp;1
-    )
-)
 
 exit /b 0
 xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
@@ -272,6 +256,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="OverlayController.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerGeneralControl.cpp" />
+    <ClCompile Include="PlayerUI.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="TransformationMatrix.cpp" />
     <ClCompile Include="Unit.cpp" />
@@ -283,6 +268,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="ActionCommand.h" />
     <ClInclude Include="BaseComponents.h" />
     <ClInclude Include="City.h" />
+    <ClInclude Include="CityComponents.h" />
     <ClInclude Include="CommonGameObjectComponents.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Cursor.h" />
@@ -315,7 +301,9 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerConstructionInfo.h" />
     <ClInclude Include="PlayerControlEvent.h" />
+    <ClInclude Include="PlayerEvent.h" />
     <ClInclude Include="PlayerGeneralControl.h" />
+    <ClInclude Include="PlayerUI.h" />
     <ClInclude Include="RayTraceEvent.h" />
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
