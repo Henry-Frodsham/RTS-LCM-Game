@@ -59,12 +59,13 @@ void RenderSystem::Init() {
   if (IsInit) {
     return;
   }
-
+  SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
     // sdl failed init, throw fatal
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::SDL_FAILED_INIT));
   }
+
 
 #ifdef _DEBUG
   OgreRoot = new Ogre::Root("plugins_d.cfg", "", "ogre.log");
@@ -107,7 +108,13 @@ void RenderSystem::Init() {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::SDL_FAILED_BIND));
   }
+#ifdef _WIN32
+  while (::ShowCursor(TRUE) < 0); 
+  ::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+#endif
 
+  SDL_SetRelativeMouseMode(SDL_FALSE);   
+  SDL_SetWindowGrab(SDLWindow, SDL_FALSE);
   SceneManager = OgreRoot->createSceneManager();
   SceneManager->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
 

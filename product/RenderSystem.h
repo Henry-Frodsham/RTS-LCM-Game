@@ -5,6 +5,7 @@
 #include <OGRE/Overlay/OgreImGuiOverlay.h>
 #include <OGRE/Overlay/OgreOverlaySystem.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 #include <Windows.h>
 
 #include <filesystem>
