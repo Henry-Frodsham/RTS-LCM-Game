@@ -3,12 +3,13 @@
 #include <entt/entt.hpp>
 
 #include "BaseComponents.h"
-#include "CommonGameObjectComponents.h"
 #include "CityComponents.h"
+#include "CommonGameObjectComponents.h"
 #include "ECSFactoryEvent.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "RenderSystem.h"
+#include "UnitComponents.h"
 
 // creates ECS entities
 // seperated from WorldManager to consider future implementation of multiple ECS
@@ -27,6 +28,7 @@ class ECSHelper {
   EventQueue* FactoryQueue;
   void ChangeEntityVisibility(ChangeEntityVisibilityEvent Event);
   void MoveEntityAlongSpherical(MoveEntityAlongSphericalEvent Event);
+
  private:
   EventBus* FactoryBus;
 
@@ -43,8 +45,11 @@ class ECSHelper {
   void CreateAndAddOwnerShipComponent(AddOwnerShipComponentEvent Event);
 
   void CreateandAddUnitProductionComponent(AddUnitProductionEvent Event);
-  
+
+  void CreateandAddAttackComponent(AddAttackEvent Event);
+
+  void CreateandAddHealthComponent(AddHealthEvent Event);
+
   void OrientateAndAdditionalSetup(OrientateEntityEvent Event);
   OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
-  
 };

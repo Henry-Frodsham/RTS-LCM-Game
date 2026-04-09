@@ -42,7 +42,7 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
 
   InputTranslator* Translator =
       new InputTranslator(Event.InstanceDevice, ViewPortWidth, ViewPortHeight,
-                          GameInstances.size() + 1);
+                          GameInstances.size() + 1, RS.GetRenderWindowDimensions());
   DeviceListener->AddListenerQueue(Event.InstanceDevice,
                                    Translator->WaitingEvents);
   Player* InstancePlayer = new Player(new Empire(), GameInstances.size() + 1);

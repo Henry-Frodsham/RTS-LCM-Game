@@ -20,8 +20,13 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::MoveEntityAlongSpherical, this, std::placeholders::_1));
   FactoryBus->Subscribe<OrientateEntityEvent>(std::bind(
       &ECSHelper::OrientateAndAdditionalSetup, this, std::placeholders::_1));
-  FactoryBus->Subscribe<AddUnitProductionEvent>(std::bind(
-      &ECSHelper::CreateandAddUnitProductionComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddUnitProductionEvent>(
+      std::bind(&ECSHelper::CreateandAddUnitProductionComponent, this,
+                std::placeholders::_1));
+  FactoryBus->Subscribe<AddHealthEvent>(std::bind(
+      &ECSHelper::CreateandAddHealthComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddAttackEvent>(std::bind(
+      &ECSHelper::CreateandAddAttackComponent, this, std::placeholders::_1));
 }
 
 void ECSHelper::CreateAndAddEntity(CreateEntityEvent Event) {
@@ -71,10 +76,16 @@ void ECSHelper::CreateandAddUnitProductionComponent(
   auto& Component = RegistryToUse->emplace<ProducesUnitsComponent>(
       *Event.Entity, Event.ProdPerM);
 }
-
+void ECSHelper::CreateandAddHealthComponent(AddHealthEvent Event) {
+  auto& Component =
+      RegistryToUse->emplace<HealthComponent>(*Event.Entity, Event.Health);
+}
+void ECSHelper::CreateandAddAttackComponent(AddAttackEvent Event) {
+  auto& Component = RegistryToUse->emplace<AttackComponent>(
+      *Event.Entity, Event.Radius, Event.Damage);
+}
 void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
-   
 
   try {
     OgreComponent Comp = FindEntityFromSceneNodeName(Event.NodeName);
@@ -116,10 +127,9 @@ void ECSHelper::CreateAndAddOwnerShipComponent(
           *Event.Entity, Event.PlayerID, Event.GamePlayer);
     }
 
-
-    
-    //ordering is very tricky for this, because when this runs the first time the scenenode and entity havent been created
-    //good news is we can just callback this and run it again until it works
+    // ordering is very tricky for this, because when this runs the first time
+    // the scenenode and entity havent been created good news is we can just
+    // callback this and run it again until it works
     if (EntOgreComp.EntityNode != nullptr) {
       Rs.RenderQueue->Enqueue(
           AddOwnerShipToEntEvent(EntOgreComp.EntityNode, Event.PlayerID));
@@ -127,9 +137,7 @@ void ECSHelper::CreateAndAddOwnerShipComponent(
       FactoryQueue->Enqueue(Event);
     }
 
-
-  } catch (std::exception e){
-
+  } catch (std::exception e) {
   }
 }
 
@@ -149,7 +157,7 @@ void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
   } catch (std::exception e) {
   }
 }
-    OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
+OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
   auto View = RegistryToUse->view<OgreComponent>();
   for (auto Entity : View) {
     OgreComponent EntComp = View.get<OgreComponent>(Entity);

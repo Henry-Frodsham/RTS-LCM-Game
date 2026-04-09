@@ -4,6 +4,7 @@
 #include <OGRE/OgrePrerequisites.h>
 
 #include <vector>
+
 #include "InputDevice.h"
 #include "RayTraceEvent.h"
 
@@ -12,6 +13,7 @@ class ViewPortController {
  private:
   Ogre::Viewport* ViewPort;
   InputDevice* ControllingDevice;
+
  public:
   bool ToggleAutomaticRendering(bool Val);
 
@@ -34,8 +36,8 @@ class ViewPortController {
   // destroys the frame buffer
   void Clear();
 
-
-  //comparison with another viewport without allowing direct access to the viewport
+  // comparison with another viewport without allowing direct access to the
+  // viewport
   bool Equals(Ogre::Viewport* OtherViewport);
   // motion doesnt consider a 3d coordinate because the orbit is at a fixed
   // depth
@@ -56,4 +58,5 @@ class ViewPortController {
 
   std::vector<float> GetCameraAngle();
   std::vector<float> GetViewPortDimensions();
+  std::vector<int> GetActualDimensions();
 };

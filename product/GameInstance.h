@@ -1,20 +1,21 @@
 #pragma once
+#include "Cursor.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "InputListener.h"
 #include "InputTranslator.h"
 #include "InteractionWheel.h"
-#include "Cursor.h"
-#include "PlayerGeneralControl.h"
 #include "Player.h"
+#include "PlayerGeneralControl.h"
 #include "PlayerUI.h"
 
 class GameInstance {
  public:
   GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ, InputDevice* Device,
                InputTranslator* DeviceTranslator, InteractionWheel* UIWheel,
-               PlayerUI* PlayerInterface, Player* InstancePlayer, int ThreadNumber);
+               PlayerUI* PlayerInterface, Player* InstancePlayer,
+               int ThreadNumber);
 
   void Run(float DT);
   EventQueue* LocalQueue;

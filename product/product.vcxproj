@@ -294,6 +294,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="instanceOverseer.h" />
     <ClInclude Include="InteractionWheel.h" />
     <ClInclude Include="InteractionWheelCallbackCommands.h" />
+    <ClInclude Include="MatrixableInteractionEvent.h" />
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="OverlayController.h" />
     <ClInclude Include="OverlayEvent.h" />

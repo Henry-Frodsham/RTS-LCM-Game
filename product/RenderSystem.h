@@ -18,11 +18,12 @@
 #include "EventQueue.h"
 #include "OverlayController.h"
 #include "OverlayEvent.h"
-#include "ViewPortController.h"
-#include "RenderEvent.h"
-#include "ViewPortUpdateListener.h"
-#include "ViewPortUpdateEvent.h"
 #include "RayTraceEvent.h"
+#include "RenderEvent.h"
+#include "ViewPortController.h"
+#include "ViewPortUpdateEvent.h"
+#include "ViewPortUpdateListener.h"
+#include "WorldEvent.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating
@@ -84,14 +85,20 @@ class RenderSystem {
   void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
 
   void AssembleRayTraceEvent(StartRayTraceEvent Event);
-  
+
   void ScaleEntityFromEvent(ScaleEntityEvent Event);
-  
+
   void RotateEntityToSurfaceNormal(RotateEntToSurfaceNormalEvent Event);
 
   void ChangeEntityMaterial(ChangeEntMaterialEvent Event);
 
   void AddOwnerShipToEnt(AddOwnerShipToEntEvent Event);
+
+  void CacheRangeEntitiesAndCallback(CacheRangeQueryEvent Event);
+
+  void DestroyNode(DestroyNodeEvent Event);
+  void DestroyEntity(DestroyEntityEvent Event);
+
  public:
   static RenderSystem& GetInstance();
   // RenderSystem(const RenderSystem&) = delete;
@@ -120,6 +127,8 @@ class RenderSystem {
   ViewPortController* GetPrimaryViewport();
 
   float GetDeltaTime();
+
+  std::vector<float> GetRenderWindowDimensions();
 
   ViewPortController* FindViewPortFromDevice(InputDevice* Device);
 };

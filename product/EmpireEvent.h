@@ -1,13 +1,7 @@
 #pragma once
 
-struct IncomeGeneratedEvent {
+struct IncomeGeneratedEvent {};
 
-};
+struct UnitPlaceEvent {};
 
-struct UnitPlaceEvent {
-
-};
-
-struct CityPlaceEvent {
-
-};
+struct CityPlaceEvent {};

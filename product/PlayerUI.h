@@ -11,8 +11,8 @@ class PlayerUI {
   void Update();
 
   EventQueue* PlayerUIQueue;
- private:
 
+ private:
   void SetUp();
 
   EventBus* PlayerUIBus;

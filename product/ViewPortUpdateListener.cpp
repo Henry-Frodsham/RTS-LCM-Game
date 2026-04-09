@@ -5,14 +5,13 @@ ViewPortUpdateListener::ViewPortUpdateListener()
     : VPULReporter(ErrorReporter()) {}
 void ViewPortUpdateListener::preViewportUpdate(
     const Ogre::RenderTargetViewportEvent& evt) {
-
-
   int PlayerId = 0;
   // disable all the overlays, then enable the one that should be rendered
   for (auto Viewport : InstanceViewports) {
     if (Viewport.second->Equals(evt.source)) {
       Viewport.first->show();
-      //the last character of an overlays name is the player id so why overcomplicate things
+      // the last character of an overlays name is the player id so why
+      // overcomplicate things
       char IdChar = Viewport.first->getName().back();
       PlayerId = IdChar - '0';
     } else {
@@ -20,8 +19,8 @@ void ViewPortUpdateListener::preViewportUpdate(
     }
   }
 
-  //activate the shader, (take a look at unit.glsl)
-  //colour every other unit red on this viewport
+  // activate the shader, (take a look at unit.glsl)
+  // colour every other unit red on this viewport
 
   auto SharedParams =
       Ogre::GpuProgramManager::getSingleton().getSharedParameters(

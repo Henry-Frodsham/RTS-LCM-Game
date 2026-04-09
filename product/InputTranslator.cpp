@@ -5,7 +5,8 @@
 #include "SharedInputEvent.h"
 
 InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
-                                 float VPHeight, int ThreadNum) {
+                                 float VPHeight, int ThreadNum,
+                                 std::vector<float> SDim) {
   ManagedDevice = Device;
 
   InputEvents = new EventBus();
@@ -34,6 +35,7 @@ InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
 
   ViewPortWidth = VPWidth;
   ViewPortHeight = VPHeight;
+  ScreenDimensions = SDim;
   TranslationErrorReporter = new ErrorReporter();
 
 #ifdef _DEBUG
@@ -394,4 +396,7 @@ std::vector<float> InputTranslator::GetViewPortDimensions() {
 void InputTranslator::ResizeViewPortDimensions(ResizedViewPortEvent Event) {
   ViewPortWidth = Event.X;
   ViewPortHeight = Event.Y;
+}
+std::vector<float> InputTranslator::GetScreenDimensions() {
+  return ScreenDimensions;
 }

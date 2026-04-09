@@ -12,12 +12,12 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
-#include "SharedInputEvent.h"
 
+#include "ActionCommand.h"
 #include "ErrorReporter.h"
 #include "OverlayEvent.h"
 #include "OverlayInfo.h"
-#include "ActionCommand.h"
+#include "SharedInputEvent.h"
 
 // owned by RenderSystem exclusively
 // exclusively handles Overlay item creation and management

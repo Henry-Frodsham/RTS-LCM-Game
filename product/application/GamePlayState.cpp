@@ -10,7 +10,7 @@ void GameState::OnChangeState(ChangeStateEvent Event) {
   if (Event.NewState == AppState::GAME) {
     World->WorldQueue->Enqueue(ChangeGlobeVisibilityEvent(true));
   } else {
-	//hide the world, freeze everything, maybe save?
+    // hide the world, freeze everything, maybe save?
     World->WorldQueue->Enqueue(ChangeGlobeVisibilityEvent(false));
   }
 }

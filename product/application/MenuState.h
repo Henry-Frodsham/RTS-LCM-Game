@@ -1,16 +1,17 @@
 // Copyright © 2025 Henry Frodsham
 #pragma once
-#include "StateEvent.h"
 #include "GenericButton.h"
+#include "StateEvent.h"
 
 class MenuState {
  private:
   EventQueue* AppQueue;
 
-  GenericButton* PlayButton;
  public:
   MenuState(EventQueue* CallBacksQueue);
-  ~MenuState(){}
+  ~MenuState() {}
+
+  GenericButton* PlayButton;
 
   void Init();
   void OnChangeState(ChangeStateEvent Event);

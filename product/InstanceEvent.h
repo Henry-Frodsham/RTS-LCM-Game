@@ -19,6 +19,4 @@ struct UpstreamOrbitViewport2DEvent {
       : RelativeMotion(RM), InstanceRequesting(IR) {}
 };
 
-struct RecheckViewPortSizeCommand {
-
-};
+struct RecheckViewPortSizeCommand {};

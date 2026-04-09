@@ -9,7 +9,7 @@
 struct EndRayTraceResultEvent {
   Ogre::RaySceneQueryResult& RayResult;
   Ogre::Ray Ray;
-  EndRayTraceResultEvent(Ogre::RaySceneQueryResult& Ray,Ogre::Ray R)
+  EndRayTraceResultEvent(Ogre::RaySceneQueryResult& Ray, Ogre::Ray R)
       : RayResult(Ray), Ray(R) {}
 };
 struct StartRayTraceEvent {
@@ -20,9 +20,9 @@ struct StartRayTraceEvent {
   std::function<void(EventQueue*, EndRayTraceResultEvent)> Callback;
   EventQueue* CallQueue;
 
-  StartRayTraceEvent(std::vector<float> Pos, InputDevice* Dev,
+  StartRayTraceEvent(
+      std::vector<float> Pos, InputDevice* Dev,
       std::function<void(EventQueue*, EndRayTraceResultEvent)> Cb,
       EventQueue* Cq)
       : Point(Pos), Device(Dev), Callback(Cb), CallQueue(Cq) {}
 };
-

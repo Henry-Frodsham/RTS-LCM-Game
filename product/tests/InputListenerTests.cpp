@@ -12,7 +12,7 @@ TEST_CASE("InputListener - succesful translation") {
 	InputListener Obj = InputListener(RS.GetSDLWindow());
 	InputDevice* MockDevice = new InputDevice(nullptr, InputDeviceType::KBM);
 
-	InputTranslator IT = InputTranslator(MockDevice,0.f,0.f,0);
+	InputTranslator IT = InputTranslator(MockDevice, 0.f, 0.f, 0, {0.f,0.f});
 
 	Obj.AddListenerQueue(MockDevice, IT.WaitingEvents);
 
@@ -33,7 +33,7 @@ TEST_CASE("InputListener - succesful erasure of key press when the key is releas
 	InputListener Obj = InputListener(RS.GetSDLWindow());
 	InputDevice* MockDevice = new InputDevice(nullptr, InputDeviceType::KBM);
 
-	InputTranslator IT = InputTranslator(MockDevice, 0.f,0.f,0);
+	InputTranslator IT = InputTranslator(MockDevice, 0.f, 0.f, 0, {0.f,0.f});
 
 	Obj.AddListenerQueue(MockDevice, IT.WaitingEvents);
 

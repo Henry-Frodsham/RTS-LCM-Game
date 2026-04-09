@@ -39,9 +39,10 @@ void Player::Update() { PlayerQueue->Dispatch(); }
 void Player::UpdateUnitProgress(UpdateUnitProgressEvent Event) {
   UnitProdProg += Event.AddProg;
 
-  //while loop incase someone has so many cities that they manage to get more than one unit per tick
+  // while loop incase someone has so many cities that they manage to get more
+  // than one unit per tick
   while (UnitProdProg >= 100.f) {
     UnitProdProg -= 100.f;
     AvailableUnits += 1;
   }
-  }
+}

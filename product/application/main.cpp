@@ -3,7 +3,7 @@
 
 #include "Application.h"
 
-//stop SDL hijacking main
+// stop SDL hijacking main
 #undef main
 
 // startup function, delegates responsibility to the application class

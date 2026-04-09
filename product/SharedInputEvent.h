@@ -6,8 +6,10 @@ struct CursorMovementEvent {
   std::vector<float> RelativeXY;
   int ThreadNumber;
   InputDevice* Device;
-  CursorMovementEvent(std::vector<float> AbXY, std::vector<float> RelXY, int ThreadNum,
-                      InputDevice* Dev)
-      : AbsoluteXY(AbXY), RelativeXY(RelXY), ThreadNumber(ThreadNum),
+  CursorMovementEvent(std::vector<float> AbXY, std::vector<float> RelXY,
+                      int ThreadNum, InputDevice* Dev)
+      : AbsoluteXY(AbXY),
+        RelativeXY(RelXY),
+        ThreadNumber(ThreadNum),
         Device(Dev) {}
 };

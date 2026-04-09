@@ -9,18 +9,17 @@ OverlayController::OverlayController() : OverlayErrorReporter() {
 }
 
 void OverlayController::CreateOverlay(CreateOverlayEvent Event) {
+  if (OverlayMngr->getByName(Event.OverlayName) == nullptr) {
+    ManagedOverlays.emplace(Event.OverlayName,
+                            OverlayMngr->create(Event.OverlayName));
+  }
 
-    if (OverlayMngr->getByName(Event.OverlayName) == nullptr) {
-        ManagedOverlays.emplace(Event.OverlayName,
-            OverlayMngr->create(Event.OverlayName));
-    }
-  
   RenderSystem& Render = RenderSystem::GetInstance();
 
   if (Event.InstanceDevice != nullptr) {
-      Render.RenderQueue->Enqueue(RegisterOverlayToViewPortEvent(
-          ManagedOverlays.at(Event.OverlayName),
-          Render.FindViewPortFromDevice(Event.InstanceDevice)));
+    Render.RenderQueue->Enqueue(RegisterOverlayToViewPortEvent(
+        ManagedOverlays.at(Event.OverlayName),
+        Render.FindViewPortFromDevice(Event.InstanceDevice)));
   }
 }
 
@@ -40,16 +39,24 @@ void OverlayController::AddBox(OverlayAddBoxEvent Event) {
                     Event.OverlayToUse)));
     return;
   }
+  RenderSystem& RS = RenderSystem::GetInstance();
   OverlayInfo* Info = new OverlayInfo(false, false, Event.OverlayToUse);
+  ViewPortController* VPC = RS.GetPrimaryViewport();
+  std::vector<int> VPD = VPC->GetActualDimensions();
+  std::vector<float> WD = RS.GetRenderWindowDimensions();
+
   OverlayInfos.emplace(Event.Name, Info);
   Ogre::OverlayContainer* Panel = static_cast<Ogre::OverlayContainer*>(
       OverlayMngr->createOverlayElement("Panel", Event.Name));
 
   // relative coordinate mode, avoids manual scaling with different screen sizes
+  float scaleX = WD[0] / static_cast<float>(VPD[0]);
+  float scaleY = WD[1] / static_cast<float>(VPD[1]);
+
   Panel->setMetricsMode(Ogre::GMM_RELATIVE);
-  Panel->setPosition(Event.Position[0], Event.Position[1]);
-  Panel->setDimensions(Event.Dimensions[0], Event.Dimensions[1]);
-  
+  Panel->setPosition(Event.Position[0] * scaleX, Event.Position[1] * scaleY);
+  Panel->setDimensions(Event.Dimensions[0] * scaleX,
+                       Event.Dimensions[1] * scaleY);
   try {
     Panel->setMaterialName(Event.MaterialName, "Overlay");
   } catch (const std::exception& e) {
@@ -161,7 +168,7 @@ void OverlayController::AddTextToPanel(OverlayAddTextToPanelEvent Event) {
   TextArea->setFontName("OverlayFont");
 
   try {
-    //TextArea->setMaterialName(Event.MaterialName, "Overlay");
+    // TextArea->setMaterialName(Event.MaterialName, "Overlay");
   } catch (const std::exception& e) {
     OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
         ErrorCode::MATERIAL_NOT_FOUND,
@@ -214,9 +221,18 @@ void OverlayController::EditPanel(OverlayEditPanelEvent Event) {
                     Event.NameOfExisting, Event.OverlayToFindIn)));
     return;
   }
+  RenderSystem& RS = RenderSystem::GetInstance();
+  ViewPortController* VPC = RS.GetPrimaryViewport();
+  std::vector<int> VPD = VPC->GetActualDimensions();
+  std::vector<float> WD = RS.GetRenderWindowDimensions();
 
+  // relative coordinate mode, avoids manual scaling with different screen sizes
+  float scaleX = WD[0] / static_cast<float>(VPD[0]);
+  float scaleY = WD[1] / static_cast<float>(VPD[1]);
+
+  FoundElement->setMetricsMode(Ogre::GMM_RELATIVE);
   if (Event.NewDimensions != std::vector<float>{-1.f, -1.f}) {
-    FoundElement->setDimensions(Event.NewDimensions[0], Event.NewDimensions[1]);
+    FoundElement->setDimensions(Event.NewDimensions[0] * scaleX, Event.NewDimensions[1] * scaleY);
   }
   if (Event.NewPosition != std::vector<float>{-1.f, -1.f}) {
     FoundElement->setPosition(Event.NewPosition[0], Event.NewPosition[1]);
@@ -320,7 +336,6 @@ void OverlayController::OverlayPressed(Ogre::OverlayElement* Element,
                                        OverlayInfo* Info) {
   Element->setMaterialName("PURPLE", "Overlay");
 
-
   if (Info->PressCallBack != nullptr) {
     Info->PressCallBack(*Info->CallQueue);
   }
@@ -342,27 +357,28 @@ void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
     try {
       Info = OverlayInfos.at(Element->getName());
     } catch (std::exception e) {
-      OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(ErrorCode::OVERLAY_MISSING_INFO));
+      OverlayErrorReporter.EnqueueError(
+          ErrorDetail::CreateError(ErrorCode::OVERLAY_MISSING_INFO));
       return;
     }
 
     if (Element->findElementAt(Event.RelativeXY[0], Event.RelativeXY[1])) {
       Info->Hovered = true;
-      //pressing the overlay should always override hovering
+      // pressing the overlay should always override hovering
       if (!Info->Pressed) {
         OverlayHovered(Element, Info);
       }
     } else {
       Info->Hovered = false;
-      OverlayReleased(Element,Info);
+      OverlayReleased(Element, Info);
     }
   }
 }
 void OverlayController::OverlayPressedCheck(PressActionCommand Cmd) {
   RenderSystem& RS = RenderSystem::GetInstance();
   ActionContext Cntxt = Cmd.Context;
-  ViewPortController* EventVPC = RS.FindViewPortFromDevice(Cntxt.ActioningDevice);
-
+  ViewPortController* EventVPC =
+      RS.FindViewPortFromDevice(Cntxt.ActioningDevice);
 
   std::string OverlayName = "UI_Overlay_" + std::to_string(Cntxt.ThreadId);
   Ogre::Overlay* SpecificOverlay = OverlayMngr->getByName(OverlayName);
@@ -380,7 +396,6 @@ void OverlayController::OverlayPressedCheck(PressActionCommand Cmd) {
       return;
     }
 
-    
     if (Element->findElementAt(Cntxt.MouseX, Cntxt.MouseY) && !Cmd.Released) {
       Info->Pressed = true;
       OverlayPressed(Element, Info);

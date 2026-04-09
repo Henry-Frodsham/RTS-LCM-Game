@@ -209,8 +209,8 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
      {ErrorCode::OVERLAY_MISSING_INFO, ErrorLevel::ERR,
       "an overlay is missing info, does it exist?", "OverlayController"}},
     {ErrorCode::CALLBACK_FAILED,
-    {ErrorCode::CALLBACK_FAILED, ErrorLevel::ERR,
-        "An Overlay's interaction callback failed", "OverlayController"}},
+     {ErrorCode::CALLBACK_FAILED, ErrorLevel::ERR,
+      "An Overlay's interaction callback failed", "OverlayController"}},
     // fatal
     {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
      {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

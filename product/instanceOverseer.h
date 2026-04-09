@@ -1,9 +1,11 @@
 // Copyright © 2025 Henry Frodsham
 #pragma once
+#include <BS_thread_pool.hpp>
 #include <thread>
 #include <unordered_map>
 #include <vector>
 
+#include "ECSHelper.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
@@ -11,14 +13,11 @@
 #include "InputListener.h"
 #include "InputTranslator.h"
 #include "InstanceEvent.h"
-#include "RenderSystem.h"
-#include "ViewPortController.h"
-#include "ResizeEvent.h"
 #include "InteractionWheel.h"
-#include "ECSHelper.h"
 #include "PlayerUI.h"
-
-#include <BS_thread_pool.hpp>
+#include "RenderSystem.h"
+#include "ResizeEvent.h"
+#include "ViewPortController.h"
 
 // the class that "holds the reigns" over all instances
 
@@ -48,5 +47,4 @@ class InstanceOverseer {
 
   // a new instance is made solely based on a new device being connected
   InputListener* DeviceListener;
-
 };

@@ -5,12 +5,12 @@
 
 TEST_CASE("basic matrixable interaction") {
   EntityInteractionEvaluator TestEvaluator = EntityInteractionEvaluator();
-  int TestDefenderHP = 10;
-  int TestAttackPower = 5;
+  float TestDefenderHP = 10;
+  float TestAttackPower = 5;
   TestEvaluator.InteractionQueue->Enqueue(
-      AttackEvent(TestAttackPower, &TestDefenderHP));
+      AttackEvent(TestAttackPower, &TestDefenderHP, 1.f));
   TestEvaluator.InteractionQueue->Dispatch();
-  CHECK(TestDefenderHP == 5);
+  CHECK(TestDefenderHP == -5);
 }
 
 TEST_CASE("complex non matrixable interaction") {

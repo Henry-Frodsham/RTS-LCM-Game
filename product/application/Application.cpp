@@ -1,8 +1,6 @@
 // Copyright © 2025 Henry Frodsham
 #include "Application.h"
 
-
-
 Application::Application()
     : IndependantThreads(std::thread::hardware_concurrency()),
       RenderSingleton(RenderSystem::GetInstance()),
@@ -41,14 +39,14 @@ bool Application::Init() {
   return false;
 }
 
-SDL_Window* Application::InitAndGetWindow(RenderSystem& Render){
-      Render.Init();
-      return Render.GetSDLWindow();
+SDL_Window* Application::InitAndGetWindow(RenderSystem& Render) {
+  Render.Init();
+  return Render.GetSDLWindow();
 }
 
 InputListener& Application::UpdateAndReturn() {
-    Input.Update();
-    return Input;
+  Input.Update();
+  return Input;
 }
 // state reactive loop
 void Application::Loop() {
@@ -64,7 +62,6 @@ void Application::Loop() {
     float DT = RenderSingleton.GetDeltaTime();
     Futures.push_back(
         IndependantThreads.submit_task([this, DT]() { WM.update(DT); }));
-    
 
     Futures.push_back(
         IndependantThreads.submit_task([this]() { Input.Update(); }));
@@ -78,6 +75,7 @@ void Application::Loop() {
 
     if (StateManager.CurrentState == AppState::GAME) {
     } else if (StateManager.CurrentState == AppState::MENU) {
+      Menu.PlayButton->MaintainScaling();
     } else if (StateManager.CurrentState == AppState::PAUSE) {
     } else {
       // invalid state

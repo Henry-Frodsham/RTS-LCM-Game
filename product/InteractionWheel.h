@@ -1,10 +1,10 @@
 #pragma once
-#include "InputTranslator.h"
-#include "RenderSystem.h"
-#include "UIEvent.h"
-#include "ShareInfoEvent.h"
-#include "InteractionWheelCallbackCommands.h"
 #include "ECSHelper.h"
+#include "InputTranslator.h"
+#include "InteractionWheelCallbackCommands.h"
+#include "RenderSystem.h"
+#include "ShareInfoEvent.h"
+#include "UIEvent.h"
 
 // the quick interaction wheel accessible through RT or right click
 class InteractionWheel {
@@ -18,11 +18,11 @@ class InteractionWheel {
 
   void OnPressActionCommand(PressActionCommand Cmd);
 
-  
   EventQueue* ForeignNotifQueue;
   ECSHelper* Factory;
 
   Player* GamePlayer;
+
  private:
   InputTranslator* DeviceState;
 

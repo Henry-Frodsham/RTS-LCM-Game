@@ -2,5 +2,6 @@
 class Empire {
  public:
   Empire();
+
  private:
 };

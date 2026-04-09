@@ -2,8 +2,7 @@
 #include "ApplicationStateManager.h"
 
 ApplicationStateManager::ApplicationStateManager()
-    : CurrentState(AppState::MENU) {
-}
+    : CurrentState(AppState::MENU) {}
 
 void ApplicationStateManager::ChangeApplicationState(ChangeStateEvent Event) {
   CurrentState = Event.NewState;

@@ -4,7 +4,7 @@
 
 struct ContextActionCommand {
   ActionContext Context;
-  ContextActionCommand(ActionContext Cntx) : Context(Cntx){}
+  ContextActionCommand(ActionContext Cntx) : Context(Cntx) {}
 };
 struct UseActionCommand {
   ActionContext Context;

@@ -47,16 +47,17 @@ void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
     for (auto Node : Event.RayResult) {
       if (Node.movable->getParentSceneNode()->getName() != "GlobeNode") {
         // downcast because we dont need Ogre::Movable
-        if (SelectedEntity != static_cast<Ogre::Entity*>(Node.movable) && SelectedEntity != nullptr) {
+        if (SelectedEntity != static_cast<Ogre::Entity*>(Node.movable) &&
+            SelectedEntity != nullptr) {
           RS.RenderQueue->Enqueue(
               ChangeEntMaterialEvent(SelectedEntity, "WHITE"));
-        } 
+        }
         SelectedEntity = static_cast<Ogre::Entity*>(Node.movable);
         RS.RenderQueue->Enqueue(ChangeEntMaterialEvent(SelectedEntity, "RED"));
         InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
             NotifySelectedEntity(SelectedEntity, false));
         return;
-        
+
       } else if (Node.movable->getName() != "GlobeBase") {
         Ogre::Vector3 HitPoint = Event.Ray.getPoint(Node.distance);
         Ogre::Vector3 SurfaceNormal =
@@ -65,8 +66,6 @@ void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
             Ogre::Vector3(0.5f, 0.f, -5.f) + SurfaceNormal * 1.f;
 
         if (SelectedEntity != nullptr) {
-          LastDeltaLatLon = HitPointToDeltaLatLon(
-              SelectedEntity->getParentSceneNode()->getPosition(), SnappedPos);
           InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
               NotifyLatLonEvent(LastDeltaLatLon));
         }

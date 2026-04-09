@@ -4,6 +4,6 @@ struct CameraControlTrigger {
   CameraControlTrigger() {}
 };
 
-struct RelativeMotionTrigger { 
-	RelativeMotionTrigger() {}
+struct RelativeMotionTrigger {
+  RelativeMotionTrigger() {}
 };

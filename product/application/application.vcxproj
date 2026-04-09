@@ -116,6 +116,9 @@ xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configur
 xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
 xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -158,6 +161,9 @@ xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configur
 xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
 xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -190,6 +196,9 @@ xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configur
 xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
 xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -232,6 +241,9 @@ xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configur
 xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
 xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />

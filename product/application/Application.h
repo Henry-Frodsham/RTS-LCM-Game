@@ -1,17 +1,18 @@
 // Copyright © 2025 Henry Frodsham
 #pragma once
+#include <BS_thread_pool.hpp>
 #include <iostream>
 #include <thread>
-#include "EventQueue.h"
-#include "EventBus.h"
-#include <BS_thread_pool.hpp>
+
 #include "ApplicationStateManager.h"
-#include "MenuState.h"
-#include "PausedState.h"
+#include "EventBus.h"
+#include "EventQueue.h"
 #include "GamePlayState.h"
 #include "InputAnalyser.h"
 #include "InputListener.h"
 #include "InputTranslator.h"
+#include "MenuState.h"
+#include "PausedState.h"
 #include "RenderSystem.h"
 #include "StateEvent.h"
 #include "WorldManager.h"
@@ -40,6 +41,4 @@ class Application {
   MenuState Menu;
   GameState Game;
   PauseState Pause;
-
-  
 };

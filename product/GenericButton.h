@@ -1,14 +1,18 @@
 #pragma once
 #include <string>
 #include <vector>
+
 #include "InputDevice.h"
 #include "RenderSystem.h"
 
 class GenericButton {
  public:
-  GenericButton(std::string ButtonName, std::string ButtonText, std::vector<float> Position, InputDevice* DeviceToRespondTo,
-                std::function<void(EventQueue&)> PressCallback, EventQueue* QueueForCallBack, int ThreadId);
+  GenericButton(std::string ButtonName, std::string ButtonText,
+                std::vector<float> Position, InputDevice* DeviceToRespondTo,
+                std::function<void(EventQueue&)> PressCallback,
+                EventQueue* QueueForCallBack, int ThreadId);
   void ChangeVisibility(bool Visible);
+  void MaintainScaling();
  private:
   std::string Name;
   std::string Text;

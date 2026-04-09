@@ -1,8 +1,6 @@
 #pragma once
 
-struct CallBackACommand {
-
-};
+struct CallBackACommand {};
 struct CallBackBCommand {};
 struct CallBackCCommand {};
 struct CallBackDCommand {};

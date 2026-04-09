@@ -1,9 +1,11 @@
 // Copyright © 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
-#include "Player.h"
+
 #include <entt/entt.hpp>
 #include <string>
+
+#include "Player.h"
 
 // these events are for convenience only and dont provide an architectural
 // benefit they are simply blueprints to create simple entities quickly
@@ -47,7 +49,9 @@ struct CreateGameObjectEvent {
       : NodeName(NodeN),
         MeshName(MeshN),
         EntityName(EntN),
-        InitialPosition(InitP), GamePlayer(P), PlayerId(Id) {}
+        InitialPosition(InitP),
+        GamePlayer(P),
+        PlayerId(Id) {}
 };
 
 struct CreateUnitProducingGameObjectEvent {
@@ -69,7 +73,39 @@ struct CreateUnitProducingGameObjectEvent {
         UnitProdPerM(UPM),
         PlayerId(Id) {}
 };
+struct CreateAttackingEntityEvent {
+  std::string NodeName;
+  Ogre::Vector3 InitialPosition;
+  std::string MeshName;
+  std::string EntityName;
+  Player* GamePlayer;
+  float Health;
+  float Radius;
+  float Power;
+  int PlayerId;
+  CreateAttackingEntityEvent(std::string NodeN, std::string MeshN,
+                             std::string EntN, Ogre::Vector3 InitP, Player* P,
+                             float H, float R, float Pwr, int Id)
+      : NodeName(NodeN),
+        MeshName(MeshN),
+        EntityName(EntN),
+        InitialPosition(InitP),
+        GamePlayer(P),
+        Health(H),
+        Radius(R),
+        Power(Pwr),
+        PlayerId(Id) {}
+};
 struct ChangeGlobeVisibilityEvent {
   bool Visible;
   ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}
+};
+
+struct CachedEntitiesReturnEvent {
+  std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
+      Entities;
+  CachedEntitiesReturnEvent(
+      std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
+          Ents)
+      : Entities(Ents) {}
 };

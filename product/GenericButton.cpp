@@ -44,3 +44,10 @@ void GenericButton::ChangeVisibility(bool Visible) {
       "UI_Overlay_" + std::to_string(Id), Name + "_text_" + std::to_string(Id),
       Visible));
 }
+
+void GenericButton::MaintainScaling() {
+  RenderSystem& RS = RenderSystem::GetInstance();
+  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
+      Name + "_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
+      {0.03f, 0.03f}, {-1.f, -1.f}, "USE_OLD"));
+}

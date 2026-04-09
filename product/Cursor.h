@@ -1,22 +1,22 @@
 #pragma once
 #include "CursorEvent.h"
-#include "InputTranslator.h"
 #include "EventBus.h"
+#include "InputTranslator.h"
 #include "RenderSystem.h"
 
 class Cursor {
+ public:
+  void ChangeVisibility(ChangeCursorVisibilityEvent Event);
 
-public:
-	void ChangeVisibility(ChangeCursorVisibilityEvent Event);
+  Cursor(EventBus* ParentBus, InputTranslator* ControlingDevice,
+         int CursorNumber);
 
-	Cursor(EventBus* ParentBus, InputTranslator* ControlingDevice,
-               int CursorNumber);
+  void Update();
 
-	void Update();
-private:
-	InputTranslator* DeviceState;
+ private:
+  InputTranslator* DeviceState;
 
-	EventBus* ForeignBus;
+  EventBus* ForeignBus;
 
-	int CursorID;
+  int CursorID;
 };

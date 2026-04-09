@@ -101,12 +101,11 @@ struct OverlayEditTextEvent {
         NameOfExisting(Name) {}
 };
 struct OverlayAddTextToPanelEvent {
-  std::string PanelName;     
-  std::string TextName;      
-  std::string Text;          
-  std::string MaterialName;  
-  std::vector<float>
-      Position;  
+  std::string PanelName;
+  std::string TextName;
+  std::string Text;
+  std::string MaterialName;
+  std::vector<float> Position;
   std::vector<float> Dimensions;
   OverlayAddTextToPanelEvent(std::string Pn, std::string Tn, std::string txt,
                              std::string Mname, std::vector<float> Pos,
@@ -146,13 +145,13 @@ struct RegisterOnPressCallBackEvent {
   std::string OverlayName;
   std::string ObjectName;
 
-
   std::function<void(EventQueue&)> Callback;
   EventQueue* CallQueue;
   RegisterOnPressCallBackEvent(std::string Overlay, std::string Object,
-                               std::function<void(EventQueue&)> Call, EventQueue* Queue)
+                               std::function<void(EventQueue&)> Call,
+                               EventQueue* Queue)
       : OverlayName(Overlay),
         ObjectName(Object),
         Callback(Call),
-        CallQueue(Queue){}
+        CallQueue(Queue) {}
 };

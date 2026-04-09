@@ -6,9 +6,10 @@
 class PauseState {
  private:
   EventQueue* AppQueue;
+
  public:
   PauseState(EventQueue* CallBacksQueue);
-  ~PauseState(){}
+  ~PauseState() {}
 
   void Init();
   void OnChangeState(ChangeStateEvent Event);

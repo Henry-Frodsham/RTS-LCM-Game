@@ -11,12 +11,6 @@ PlayerUI::PlayerUI(Player* player, int ThreadId)
 void PlayerUI::SetUp() {
   RenderSystem& RS = RenderSystem::GetInstance();
   RS.RenderQueue->Enqueue(OverlayAddTextEvent(
-      {0.02f, 0.1f}, {1.f, 1.f}, "Cities_ui_" + std::to_string(Id), "RED",
-      "UI_Overlay_" + std::to_string(Id), "Cities - 0"));
-  RS.RenderQueue->Enqueue(OverlayAddTextEvent(
-      {0.02f, 0.12f}, {1.f, 1.f}, "Units_ui_" + std::to_string(Id), "RED",
-      "UI_Overlay_" + std::to_string(Id), "Units - 0"));
-  RS.RenderQueue->Enqueue(OverlayAddTextEvent(
       {0.02f, 0.14f}, {1.f, 1.f}, "UnitsA_ui_" + std::to_string(Id), "RED",
       "UI_Overlay_" + std::to_string(Id), "Units Available - 0"));
   RS.RenderQueue->Enqueue(OverlayAddTextEvent(
@@ -33,20 +27,6 @@ void PlayerUI::SetUp() {
 void PlayerUI::Update() {
   PlayerUIQueue->Dispatch();
   RenderSystem& RS = RenderSystem::GetInstance();
-  if (GamePlayer->Cities != KnownCities) {
-    RS.RenderQueue->Enqueue(OverlayEditTextEvent(
-        "Cities_ui_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
-        {-1.f, -1.f}, {-1.f, -1.f}, "USE_OLD",
-        "Cities -  " + std::to_string(GamePlayer->Cities)));
-    KnownCities = GamePlayer->Cities;
-  }
-  if (GamePlayer->Units != KnownUnits) {
-    RS.RenderQueue->Enqueue(OverlayEditTextEvent(
-        "Units_ui_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
-        {-1.f, -1.f}, {-1.f, -1.f}, "USE_OLD",
-        "Units -  " + std::to_string(GamePlayer->Units)));
-    KnownUnits = GamePlayer->Units;
-  }
   if (GamePlayer->AvailableUnits != KnownAUnits) {
     RS.RenderQueue->Enqueue(OverlayEditTextEvent(
         "UnitsA_ui_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),

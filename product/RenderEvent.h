@@ -4,6 +4,9 @@
 
 #include <functional>
 #include <string>
+#include <unordered_set>
+
+#include "CommonGameObjectComponents.h"
 
 // unimplemented as of yet, render events will be used for instance threads to
 // interact with ogre::root along with other RenderSystem owned ogre systems
@@ -73,4 +76,25 @@ struct AddOwnerShipToEntEvent {
   int OwnershipId;
   AddOwnerShipToEntEvent(Ogre::SceneNode* N, int Id)
       : Node(N), OwnershipId(Id) {}
+};
+
+struct CacheRangeQueryEvent {
+  float GeneralRange = 10.f;
+  std::unordered_map<Ogre::SceneNode*, OwnershipComponent> Entities;
+  EventQueue* Queue;
+  CacheRangeQueryEvent(
+      float GR, std::unordered_map<Ogre::SceneNode*, OwnershipComponent> Ents,
+      EventQueue* Q)
+      : GeneralRange(GR), Entities(Ents), Queue(Q) {}
+};
+
+struct DestroyNodeEvent {
+  Ogre::SceneNode* NodeToDestroy;
+  DestroyNodeEvent(Ogre::SceneNode* Node) : NodeToDestroy(Node) {}
+};
+
+
+struct DestroyEntityEvent {
+  Ogre::Entity* EntityToDestroy;
+  DestroyEntityEvent(Ogre::Entity* Node) : EntityToDestroy(Node) {}
 };

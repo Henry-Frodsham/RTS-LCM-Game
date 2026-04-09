@@ -350,5 +350,8 @@
     <ClInclude Include="PlayerEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
+    <ClInclude Include="MatrixableInteractionEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

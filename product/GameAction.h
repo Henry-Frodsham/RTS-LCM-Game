@@ -18,5 +18,6 @@ struct ActionContext {
       : MouseX(X),
         MouseY(Y),
         JustPressed(Pressed),
-        ThreadId(ThreadNum), ActioningDevice(Dev) {}
+        ThreadId(ThreadNum),
+        ActioningDevice(Dev) {}
 };

@@ -1,4 +1,5 @@
 #include "InteractionWheel.h"
+
 #include "EntityConstructionTemplates.h"
 InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
                                    ECSHelper* Interactor, Player* Play) {
@@ -18,8 +19,7 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
       std::bind(&InteractionWheel::ShareInfoSelectedEntReceive, this,
                 std::placeholders::_1));
   ForeignNotifBus->Subscribe<NotifyPosEvent>(std::bind(
-      &InteractionWheel::ShareInfoHitPosReceive, this,
-                std::placeholders::_1));
+      &InteractionWheel::ShareInfoHitPosReceive, this, std::placeholders::_1));
   ForeignNotifBus->Subscribe<NotifyLatLonEvent>(std::bind(
       &InteractionWheel::ShareInfoLatLonReceive, this, std::placeholders::_1));
   ForeignNotifBus->Subscribe<CallBackACommand>(std::bind(
@@ -60,14 +60,14 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
   RS.RenderQueue->Enqueue(OverlayAddTextToPanelEvent{
       "interaction_wheel_B" + std::to_string(ThreadID),
       "interaction_wheel_B_text_" + std::to_string(ThreadID),
-      "DEST",
+      "DES",
       "WHITE",
       {0.f, 0.f},
       {1.f, 1.f}});
   RS.RenderQueue->Enqueue(OverlayAddTextToPanelEvent{
       "interaction_wheel_C" + std::to_string(ThreadID),
       "interaction_wheel_C_text_" + std::to_string(ThreadID),
-      "MOVE",
+      "MOV",
       "WHITE",
       {0.f, 0.f},
       {1.f, 1.f}});
@@ -122,6 +122,7 @@ void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   ActionContext Context = Cmd.Context;
 
   std::vector<float> Dimensions = DeviceState->GetViewPortDimensions();
+  std::vector<float> SDimensions = DeviceState->GetScreenDimensions();
   Visibility = !Visibility;
   RenderSystem& RS = RenderSystem::GetInstance();
   RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
@@ -148,25 +149,29 @@ void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
       "interaction_wheel_D_text_" + std::to_string(ThreadID), Visibility));
+
+  float scaleX = SDimensions[0] / static_cast<float>(Dimensions[0]);
+  float scaleY = SDimensions[1] / static_cast<float>(Dimensions[1]);
+
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
       "interaction_wheel_A" + std::to_string(ThreadID),
-      "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
+      "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
       {Context.MouseX / Dimensions[0], Context.MouseY / Dimensions[1]}));
-  RS.RenderQueue->Enqueue(
-      OverlayEditPanelEvent("interaction_wheel_B" + std::to_string(ThreadID),
-                            "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
-                            {(Context.MouseX / Dimensions[0]) + 0.03f,
-                             Context.MouseY / Dimensions[1]}));
-  RS.RenderQueue->Enqueue(
-      OverlayEditPanelEvent("interaction_wheel_C" + std::to_string(ThreadID),
-                            "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
-                            {Context.MouseX / Dimensions[0],
-                             (Context.MouseY / Dimensions[1]) - 0.03f}));
-  RS.RenderQueue->Enqueue(
-      OverlayEditPanelEvent("interaction_wheel_D" + std::to_string(ThreadID),
-                            "UI_Overlay_" + std::to_string(ThreadID), {-1, -1},
-                            {(Context.MouseX / Dimensions[0]) + 0.03f,
-                             (Context.MouseY / Dimensions[1]) - 0.03f}));
+  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
+      "interaction_wheel_B" + std::to_string(ThreadID),
+      "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
+      {(Context.MouseX / Dimensions[0]) + (0.03f*scaleX),
+       Context.MouseY / Dimensions[1]}));
+  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
+      "interaction_wheel_C" + std::to_string(ThreadID),
+      "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
+      {Context.MouseX / Dimensions[0],
+       (Context.MouseY / Dimensions[1]) - 0.03f}));
+  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
+      "interaction_wheel_D" + std::to_string(ThreadID),
+      "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
+      {(Context.MouseX / Dimensions[0]) + (0.03f*scaleX),
+       (Context.MouseY / Dimensions[1]) - 0.03f}));
 
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
@@ -202,26 +207,30 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
 
       std::shared_ptr<entt::entity> Ent =
           EntityTemplates::CreateUnitProducingGameObject(
-          Factory,
-          CreateUnitProducingGameObjectEvent(Info.NodeName, "city.mesh", Info.EntName,
-                                Position, GamePlayer,30, ThreadID));
+              Factory, CreateUnitProducingGameObjectEvent(
+                           Info.NodeName, "city.mesh", Info.EntName, Position,
+                           GamePlayer, 30, ThreadID));
       GamePlayer->AvailableCities -= 1;
     }
 
-    //GamePlayer->PlaceCity(Factory,Position);
+    // GamePlayer->PlaceCity(Factory,Position);
   }
 }
 void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
-  //destroy
+  // destroy
+  if (SelectedEntity != nullptr) {
+    RenderSystem& RS = RenderSystem::GetInstance();
+    RS.RenderQueue->Enqueue(DestroyEntityEvent(SelectedEntity));
+    SelectedEntity = nullptr;
+  }
 
 }
-void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) { 
-  //move
+void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
+  // move
   if (SelectedEntity != nullptr &&
       SelectedEntity->getParentSceneNode() != nullptr) {
-
     RenderSystem& RS = RenderSystem::GetInstance();
-    RS.RenderQueue->Enqueue(SetEntPositionEvent(SelectedEntity,Position));
+    RS.RenderQueue->Enqueue(SetEntPositionEvent(SelectedEntity, Position));
     RS.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
         SelectedEntity, Ogre::Vector3(0.5f, 0.f, -5.f)));
     /*
@@ -230,17 +239,16 @@ void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
     */
   }
 }
-void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) { 
-  //unit
+void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
+  // unit
   if (!Position.isNaN()) {
-    
-
     if (GamePlayer->AvailableUnits >= 1) {
       UnitConstructionInfo Info = GamePlayer->PreUnitPlace();
-      std::shared_ptr<entt::entity> Ent = EntityTemplates::CreateGameObject(
-          Factory,
-          CreateGameObjectEvent(Info.NodeName, "unit.mesh", Info.EntName,
-                                Position, GamePlayer, ThreadID));
+      std::shared_ptr<entt::entity> Ent =
+          EntityTemplates::CreateAttackingGameObject(
+              Factory, CreateAttackingEntityEvent(
+                           Info.NodeName, "unit.mesh", Info.EntName, Position,
+                           GamePlayer, 100.f, 10.f, 0.3f, ThreadID));
       GamePlayer->AvailableUnits -= 1;
     }
     // GamePlayer->PlaceCity(Factory,Position);

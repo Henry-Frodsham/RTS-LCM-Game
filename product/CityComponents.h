@@ -1,9 +1,6 @@
 #pragma once
 
-
 struct ProducesUnitsComponent {
   int NumPerMinute;
-  ProducesUnitsComponent(int NPM) : NumPerMinute(NPM) {
-
-  }
+  ProducesUnitsComponent(int NPM) : NumPerMinute(NPM) {}
 };

@@ -1,15 +1,16 @@
 #pragma once
-#include "InputTranslator.h"
 #include "EventQueue.h"
-#include "PlayerControlEvent.h"
-#include "RenderSystem.h"
-#include "RayTraceEvent.h"
+#include "InputTranslator.h"
 #include "InteractionWheel.h"
+#include "PlayerControlEvent.h"
+#include "RayTraceEvent.h"
+#include "RenderSystem.h"
 #include "ShareInfoEvent.h"
 
 class PlayerGeneralControl {
  public:
-  PlayerGeneralControl(InputTranslator* Translator, EventQueue* Queue, InteractionWheel* Wheel);
+  PlayerGeneralControl(InputTranslator* Translator, EventQueue* Queue,
+                       InteractionWheel* Wheel);
   InputTranslator* PlayerTranslator;
 
   EventQueue* ControlQueue;
@@ -18,6 +19,7 @@ class PlayerGeneralControl {
   void OnPress(PressActionCommand Cmd);
   void OnCompletedTrace(EndRayTraceResultEvent Event);
   EventBus* TriggerBus;
+
  private:
   EventQueue* TriggerQueue;
 

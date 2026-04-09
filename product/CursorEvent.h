@@ -2,8 +2,6 @@
 #pragma once
 
 struct ChangeCursorVisibilityEvent {
-	bool Visibile;
-	ChangeCursorVisibilityEvent(bool V)  : Visibile(V){
-		 
-	}
+  bool Visibile;
+  ChangeCursorVisibilityEvent(bool V) : Visibile(V) {}
 };
