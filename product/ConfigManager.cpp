@@ -1,6 +1,10 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "ConfigManager.h"
 
+#include <string>
+
+// responsible for loading and storing configs, if a custom file exists then use
+// that. otherwise use the default
 ConfigManager::ConfigManager(std::string BaseName,
                              ErrorReporter* ParentReporter,
                              std::string InstanceName)

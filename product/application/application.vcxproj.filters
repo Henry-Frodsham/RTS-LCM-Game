@@ -25,6 +25,9 @@
     <Filter Include="Source Files\States">
       <UniqueIdentifier>{73c154a1-7b68-4158-8214-09377ebe3e54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Event">
+      <UniqueIdentifier>{f641c02a-c118-41ec-9de7-baa941e2e483}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PausedState.h">
@@ -41,6 +44,12 @@
     </ClInclude>
     <ClInclude Include="ApplicationStateManager.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="AppState.h">
+      <Filter>Header Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="..\StateEvent.h">
+      <Filter>Header Files\Event</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

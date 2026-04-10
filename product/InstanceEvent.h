@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 
@@ -19,6 +19,4 @@ struct UpstreamOrbitViewport2DEvent {
       : RelativeMotion(RM), InstanceRequesting(IR) {}
 };
 
-struct RecheckViewPortSizeCommand {
-
-};
+struct RecheckViewPortSizeCommand {};

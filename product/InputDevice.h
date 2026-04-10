@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <SDL2/SDL.h>
 
@@ -14,7 +14,8 @@ struct InputDevice {
   SDL_Joystick* Controller;
 
   InputDeviceType InputType;
-
+  Sint8 LeftTriggerRawAxis = -1;
+  Sint8 RightTriggerRawAxis = -1;
   InputDevice(SDL_Joystick* Joy, InputDeviceType Type)
       : Controller(Joy), InputType(Type) {}
 };

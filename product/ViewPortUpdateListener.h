@@ -1,21 +1,23 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 #include <OGRE/Overlay/OgreOverlay.h>
+
 #include <unordered_map>
-#include "ViewPortController.h"
+
 #include "ErrorReporter.h"
+#include "ViewPortController.h"
 #include "ViewPortUpdateEvent.h"
 
 class ViewPortUpdateListener : public Ogre::RenderTargetListener {
-private:
-    std::unordered_map<Ogre::Overlay*, ViewPortController*> InstanceViewports;
-    ErrorReporter VPULReporter;
+ private:
+  std::unordered_map<Ogre::Overlay*, ViewPortController*> InstanceViewports;
+  ErrorReporter VPULReporter;
 
-public:
-    ViewPortUpdateListener();
+ public:
+  ViewPortUpdateListener();
 
-    void preViewportUpdate(const Ogre::RenderTargetViewportEvent& evt) override;
+  void preViewportUpdate(const Ogre::RenderTargetViewportEvent& evt) override;
 
-    void AssignOverlayToViewport(RegisterOverlayToViewPortEvent Event);
+  void AssignOverlayToViewport(RegisterOverlayToViewPortEvent Event);
 };

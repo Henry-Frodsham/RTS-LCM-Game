@@ -1,37 +1,45 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "InputAnalyser.h"
 
+#include <vector>
 InputAnalyser::InputAnalyser() {
   MetricBus = new EventBus();
   MetricQueue = new EventQueue(MetricBus);
   MetricError = new ErrorReporter();
 }
 
+// register a new device to be analysed
+// creates an overlay for it
 void InputAnalyser::RegisterNew(InputTranslator* NewTranslator) {
   Translators.push_back(NewTranslator);
   InputMetrics.emplace(InputMetric(0, 0, 0), NewTranslator);
 
   RenderSystem& Renderer = RenderSystem::GetInstance();
 
-  Renderer.RenderQueue->Enqueue(CreateOverlayEvent("DEBUG_" + std::to_string(Translators.size()), NewTranslator->ManagedDevice));
+  Renderer.RenderQueue->Enqueue(
+      CreateOverlayEvent("DEBUG_" + std::to_string(Translators.size()),
+                         NewTranslator->ManagedDevice));
 
   Renderer.RenderQueue->Enqueue(OverlayAddTextEvent(
-      {0.f, 0.f}, {1.f, 1.f},
-      "M_DEV_" + std::to_string(Translators.size()), "RED", "DEBUG_" + std::to_string(Translators.size()),
+      {0.f, 0.f}, {1.f, 1.f}, "M_DEV_" + std::to_string(Translators.size()),
+      "RED", "DEBUG_" + std::to_string(Translators.size()),
       "DEVICE " + std::to_string(Translators.size())));
   Renderer.RenderQueue->Enqueue(OverlayAddTextEvent(
-      {0.02f, 0.02f}, {1.f, 1.f},
-      "M_MET_" + std::to_string(Translators.size()), "RED", "DEBUG_" + std::to_string(Translators.size()),
+      {0.02f, 0.02f}, {1.f, 1.f}, "M_MET_" + std::to_string(Translators.size()),
+      "RED", "DEBUG_" + std::to_string(Translators.size()),
       "PRESSED BUTTONS/KEYS " + std::to_string(Translators.size())));
-  Renderer.RenderQueue->Enqueue(OverlayAddTextEvent(
-      {0.02f, 0.04f}, {1.f, 1.f},
-      "M_MET_C" + std::to_string(Translators.size()), "RED", "DEBUG_" + std::to_string(Translators.size()),
-      "AXIS/CURSOR " + std::to_string(Translators.size())));
+  Renderer.RenderQueue->Enqueue(
+      OverlayAddTextEvent({0.02f, 0.04f}, {1.f, 1.f},
+                          "M_MET_C" + std::to_string(Translators.size()), "RED",
+                          "DEBUG_" + std::to_string(Translators.size()),
+                          "AXIS/CURSOR " + std::to_string(Translators.size())));
   Renderer.RenderQueue->Enqueue(OverlayAddTextEvent(
       {0.02f, 0.06f}, {1.f, 1.f}, "M_FPS" + std::to_string(Translators.size()),
       "RED", "DEBUG_" + std::to_string(Translators.size()), "FPS - 0"));
 }
 
+// updates the overlay in realtime
+// using events sent to render thread
 void InputAnalyser::Update(float DeltaTime) {
   MetricQueue->Dispatch();
   MetricError->Dispatch();
@@ -43,14 +51,15 @@ void InputAnalyser::Update(float DeltaTime) {
     std::vector<float> VecPos = TranslatorToUpdate->GetCurrentAxis();
 
     Renderer.RenderQueue->Enqueue(OverlayEditTextEvent(
-        "M_MET_" + std::to_string(i + 1), "DEBUG_" +  std::to_string(i+1), {-1.f, -1.f}, {-1.f, -1.f},
-        "USE_OLD", "PRESSED BUTTONS/KEYS " + std::to_string(NumKeys)));
+        "M_MET_" + std::to_string(i + 1), "DEBUG_" + std::to_string(i + 1),
+        {-1.f, -1.f}, {-1.f, -1.f}, "USE_OLD",
+        "PRESSED BUTTONS/KEYS " + std::to_string(NumKeys)));
 
     Renderer.RenderQueue->Enqueue(OverlayEditTextEvent(
-        "M_MET_C" + std::to_string(i + 1), "DEBUG_" + std::to_string(i+1), {-1.f, -1.f}, {-1.f, -1.f},
-        "USE_OLD",
+        "M_MET_C" + std::to_string(i + 1), "DEBUG_" + std::to_string(i + 1),
+        {-1.f, -1.f}, {-1.f, -1.f}, "USE_OLD",
         fmt::format("AXIS X : {} AXIS Y : {}", VecPos[0], VecPos[1])));
-    //avoid division by 0
+    // avoid division by 0
     if (DeltaTime != 0.f) {
       Renderer.RenderQueue->Enqueue(OverlayEditTextEvent(
           "M_FPS" + std::to_string(i + 1), "DEBUG_" + std::to_string(i + 1),

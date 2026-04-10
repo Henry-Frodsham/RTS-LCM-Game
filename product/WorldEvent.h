@@ -1,9 +1,13 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 
 #include <entt/entt.hpp>
-#include <string>
+#include <string>  // NOLINT(build/include_order)
+#include <unordered_map>  // NOLINT(build/include_order)
+#include <unordered_set>  // NOLINT(build/include_order)
+
+#include "Player.h"
 
 // these events are for convenience only and dont provide an architectural
 // benefit they are simply blueprints to create simple entities quickly
@@ -35,4 +39,75 @@ struct CreateMeshWorldEntityEvent {
         InitialPosition(InitP) {}
 };
 
-// edit already created entities
+struct CreateGameObjectEvent {
+  std::string NodeName;
+  Ogre::Vector3 InitialPosition;
+  std::string MeshName;
+  std::string EntityName;
+  Player* GamePlayer;
+  int PlayerId;
+  CreateGameObjectEvent(std::string NodeN, std::string MeshN, std::string EntN,
+                        Ogre::Vector3 InitP, Player* P, int Id)
+      : NodeName(NodeN),
+        MeshName(MeshN),
+        EntityName(EntN),
+        InitialPosition(InitP),
+        GamePlayer(P),
+        PlayerId(Id) {}
+};
+
+struct CreateUnitProducingGameObjectEvent {
+  std::string NodeName;
+  Ogre::Vector3 InitialPosition;
+  std::string MeshName;
+  std::string EntityName;
+  Player* GamePlayer;
+  int UnitProdPerM;
+  int PlayerId;
+  CreateUnitProducingGameObjectEvent(std::string NodeN, std::string MeshN,
+                                     std::string EntN, Ogre::Vector3 InitP,
+                                     Player* P, int UPM, int Id)
+      : NodeName(NodeN),
+        MeshName(MeshN),
+        EntityName(EntN),
+        InitialPosition(InitP),
+        GamePlayer(P),
+        UnitProdPerM(UPM),
+        PlayerId(Id) {}
+};
+struct CreateAttackingEntityEvent {
+  std::string NodeName;
+  Ogre::Vector3 InitialPosition;
+  std::string MeshName;
+  std::string EntityName;
+  Player* GamePlayer;
+  float Health;
+  float Radius;
+  float Power;
+  int PlayerId;
+  CreateAttackingEntityEvent(std::string NodeN, std::string MeshN,
+                             std::string EntN, Ogre::Vector3 InitP, Player* P,
+                             float H, float R, float Pwr, int Id)
+      : NodeName(NodeN),
+        MeshName(MeshN),
+        EntityName(EntN),
+        InitialPosition(InitP),
+        GamePlayer(P),
+        Health(H),
+        Radius(R),
+        Power(Pwr),
+        PlayerId(Id) {}
+};
+struct ChangeGlobeVisibilityEvent {
+  bool Visible;
+  explicit ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}
+};
+
+struct CachedEntitiesReturnEvent {
+  std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
+      Entities;
+  CachedEntitiesReturnEvent(
+      std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
+          Ents)
+      : Entities(Ents) {}
+};

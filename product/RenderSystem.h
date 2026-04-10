@@ -1,13 +1,14 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <OGRE/Ogre.h>
 #include <OGRE/Overlay/OgreImGuiOverlay.h>
 #include <OGRE/Overlay/OgreOverlaySystem.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 #include <Windows.h>
 
-#include <filesystem>
+#include <filesystem>  // NOLINT(build/c++17)
 #include <iostream>
 #include <string>
 #include <vector>
@@ -18,10 +19,12 @@
 #include "EventQueue.h"
 #include "OverlayController.h"
 #include "OverlayEvent.h"
-#include "ViewPortController.h"
+#include "RayTraceEvent.h"
 #include "RenderEvent.h"
-#include "ViewPortUpdateListener.h"
+#include "ViewPortController.h"
 #include "ViewPortUpdateEvent.h"
+#include "ViewPortUpdateListener.h"
+#include "WorldEvent.h"
 
 // base rendering system in singleton pattern
 // responsible for attaching models to the main game map, and for creating
@@ -39,6 +42,8 @@ class RenderSystem {
 
   Ogre::Root* OgreRoot;
   Ogre::SceneManager* SceneManager;
+
+  Ogre::RaySceneQuery* RaySceneQuery;
 
   SDL_Window* SDLWindow;
 
@@ -77,9 +82,23 @@ class RenderSystem {
 
   void SetNodePositionFromEvent(SetNodePositionEvent Event);
 
+  void SetEntPosFromEvent(SetEntPositionEvent Event);
   void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
 
-  
+  void AssembleRayTraceEvent(StartRayTraceEvent Event);
+
+  void ScaleEntityFromEvent(ScaleEntityEvent Event);
+
+  void RotateEntityToSurfaceNormal(RotateEntToSurfaceNormalEvent Event);
+
+  void ChangeEntityMaterial(ChangeEntMaterialEvent Event);
+
+  void AddOwnerShipToEnt(AddOwnerShipToEntEvent Event);
+
+  void CacheRangeEntitiesAndCallback(CacheRangeQueryEvent Event);
+
+  void DestroyNode(DestroyNodeEvent Event);
+  void DestroyEntity(DestroyEntityEvent Event);
 
  public:
   static RenderSystem& GetInstance();
@@ -109,6 +128,8 @@ class RenderSystem {
   ViewPortController* GetPrimaryViewport();
 
   float GetDeltaTime();
+
+  std::vector<float> GetRenderWindowDimensions();
 
   ViewPortController* FindViewPortFromDevice(InputDevice* Device);
 };

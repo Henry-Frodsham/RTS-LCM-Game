@@ -13,7 +13,7 @@ material antartica
             ambient 0.77 0.75 0.8 1.0
             texture_unit
             {
-                colour_op_ex source1 src_current src_current
+                colour_op_ex source1 src_manual src_current 0.77 0.75 0.8
                 alpha_op_ex source1 src_current src_current
             }
         }

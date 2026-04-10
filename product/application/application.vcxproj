@@ -111,20 +111,14 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
       <Command>@echo off
 setlocal enabledelayedexpansion
 
-set "PROJECT_DIR=$(ProjectDir)"
-set "EXTENSIONS=*.cpp *.h *.cc *.hpp"
-
-for %%E in (%EXTENSIONS%) do (
-    for /f "delims=" %%f in ('dir /b /s "%PROJECT_DIR%%%E" 2^&gt;nul ^| findstr /v /i "vcpkg_installed"') do (
-        cpplint "%%f" 2&gt;&amp;1
-    )
-)
-
 exit /b 0
 xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
 xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
 xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -167,6 +161,9 @@ xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configur
 xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
 xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -194,20 +191,14 @@ xcopy /D /Y "$(SolutionDir)vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\debug
       <Command>@echo off
 setlocal enabledelayedexpansion
 
-set "PROJECT_DIR=$(ProjectDir)"
-set "EXTENSIONS=*.cpp *.h *.cc *.hpp"
-
-for %%E in (%EXTENSIONS%) do (
-    for /f "delims=" %%f in ('dir /b /s "%PROJECT_DIR%%%E" 2^&gt;nul ^| findstr /v /i "vcpkg_installed"') do (
-        cpplint "%%f" 2&gt;&amp;1
-    )
-)
-
 exit /b 0
 xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configuration)\"
 xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
 xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -250,6 +241,9 @@ xcopy /Y /D "$(SolutionDir)plugins_d.cfg" "$(SolutionDir)\$(Platform)\$(configur
 xcopy "$(SolutionDir)resources\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\resources\" /E /Y /I
 xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\config\" /E /Y /I</Command>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -265,8 +259,10 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\StateEvent.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="ApplicationStateManager.h" />
+    <ClInclude Include="AppState.h" />
     <ClInclude Include="GamePlayState.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="PausedState.h" />

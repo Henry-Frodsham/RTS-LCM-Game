@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <SDL2/SDL.h>
 
@@ -31,7 +31,7 @@ struct RawButtonEvent {
 // mouse on the screen example usage SomeQueue.enqueue(RawCursorEvent(Event))
 struct RawCursorEvent {
   SDL_MouseMotionEvent Cursor;
-  RawCursorEvent(SDL_MouseMotionEvent MCursor) : Cursor(MCursor) {}
+  explicit RawCursorEvent(SDL_MouseMotionEvent MCursor) : Cursor(MCursor) {}
 };
 
 // raw individual joystick movement event generated from the poll event loop
@@ -40,15 +40,17 @@ struct RawCursorEvent {
 // SomeQueue.enqueue(RawAxisEvent(Event))
 struct RawAxisEvent {
   SDL_JoyAxisEvent Axis;
-  RawAxisEvent(SDL_JoyAxisEvent JAxis) : Axis(JAxis) {}
+  explicit RawAxisEvent(SDL_JoyAxisEvent JAxis) : Axis(JAxis) {}
 };
 
+// SDL event for mouse buttons e.g mouse4
 struct RawMouseButtonEvent {
   SDL_MouseButtonEvent Button;
   bool Released;
   RawMouseButtonEvent(SDL_MouseButtonEvent RawButton, bool IsReleased)
       : Button(RawButton), Released(IsReleased) {}
 };
+// SDL event for triggers e.g LT and RT
 struct RawTriggerEvent {
   SDL_JoyAxisEvent AxisEvent;
   float NormalizedValue;

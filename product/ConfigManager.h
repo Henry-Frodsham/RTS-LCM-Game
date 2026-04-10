@@ -1,8 +1,9 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
-#include <filesystem>
+#include <filesystem>  // NOLINT(build/c++17)
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <string>  // NOLINT(build/include_order)
 
 #include "ErrorReporter.h"
 

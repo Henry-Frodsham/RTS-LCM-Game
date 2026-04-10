@@ -1,12 +1,16 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <entt/entt.hpp>
+#include <string>  // NOLINT(build/include_order)
 
 #include "BaseComponents.h"
+#include "CityComponents.h"
+#include "CommonGameObjectComponents.h"
 #include "ECSFactoryEvent.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "RenderSystem.h"
+#include "UnitComponents.h"
 
 // creates ECS entities
 // seperated from WorldManager to consider future implementation of multiple ECS
@@ -17,7 +21,14 @@ class ECSHelper {
   ECSHelper(entt::registry* Registry, ErrorReporter* Reporter);
   ECSHelper() = default;
 
+  template <typename T>
+  T* TryGetComponent(entt::entity entity) {
+    return RegistryToUse->try_get<T>(entity);
+  }
+
   EventQueue* FactoryQueue;
+  void ChangeEntityVisibility(ChangeEntityVisibilityEvent Event);
+  void MoveEntityAlongSpherical(MoveEntityAlongSphericalEvent Event);
 
  private:
   EventBus* FactoryBus;
@@ -31,4 +42,15 @@ class ECSHelper {
   void CreateAndAddOgreComponent(AddOgreComponentEvent Event);
 
   void CreateAndAddMeshComponent(AddMeshComponentEvent Event);
+
+  void CreateAndAddOwnerShipComponent(AddOwnerShipComponentEvent Event);
+
+  void CreateandAddUnitProductionComponent(AddUnitProductionEvent Event);
+
+  void CreateandAddAttackComponent(AddAttackEvent Event);
+
+  void CreateandAddHealthComponent(AddHealthEvent Event);
+
+  void OrientateAndAdditionalSetup(OrientateEntityEvent Event);
+  OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
 };

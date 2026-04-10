@@ -1,16 +1,22 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
+#include "Cursor.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "InputListener.h"
 #include "InputTranslator.h"
 #include "InteractionWheel.h"
-#include "Cursor.h"
+#include "Player.h"
+#include "PlayerGeneralControl.h"
+#include "PlayerUI.h"
 
 class GameInstance {
  public:
   GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ, InputDevice* Device,
-               InputTranslator* DeviceTranslator, InteractionWheel* UIWheel, int ThreadNumber);
+               InputTranslator* DeviceTranslator, InteractionWheel* UIWheel,
+               PlayerUI* PlayerInterface, Player* InstancePlayer,
+               int ThreadNumber);
 
   void Run(float DT);
   EventQueue* LocalQueue;
@@ -18,6 +24,7 @@ class GameInstance {
   InputDevice* InstanceDevice;
 
   int InstanceNumber;
+
  private:
   ErrorReporter* ParentReporter;
 
@@ -35,4 +42,10 @@ class GameInstance {
   Cursor* InstanceCursor;
 
   InteractionWheel* InstanceUIWheel;
+
+  PlayerUI* PlayerUIOverlay;
+  Player* GamePlayer;
+  PlayerGeneralControl* PlayerControl;
+
+  void SetUpResponsibility();
 };

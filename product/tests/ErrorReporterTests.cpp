@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Henry Frodsham
 #include <doctest/doctest.h>
 
 #include "ErrorReporter.h"

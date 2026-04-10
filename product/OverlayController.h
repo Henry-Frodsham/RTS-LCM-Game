@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 #include <OGRE/OgrePrerequisites.h>
@@ -12,12 +12,13 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
-#include "SharedInputEvent.h"
+#include <string>
 
+#include "ActionCommand.h"
 #include "ErrorReporter.h"
 #include "OverlayEvent.h"
 #include "OverlayInfo.h"
-#include "ActionCommand.h"
+#include "SharedInputEvent.h"
 
 // owned by RenderSystem exclusively
 // exclusively handles Overlay item creation and management
@@ -40,7 +41,7 @@ class OverlayController {
   void AddBox(OverlayAddBoxEvent Event);
 
   void AddText(OverlayAddTextEvent Event);
-
+  void AddTextToPanel(OverlayAddTextToPanelEvent Event);
   void EditPanel(OverlayEditPanelEvent Event);
 
   void EditText(OverlayEditTextEvent Event);
@@ -51,10 +52,10 @@ class OverlayController {
 
   void OverlayCursorCheck(CursorMovementEvent Event);
   void OverlayPressedCheck(PressActionCommand Cmd);
-
-  void OverlayHovered(Ogre::OverlayElement* Element);
-  void OverlayPressed(Ogre::OverlayElement* Element);
-  void OverlayReleased(Ogre::OverlayElement* Element);
+  void RegisterOnPressCallBack(RegisterOnPressCallBackEvent Event);
+  void OverlayHovered(Ogre::OverlayElement* Element, OverlayInfo* Info);
+  void OverlayPressed(Ogre::OverlayElement* Element, OverlayInfo* Info);
+  void OverlayReleased(Ogre::OverlayElement* Element, OverlayInfo* Info);
   void ParentUpdate();
 
   void InitFont();

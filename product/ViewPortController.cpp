@@ -1,5 +1,7 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "ViewPortController.h"
+
+#include <vector>
 
 // constructor
 ViewPortController::ViewPortController(Ogre::Viewport* NewVP) {
@@ -12,15 +14,15 @@ void ViewPortController::setOverlaysEnabled(bool Val) {
 }
 
 void ViewPortController::RegisterControllingDevice(InputDevice* Device) {
-    ControllingDevice = Device;
+  ControllingDevice = Device;
 }
 
 bool ViewPortController::IsControllerByDevice(InputDevice* Device) {
-    return ControllingDevice == Device;
+  return ControllingDevice == Device;
 }
 
 bool ViewPortController::Equals(Ogre::Viewport* OtherViewport) {
-    return OtherViewport == ViewPort;
+  return OtherViewport == ViewPort;
 }
 
 // adjust camera viewing angle
@@ -59,12 +61,27 @@ std::vector<float> ViewPortController::GetCameraAngle() {
   return Angles;
 }
 
+EndRayTraceResultEvent ViewPortController::TraceRay(StartRayTraceEvent Event) {
+  Ogre::Camera* RayC = ViewPort->getCamera();
+
+  Ogre::Ray MouseRay =
+      RayC->getCameraToViewportRay(Event.Point[0], Event.Point[1]);
+
+  Event.RaySceneQuery->setRay(MouseRay);
+  Ogre::RaySceneQueryResult& Result = Event.RaySceneQuery->execute();
+
+  return (EndRayTraceResultEvent(Result, MouseRay));
+}
+
 // get the dimensions of a specific split screen instance
 std::vector<float> ViewPortController::GetViewPortDimensions() {
   return std::vector<float>{ViewPort->getLeft(), ViewPort->getTop(),
                             ViewPort->getWidth(), ViewPort->getHeight()};
 }
-
+std::vector<int> ViewPortController::GetActualDimensions() {
+  return std::vector<int>{ViewPort->getActualWidth(),
+                            ViewPort->getActualHeight()};
+}
 void ViewPortController::MoveCameraOrbitingPoint2DMotion(
     Ogre::Vector2f RelativeMotion, Ogre::Vector3f OrbitPoint) {
   Ogre::Camera* Camera = ViewPort->getCamera();

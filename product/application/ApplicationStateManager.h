@@ -1,21 +1,21 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
+#include "AppState.h"
 #include "GamePlayState.h"
 #include "MenuState.h"
 #include "PausedState.h"
-
-// the different states the game can be in, used to prevent too much logic being
-// processed when unnecessary
-enum AppState { GAME, MENU, PAUSE };
+#include "StateEvent.h"
 
 // controls the state of the application by controlling which update function to
 // call
 class ApplicationStateManager {
  public:
   ApplicationStateManager();
-  ~ApplicationStateManager() {};
+  ~ApplicationStateManager() {}
 
   AppState CurrentState;
+
+  void ChangeApplicationState(ChangeStateEvent Event);
 
  private:
 };

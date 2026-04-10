@@ -1,10 +1,12 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 #include <OGRE/OgrePrerequisites.h>
 
 #include <vector>
+
 #include "InputDevice.h"
+#include "RayTraceEvent.h"
 
 // view port (camera) for each split screen instance
 class ViewPortController {
@@ -34,8 +36,8 @@ class ViewPortController {
   // destroys the frame buffer
   void Clear();
 
-
-  //comparison with another viewport without allowing direct access to the viewport
+  // comparison with another viewport without allowing direct access to the
+  // viewport
   bool Equals(Ogre::Viewport* OtherViewport);
   // motion doesnt consider a 3d coordinate because the orbit is at a fixed
   // depth
@@ -45,14 +47,16 @@ class ViewPortController {
 
   bool IsControllerByDevice(InputDevice* Device);
 
+  EndRayTraceResultEvent TraceRay(StartRayTraceEvent Event);
   // Copy constructor - required for vector storage
   ViewPortController(const ViewPortController&) = default;
   // Move constructor
   ViewPortController(ViewPortController&&) noexcept = default;
 
-  ViewPortController(Ogre::Viewport* NewVP);
+  explicit ViewPortController(Ogre::Viewport* NewVP);
   ~ViewPortController() {}
 
   std::vector<float> GetCameraAngle();
   std::vector<float> GetViewPortDimensions();
+  std::vector<int> GetActualDimensions();
 };

@@ -61,6 +61,15 @@
     <ClCompile Include="InteractionWheel.cpp">
       <Filter>Source\UI</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerGeneralControl.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="GenericButton.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerUI.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -134,12 +143,6 @@
     </Filter>
     <Filter Include="Headers\instance">
       <UniqueIdentifier>{0a9f0a4e-774c-4a35-988f-19d566d8a519}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Headers\REA">
-      <UniqueIdentifier>{43d1d4c5-fc93-4f7f-acc6-ea5ac3d86047}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\REA">
-      <UniqueIdentifier>{22b2fcb0-4546-4598-b0c9-053679da12b8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\UI">
       <UniqueIdentifier>{8c437e23-2b60-4aff-a4cd-98eccda8bb27}</UniqueIdentifier>
@@ -239,9 +242,6 @@
     <ClInclude Include="InstanceEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Headers\REA</Filter>
-    </ClInclude>
     <ClInclude Include="ViewPortUpdateListener.h">
       <Filter>Headers\Render</Filter>
     </ClInclude>
@@ -276,6 +276,45 @@
       <Filter>Headers\Render</Filter>
     </ClInclude>
     <ClInclude Include="SharedInputEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTraceEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerGeneralControl.h">
+      <Filter>Headers\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerControlEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="GenericButton.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonGameObjectComponents.h">
+      <Filter>Entity Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitComponents.h">
+      <Filter>Entity Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ShareInfoEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="InteractionWheelCallbackCommands.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerConstructionInfo.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerUI.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="CityComponents.h">
+      <Filter>Entity Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="MatrixableInteractionEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,17 +1,19 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "Application.h"
 
-#include "InputAnalyser.h"
-#include "InputListener.h"
-#include "InputTranslator.h"
-#include "RenderSystem.h"
-#include "WorldManager.h"
-#include "instanceOverseer.h"
-
+#include <vector>
 Application::Application()
-    : IndependantThreads(std::thread::hardware_concurrency()) {
-  StateManager = ApplicationStateManager();
-}
+    : IndependantThreads(std::thread::hardware_concurrency()),
+      RenderSingleton(RenderSystem::GetInstance()),
+      Input(InputListener(InitAndGetWindow(RenderSingleton))),
+      WM(WorldManager()),
+      Instances(InstanceOverseer(&UpdateAndReturn(), WM.CompFactory)),
+      StateManager(ApplicationStateManager()),
+      Appbus(new EventBus()),
+      AppQueue(new EventQueue(Appbus)),
+      Menu(MenuState(AppQueue)),
+      Game(GameState(AppQueue, &WM)),
+      Pause(PauseState(AppQueue)) {}
 
 // initialises game into the correct state, by default the game starts at the
 // menu so MENU state
@@ -20,47 +22,63 @@ void Application::Start() {
   Loop();
 }
 
-// sets up rendering engine and input system
+// initialise the app and its states
 bool Application::Init() {
-  // get singleton to force init
-  RenderSystem& RenderSingleton = RenderSystem::GetInstance();
-  RenderSingleton.Init();
+  Menu.Init();
+  Game.Init();
+  Pause.Init();
+
+  Appbus->Subscribe<ChangeStateEvent>(
+      std::bind(&ApplicationStateManager::ChangeApplicationState, &StateManager,
+                std::placeholders::_1));
+  Appbus->Subscribe<ChangeStateEvent>(
+      std::bind(&MenuState::OnChangeState, &Menu, std::placeholders::_1));
+  Appbus->Subscribe<ChangeStateEvent>(
+      std::bind(&GameState::OnChangeState, &Game, std::placeholders::_1));
+  Appbus->Subscribe<ChangeStateEvent>(
+      std::bind(&PauseState::OnChangeState, &Pause, std::placeholders::_1));
 
   return false;
 }
 
+// helper method to enforce correct initialising order of worldmanager
+SDL_Window* Application::InitAndGetWindow(RenderSystem& Render) {
+  Render.Init();
+  return Render.GetSDLWindow();
+}
+
+InputListener& Application::UpdateAndReturn() {
+  Input.Update();
+  return Input;
+}
 // state reactive loop
 void Application::Loop() {
   RenderSystem& RenderSingleton = RenderSystem::GetInstance();
-  
-  InputListener Input = InputListener(RenderSingleton.GetSDLWindow());
-  Input.Update();
-
-  WorldManager WM = WorldManager();
-  
-
-  InstanceOverseer Instances = InstanceOverseer(&Input);
-
   InputAnalyser& InputAnalysisSingleton = InputAnalyser::GetInstance();
   while (true) {
+    AppQueue->Dispatch();
     std::vector<std::future<void>> Futures;
     Futures.reserve(3);
 
     RenderSingleton.RenderFrame();  // all interactions with ogre need to be run
                                     // in the main thread
-
-    Futures.push_back(IndependantThreads.submit_task([&WM]() { WM.update(); }));
     float DT = RenderSingleton.GetDeltaTime();
+    Futures.push_back(
+        IndependantThreads.submit_task([this, DT]() { WM.update(DT); }));
 
-    Futures.push_back(IndependantThreads.submit_task([&Input]() { Input.Update(); }));
+    Futures.push_back(
+        IndependantThreads.submit_task([this]() { Input.Update(); }));
 
     Instances.ReviseAndUpdate(DT);
 
-    Futures.push_back(IndependantThreads.submit_task(
-        [&InputAnalysisSingleton, DT]() { InputAnalysisSingleton.Update(DT); }));
+    Futures.push_back(
+        IndependantThreads.submit_task([&InputAnalysisSingleton, DT]() {
+          InputAnalysisSingleton.Update(DT);
+        }));
 
     if (StateManager.CurrentState == AppState::GAME) {
     } else if (StateManager.CurrentState == AppState::MENU) {
+      Menu.PlayButton->MaintainScaling();
     } else if (StateManager.CurrentState == AppState::PAUSE) {
     } else {
       // invalid state

@@ -1,9 +1,12 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "instanceOverseer.h"
 
-InstanceOverseer::InstanceOverseer(InputListener* ParentListener)
+#include <vector>
+InstanceOverseer::InstanceOverseer(InputListener* ParentListener,  //NOLINT [whitespace/line_length]
+                                   ECSHelper* Interactor)
     : DeviceListener(ParentListener),
-      InstanceThreadPool(std::thread::hardware_concurrency()) {
+      InstanceThreadPool(std::thread::hardware_concurrency()),
+      Factory(Interactor) {
   InstanceBus = new EventBus();
   InstanceQueue = new EventQueue(InstanceBus);
   InstanceReporter = new ErrorReporter();
@@ -40,16 +43,20 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
   float ViewPortWidth = TotalWindowWidth * RelativeVPDimensions[2];
   float ViewPortHeight = TotalWindowWidth * RelativeVPDimensions[3];
 
-  InputTranslator* Translator =
-      new InputTranslator(Event.InstanceDevice, ViewPortWidth, ViewPortHeight,
-                          GameInstances.size() + 1);
+  InputTranslator* Translator = new InputTranslator(
+      Event.InstanceDevice, ViewPortWidth, ViewPortHeight,
+      GameInstances.size() + 1, RS.GetRenderWindowDimensions());
   DeviceListener->AddListenerQueue(Event.InstanceDevice,
                                    Translator->WaitingEvents);
-  InteractionWheel* NewUIInteractionWheel =
-      new InteractionWheel(Translator, GameInstances.size() + 1);
+  Player* InstancePlayer = new Player(GameInstances.size() + 1);
+  InteractionWheel* NewUIInteractionWheel = new InteractionWheel(
+      Translator, GameInstances.size() + 1, Factory, InstancePlayer);
+  PlayerUI* NewPlayerUI =
+      new PlayerUI(InstancePlayer, GameInstances.size() + 1);
   GameInstance* NewInstance =
-      new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice, Translator,
-      NewUIInteractionWheel, GameInstances.size() + 1);
+      new GameInstance(InstanceReporter, InstanceQueue, Event.InstanceDevice,
+                       Translator, NewUIInteractionWheel, NewPlayerUI,
+                       InstancePlayer, GameInstances.size() + 1);
 
   GameInstances.push_back(NewInstance);
   InstanceViewports.emplace(NewInstance, VP);

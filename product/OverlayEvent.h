@@ -1,8 +1,10 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
+#include <string>
+#include <vector>
+
 #include "InputDevice.h"
 #include "ViewPortController.h"
-
 // an event used to add a rectangle to the screen
 // the event is queued then handled by the overlay manager
 // from there it is attached to a scenenode and visible on the screen
@@ -101,6 +103,24 @@ struct OverlayEditTextEvent {
         NameOfExisting(Name) {}
 };
 
+// add a new text overlay to an existing panel
+struct OverlayAddTextToPanelEvent {
+  std::string PanelName;
+  std::string TextName;
+  std::string Text;
+  std::string MaterialName;
+  std::vector<float> Position;
+  std::vector<float> Dimensions;
+  OverlayAddTextToPanelEvent(std::string Pn, std::string Tn, std::string txt,
+                             std::string Mname, std::vector<float> Pos,
+                             std::vector<float> Dim)
+      : PanelName(Pn),
+        TextName(Tn),
+        Text(txt),
+        MaterialName(Mname),
+        Position(Pos),
+        Dimensions(Dim) {}
+};
 struct CreateOverlayEvent {
   std::string OverlayName;
   // to prevent a long chain of communication requests, an overlay can be made
@@ -116,6 +136,7 @@ struct CreateOverlayEvent {
         InstanceViewPort(Viewport) {}
 };
 
+// change visibility of an overlay, true:visible false:not visible
 struct ChangeOverlayVisibilityEvent {
   std::string OverlayName;
   std::string ObjectName;
@@ -123,4 +144,19 @@ struct ChangeOverlayVisibilityEvent {
 
   ChangeOverlayVisibilityEvent(std::string OName, std::string ObName, bool Vis)
       : OverlayName(OName), ObjectName(ObName), Visibility(Vis) {}
+};
+
+struct RegisterOnPressCallBackEvent {
+  std::string OverlayName;
+  std::string ObjectName;
+
+  std::function<void(EventQueue&)> Callback;
+  EventQueue* CallQueue;
+  RegisterOnPressCallBackEvent(std::string Overlay, std::string Object,
+                               std::function<void(EventQueue&)> Call,
+                               EventQueue* Queue)
+      : OverlayName(Overlay),
+        ObjectName(Object),
+        Callback(Call),
+        CallQueue(Queue) {}
 };

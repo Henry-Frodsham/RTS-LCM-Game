@@ -1,9 +1,11 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
-#include <thread>
-#include <unordered_map>
-#include <vector>
+#include <BS_thread_pool.hpp>
+#include <thread>  // NOLINT(build/include_order)
+#include <unordered_map>  // NOLINT(build/include_order)
+#include <vector>  // NOLINT(build/include_order)
 
+#include "ECSHelper.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
@@ -11,18 +13,17 @@
 #include "InputListener.h"
 #include "InputTranslator.h"
 #include "InstanceEvent.h"
-#include "RenderSystem.h"
-#include "ViewPortController.h"
-#include "ResizeEvent.h"
 #include "InteractionWheel.h"
-
-#include <BS_thread_pool.hpp>
+#include "PlayerUI.h"
+#include "RenderSystem.h"
+#include "ResizeEvent.h"
+#include "ViewPortController.h"
 
 // the class that "holds the reigns" over all instances
 
 class InstanceOverseer {
  public:
-  InstanceOverseer(InputListener* ParentListener);
+  InstanceOverseer(InputListener* ParentListener, ECSHelper* Interactor);
   EventQueue* InstanceQueue;
   void ReviseAndUpdate(float DeltaTime);
 
@@ -34,7 +35,7 @@ class InstanceOverseer {
   BS::thread_pool InstanceThreadPool;
 
   EventBus* InstanceBus;
-
+  ECSHelper* Factory;
   ErrorReporter* InstanceReporter;
 
   void RegisterNewInstance(RegisterInstanceEvent Event);
@@ -46,5 +47,4 @@ class InstanceOverseer {
 
   // a new instance is made solely based on a new device being connected
   InputListener* DeviceListener;
-
 };

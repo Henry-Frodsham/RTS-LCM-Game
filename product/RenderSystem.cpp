@@ -1,5 +1,11 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "RenderSystem.h"
+
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 RenderSystem::RenderSystem()
     : OgreRoot(nullptr),
@@ -10,6 +16,7 @@ RenderSystem::RenderSystem()
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
       ViewPortListener(nullptr),
+      RaySceneQuery(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
   RenderBus = new EventBus();
@@ -58,7 +65,7 @@ void RenderSystem::Init() {
   if (IsInit) {
     return;
   }
-
+  SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
     // sdl failed init, throw fatal
     RenderErrorReporter.EnqueueError(
@@ -73,7 +80,11 @@ void RenderSystem::Init() {
 
   const Ogre::RenderSystemList& RenderSystems =
       OgreRoot->getAvailableRenderers();
-
+  auto SharedParams =
+      Ogre::GpuProgramManager::getSingleton().createSharedParameters(
+          "ViewerParams");
+  SharedParams->addConstantDefinition("viewingPlayerID", Ogre::GCT_FLOAT1);
+  SharedParams->setNamedConstant("viewingPlayerID", 0.0f);
   if (RenderSystems.size() == 0) {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM));
@@ -102,7 +113,15 @@ void RenderSystem::Init() {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::SDL_FAILED_BIND));
   }
-
+  if (RenderConfig->GetValueOrDefault<bool>("FullScreen")) {
+#ifdef _WIN32
+    while (::ShowCursor(TRUE) < 0);  // NOLINT [whitespace/empty_loop_body]
+    ::SetCursor(
+        ::LoadCursor(NULL, IDC_ARROW));  // NOLINT [whitespace/end_of_line]
+#endif
+  }
+  SDL_SetRelativeMouseMode(SDL_FALSE);
+  SDL_SetWindowGrab(SDLWindow, SDL_FALSE);
   SceneManager = OgreRoot->createSceneManager();
   SceneManager->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
 
@@ -118,6 +137,9 @@ void RenderSystem::Init() {
   DefaultViewPort = CreateViewPort();
 
   DefaultViewPort->setOverlaysEnabled(true);
+
+  RaySceneQuery = SceneManager->createRayQuery(Ogre::Ray());
+  RaySceneQuery->setSortByDistance(true);
 
   IsInit = true;
 }
@@ -154,15 +176,17 @@ ViewPortController* RenderSystem::CreateViewPort() {
 }
 
 void RenderSystem::ScaleViewPorts() {
-  short int NumberToScale = ViewPorts.size();
-  for (short I = 0; I < NumberToScale; I++) {
+  int NumberToScale = ViewPorts.size();
+  for (int I = 0; I < NumberToScale; I++) {
     ViewPortController* VPC = ViewPorts.at(I);
 
     // the amount of relative screen size per viewport to add
     // each viewPort gets an equal portion
-    float SizePerVP = 1.f / float(NumberToScale);
+    float SizePerVP =
+        1.f / float(NumberToScale);  // NOLINT [readability/casting]
 
-    VPC->ChangeViewPortDimensions(SizePerVP * float(I), 0.f, SizePerVP, 1.f);
+    VPC->ChangeViewPortDimensions(SizePerVP * float(I), 0.f, SizePerVP,
+                                  1.f);  // NOLINT [readability/casting]
   }
 }
 
@@ -189,7 +213,12 @@ void RenderSystem::InitRenderResponsibility() {
   RenderBus->Subscribe<PressActionCommand>(
       std::bind(&OverlayController::OverlayPressedCheck, OverlayControl,
                 std::placeholders::_1));
-
+  RenderBus->Subscribe<RegisterOnPressCallBackEvent>(
+      std::bind(&OverlayController::RegisterOnPressCallBack, OverlayControl,
+                std::placeholders::_1));
+  RenderBus->Subscribe<OverlayAddTextToPanelEvent>(
+      std::bind(&OverlayController::AddTextToPanel, OverlayControl,
+                std::placeholders::_1));
 
   // core Ogre interactions
   RenderBus->Subscribe<CreateSceneNodeEvent>(std::bind(
@@ -200,7 +229,25 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::SetNodePositionFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<AttachEntityToScenNodeEvent>(std::bind(
       &RenderSystem::AttachEntityToNodeFromEvent, this, std::placeholders::_1));
-
+  RenderBus->Subscribe<StartRayTraceEvent>(std::bind(
+      &RenderSystem::AssembleRayTraceEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<ScaleEntityEvent>(std::bind(
+      &RenderSystem::ScaleEntityFromEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<SetEntPositionEvent>(std::bind(
+      &RenderSystem::SetEntPosFromEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<RotateEntToSurfaceNormalEvent>(std::bind(
+      &RenderSystem::RotateEntityToSurfaceNormal, this, std::placeholders::_1));
+  RenderBus->Subscribe<ChangeEntMaterialEvent>(std::bind(
+      &RenderSystem::ChangeEntityMaterial, this, std::placeholders::_1));
+  RenderBus->Subscribe<AddOwnerShipToEntEvent>(
+      std::bind(&RenderSystem::AddOwnerShipToEnt, this, std::placeholders::_1));
+  RenderBus->Subscribe<CacheRangeQueryEvent>(
+      std::bind(&RenderSystem::CacheRangeEntitiesAndCallback, this,
+                std::placeholders::_1));
+  RenderBus->Subscribe<DestroyNodeEvent>(
+      std::bind(&RenderSystem::DestroyNode, this, std::placeholders::_1));
+  RenderBus->Subscribe<DestroyEntityEvent>(
+      std::bind(&RenderSystem::DestroyEntity, this, std::placeholders::_1));
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
       std::bind(&ViewPortUpdateListener::AssignOverlayToViewport,
@@ -291,9 +338,101 @@ void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event) {
 void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
   Event.NodeToChange.get()->setPosition(Event.NewPosition);
 }
+void RenderSystem::RotateEntityToSurfaceNormal(
+    RotateEntToSurfaceNormalEvent Event) {
+  Ogre::SceneNode* UnitSN = Event.Entity->getParentSceneNode();
+  Ogre::Vector3 HitPoint = UnitSN->getPosition();
+  Ogre::Vector3 SphereCenter = Event.RelativeRotCentre;
+
+  Ogre::Vector3 SurfaceNormal = (HitPoint - SphereCenter).normalisedCopy();
+
+  Ogre::Quaternion Rotation =
+      Ogre::Vector3::UNIT_Y.getRotationTo(SurfaceNormal);
+
+  UnitSN->setOrientation(Rotation);
+}
+void RenderSystem::SetEntPosFromEvent(SetEntPositionEvent Event) {
+  Ogre::SceneNode* SN = Event.Ent->getParentSceneNode();
+  SN->setPosition(Event.Vec);
+}
 void RenderSystem::AttachEntityToNodeFromEvent(
     AttachEntityToScenNodeEvent Event) {
   Event.SceneNode.get()->attachObject(Event.Entity.get());
+}
+void RenderSystem::ScaleEntityFromEvent(ScaleEntityEvent Event) {
+  Ogre::Entity* Ent = SceneManager->getEntity(Event.EntName);
+  Ogre::SceneNode* Node = Ent->getParentSceneNode();
+  // to make my life easier ill just be scaling every axis
+  Node->scale(Event.NewScale, Event.NewScale, Event.NewScale);
+}
+void RenderSystem::DestroyNode(DestroyNodeEvent Event) {
+  if (!Event.NodeToDestroy) return;
+
+  Event.NodeToDestroy->detachAllObjects();
+
+  std::vector<Ogre::MovableObject*> Attached;
+  for (size_t i = 0; i < Event.NodeToDestroy->numAttachedObjects(); ++i)
+    Attached.push_back(Event.NodeToDestroy->getAttachedObject(i));
+
+  Event.NodeToDestroy->detachAllObjects();
+  for (Ogre::MovableObject* Obj : Attached)
+    SceneManager->destroyMovableObject(Obj);
+
+  Event.NodeToDestroy->removeAndDestroyAllChildren();
+
+  SceneManager->destroySceneNode(Event.NodeToDestroy);
+}
+void RenderSystem::DestroyEntity(DestroyEntityEvent Event) {
+  if (!Event.EntityToDestroy) return;
+
+  Ogre::SceneNode* NodeToDestroy = Event.EntityToDestroy->getParentSceneNode();
+  NodeToDestroy->detachAllObjects();
+
+  std::vector<Ogre::MovableObject*> Attached;
+  for (size_t i = 0; i < NodeToDestroy->numAttachedObjects(); ++i)
+    Attached.push_back(NodeToDestroy->getAttachedObject(i));
+
+  NodeToDestroy->detachAllObjects();
+  for (Ogre::MovableObject* Obj : Attached)
+    SceneManager->destroyMovableObject(Obj);
+
+  NodeToDestroy->removeAndDestroyAllChildren();
+
+  SceneManager->destroySceneNode(NodeToDestroy);
+}
+void RenderSystem::CacheRangeEntitiesAndCallback(CacheRangeQueryEvent Event) {
+  std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
+      Results;
+
+  for (auto& [Node, Ownership] : Event.Entities) {
+    if (!Node) continue;
+    if (!Node->isInSceneGraph()) continue;
+
+    Ogre::SphereSceneQuery* Query = SceneManager->createSphereQuery(
+        Ogre::Sphere(Node->_getDerivedPosition(), Event.GeneralRange));
+
+    Ogre::SceneQueryResult& Result = Query->execute();
+
+    std::unordered_set<Ogre::SceneNode*> InRange;
+    for (Ogre::MovableObject* Movable : Result.movables) {
+      Ogre::SceneNode* TargetNode = Movable->getParentSceneNode();
+
+      if (TargetNode && TargetNode != Node) InRange.insert(TargetNode);
+    }
+
+    if (!InRange.empty()) Results[Node] = std::move(InRange);
+
+    SceneManager->destroyQuery(Query);
+  }
+
+  Event.Queue->Enqueue(CachedEntitiesReturnEvent(Results));
+}
+void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
+  ViewPortController* RayVPC = FindViewPortFromDevice(Event.Device);
+  // populate here because i dont want a tonne of ogre singleton ptrs around
+  Event.RaySceneQuery = RaySceneQuery;
+  EndRayTraceResultEvent ResultEvent = RayVPC->TraceRay(Event);
+  Event.Callback(Event.CallQueue, ResultEvent);
 }
 
 ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {
@@ -303,6 +442,31 @@ ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {
     }
   }
   return nullptr;
+}
+
+void RenderSystem::ChangeEntityMaterial(ChangeEntMaterialEvent Event) {
+  try {
+    Event.Ent->setMaterialName(Event.MatName);
+  } catch (std::exception e) {
+    RenderErrorReporter.EnqueueError(
+        ErrorDetail::CreateError(ErrorCode::MATERIAL_NOT_FOUND));
+  }
+}
+
+std::vector<float> RenderSystem::GetRenderWindowDimensions() {
+  float WinW = PrimaryWindow->getWidth();
+  float WinH = PrimaryWindow->getHeight();
+  return std::vector<float>{WinW, WinH};
+}
+
+void RenderSystem::AddOwnerShipToEnt(AddOwnerShipToEntEvent Event) {
+  for (auto Ent : Event.Node->getAttachedObjects()) {
+    Ogre::Entity* Entity = static_cast<Ogre::Entity*>(Ent);
+    for (unsigned i = 0; i < Entity->getNumSubEntities(); ++i) {
+      Entity->getSubEntity(i)->setCustomParameter(
+          0, Ogre::Vector4(Event.OwnershipId, 0.0f, 0.0f, 0.0f));
+    }
+  }
 }
 // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {
