@@ -1,11 +1,11 @@
 // Copyright (c) 2025 Henry Frodsham
 #include "RenderSystem.h"
 
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include <string>
 
 RenderSystem::RenderSystem()
     : OgreRoot(nullptr),
@@ -113,11 +113,13 @@ void RenderSystem::Init() {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::SDL_FAILED_BIND));
   }
+  if (RenderConfig->GetValueOrDefault<bool>("FullScreen")) {
 #ifdef _WIN32
-  while (::ShowCursor(TRUE) < 0); // NOLINT [whitespace/empty_loop_body]
-  ::SetCursor(::LoadCursor(NULL, IDC_ARROW)); // NOLINT [whitespace/end_of_line]
+    while (::ShowCursor(TRUE) < 0);  // NOLINT [whitespace/empty_loop_body]
+    ::SetCursor(
+        ::LoadCursor(NULL, IDC_ARROW));  // NOLINT [whitespace/end_of_line]
 #endif
-
+  }
   SDL_SetRelativeMouseMode(SDL_FALSE);
   SDL_SetWindowGrab(SDLWindow, SDL_FALSE);
   SceneManager = OgreRoot->createSceneManager();
@@ -180,9 +182,11 @@ void RenderSystem::ScaleViewPorts() {
 
     // the amount of relative screen size per viewport to add
     // each viewPort gets an equal portion
-    float SizePerVP = 1.f / float(NumberToScale);  // NOLINT [readability/casting]
+    float SizePerVP =
+        1.f / float(NumberToScale);  // NOLINT [readability/casting]
 
-    VPC->ChangeViewPortDimensions(SizePerVP * float(I), 0.f, SizePerVP, 1.f); // NOLINT [readability/casting]
+    VPC->ChangeViewPortDimensions(SizePerVP * float(I), 0.f, SizePerVP,
+                                  1.f);  // NOLINT [readability/casting]
   }
 }
 
