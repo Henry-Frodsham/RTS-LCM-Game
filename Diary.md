@@ -86,3 +86,41 @@
 02/02/26 - read https://stackoverflow.com/questions/26516683/reusing-thread-in-loop-c to learn about reusing threads
 02/02/26 - added BS thread pool as a dependancy, implemented into the current thread pool pattern, improved fps and stability remarkability (500->2000fps) and cpu usage of the gameinstance->run method dropped from 12.8% of 1 core to 2.7%
 03/02/26 - noticed another significant performance limiter, updated application->run to follow the updated threading model and increased fps from 2000fps to 6000fps (cpu time dropped from 24% to 4.3%)
+9/02/26 - designed an initial game map implementation, attempting to replicate the world map as a single mesh\newline
+10/02/26 - after experimenting with the initial game map, i realised a cleaner approach would be to seperate the land masses as distinct meshes. this realisation came after investigating the ogre doc, specifically the ray tracing functionality. since ogre ray tracing handles mesh collision checks automatically, having the land masses be seperate meshes was a clean way of identifying land the units could spawn on (land masses) and ones they couldnt (the sea)\newline
+11/02/26 - redesigned the world map after taking this into account, with countries also pertruding from the sea for an easier time with ogre raytracing.\newline
+12/02/26 - updated world manager to load the new globe, each country is added to the same scenenode to make moving the globe easier if need be. the implemented world map does have a couple rendering errors, that being that some countries are visible through the globes surface (when the camera is facing the other side of the globe)\newline
+
+16/02/26 - investigated how input translator currently propogates input events\newline
+17/02/26 - realized that input translator up until this point has mainly been focused on only communicating with the same instance thread it runs in (input events arent sent elsewhere but instead the instance thread reads the states manually)\newline
+18/02/26 - designed a new struct for input events sent to the render thread to be identifiable back to the instance thread it was sent from (ActionContext), along with other context such as on a MousePressed event it includes the screen coordinates pressed and whether the button was pressed for the first time or is being held down (instead of a MousePressed event only indicating that that device was pressed and nothing else)\newline
+
+27/02/26 - looked into how to fix the rendering errors present from the globe implementation. read https://forums.ogre3d.org/viewtopic.php?t=81112\newline
+28/02/26 - since ive been using blender for my 3d meshes, the z order should be managed automatically so i deduced that the materials are the issue\newline
+28/02/26 - read https://forums.ogre3d.org/viewtopic.php?t=57151 to identify the issue\newline
+28/02/26 - added a depth \detokenize{pre_pass} level to the material scripts for the country material, this fixed the issue\newline
+
+6/03/26 - setup for raytracing functionality, initialised an Ogre:rayscenequery on startup\newline
+7/03/26 - using the new functionality in input translator, Player general control now starts a raytrace when the mouse is pressed. the result isnt used yet but has been verified to be correct for future implementation\newline
+
+9/03/26 - revisited older overlay code to try and figure out a clean method to add pressable buttons\newline
+10/03/26 - decided on using a callback system for button functionality, buttons would register an event to be queued back to an event queue pointer once the button was clicked allowing OverlayController to handle all of the mouse hovering and mouse pressed checks.\newline
+11/03/26 - implemented the new functionality into overlaycontroller and added a new button class to make adding a functional button easier (GenericButton.cpp)\newline
+
+14/03/26 - implemented a basic state machine in preparation for a main menu\newline
+15/03/26 - using the new button class (Generic button) i created a main menu button that issues ChangeState event when pressed\newline
+15/03/26 - added functionality to rendersystem to hide or show a mesh when needed, allowing me to hide the globe by default then show the globe when the play button is pressed\newline
+
+20/03/26 - using previously unintegrated raytracing functionality, players can now select a unit or city\newline
+20/03/26 - added functionality to highlight the selected unit or city by changing its colour to red\newline
+21/03/26 - extended selection functionality by only allowing one city or unit to be selected, and pressing on a valid land mass will store the coordinates for future movement\newline
+
+22/03/26 - added movement functionality to units, using the stored coordinates then the interaction wheel to move them\newline
+
+25/03/26 - enemy units now appear as a different colour, this was done using a glsl fragment shader that does the ownership check on the gpu. units and cities now use a new material. \detokenize{unit_fp} that includes this check and once their initialised they have their ownership stored within it\newline
+
+26/03/26 - added a new entity component, ProducesUnitsComponent. in the entitiy loop, this component adds to the available units passively\newline
+
+30/03/26 - added attacking units functionality, final refinements to code\newline
+
+6/04/26 - cpplint compliance 100 percent \newline

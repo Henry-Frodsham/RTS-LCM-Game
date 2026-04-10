@@ -54,7 +54,7 @@
 %%%%%%%%%%%%%%%%%%%%%%
 %%% Input project details
 \def\studentname{Henry Frodsham}
-\def\reportyear{2025}
+\def\reportyear{2026}
 \def\projecttitle{A Concurrency Based Game Environment}
 \def\supervisorname{Felix Bradley}
 \def\degree{BSc (Hons) in Computer Science}
@@ -74,7 +74,7 @@ This report has been prepared on the basis of my own work. Where other published
 
 \vskip3em
 
-Word Count (excluding code snippets): 6856
+Word Count: 14421
 
 \vskip3em
 
@@ -82,7 +82,7 @@ Student Name:  Henry Frodsham
 
 \vskip3em
 
-Date of Submission: 19/12/25
+Date of Submission: 10/04/26
 
 \vskip3em
 
@@ -93,62 +93,61 @@ Signature: Henry.f
 \newpage
 \chapter{Abstract}
 
-This project is a Real Time Strategy (RTS) Game that focuses on using concurrency to provide a Local Multiplayer (LCM) experience through split screen. This project's primary aim is to provide steady performance regardless of the game state or number of players. a Secondary goal of this project is to provide an unlimited progression system for players such that players can progress through the game regardless of how long they have been playing. \newline
+This project is a Real Time Strategy (RTS) Game that focuses on using concurrency to provide a Local Multiplayer (LCM) experience through split screen. This project's primary aim is to provide a comfortable and seamless LCM experience, for both players on controller and mouse. A secondary goal for this project is to provide steady performance regardless of the game state or number of players, aiming to not drop below the users display refresh rate.
 
-Users of this project will be able to play with 1-5 people on the same device and display, with 1 player on a keyboard and mouse and up to 4 on different controllers. This project assigns regions of the display to each player and automatically adjusts the aspect ratio and size of pre-existing regions when a player connects or disconnects. \newline
+Users of this project are able to play with 1-5 people on the same device and display, with 1 player on a keyboard and mouse and up to 4 on different controllers. This project assigns regions of the display to each player and automatically adjusts the aspect ratio and size of pre-existing regions when a player connects. Another feature of this project is seamless disconnection and reconnection for users, a player can disconnect then reconnect their controller to continue playing at any time.  \newline
 
-The primary motivation for this project Is the poor performance of pre-existing RTS games, even those that focus solely on a single player experience. Other RTS games experience input delay and stuttering issues as the game progresses due to high unit counts and complex interactions between units; for example, Stellaris by Paradox Interactive is well known by the RTS community to slow down significantly in the late game, to the point that the game cannot be played. \newline
+The primary motivation for this project Is the poor performance of pre-existing RTS games, even those that focus solely on a single player experience. Other RTS games experience input delay and stuttering issues as the game progresses, primarily due to high unit counts and complex interactions between units. For example, Stellaris by Paradox Interactive is well known by the RTS community to slow down significantly in the late game, to the point that the game cannot be played. \newline
 
-Another Motivation for this project is the lack of split screen multiplayer in the RTS genre. split screen is often exclusively implemented in First Person Shooter (FPS) and racing Games although even those genres have seen a decline in split screen as of recently [2]. This project aims not only to revive the once believed feature of Split Screen but also to introduce it to the RTS genre, RTS is by nature a game with complex interactions between players and the addition of face-to-face communication could overall benefit the experience. \newline
+Another Motivation for this project is the lack of split screen multiplayer in the RTS genre. Split screen is often exclusively implemented in First Person Shooter (FPS) and racing Games, although even those genres have seen a decline in split screen as of recently [2]. This project aims not only to revive the once beloved feature of Split Screen but also to introduce it to the RTS genre. RTS is by nature a game with complex interactions between players, I believe the addition of face-to-face communication could overall benefit the experience. \newline
 
 By combining the technical innovations of modern game development with older styles of gameplay featuring more face to face interaction, this project demonstrates that performant, social RTS gaming is both viable and practical.
-
 
 \subsection{ Aims and Objectives of the project}
 
  \textbf{Primary Objectives} \newline
 
-\textbf{ Performance Optimization} \newline
+\textbf{Performance Optimization} \newline
 
- - achieve and maintain a consistent frame rate that initially matches that of the end users maximum refresh rate, and doesn't drop below the minimum video frame rate of 23FPS for any given scenario 
+ - Achieve and maintain a consistent frame rate that initially matches that of the end users maximum refresh rate, and doesn't drop below the minimum video frame rate of 23FPS for any given scenario 
 
- - maintain low input latency that doesn’t spike above 50ms in any given scenario but should match that of the end users minimum input latency initially
+ - Maintain low input latency that doesn’t spike above 50ms in any given scenario but should match that of the end users minimum input latency initially
 
- - produce no additional input delay or lag spikes regardless of the number of split screen instances running
+ - Produce no additional input delay or lag spikes regardless of the number of split screen instances running
 
  \textbf{local multiplayer functionality} \newline
 
- - implement a split screen local multiplayer system that allows for 1-5 players to play the game simultaneously
+ - Implement a split screen local multiplayer system that allows for 1-5 players to play the game simultaneously
 
- - develop a robust input handling system that provides consistent input delay across all game instances
+ - Develop a robust input handling system that provides consistent input delay across all game instances
 
  \textbf{long term stability} \newline
 
- - optimize storage and management of in game units to minimize the performance degradation for a large numbers of units
+ - Optimize storage and management of in game units to minimize the performance degradation for a large numbers of units
 
- - prevent memory leaks to ensure the games memory usage doesn’t increase after extended play time, ultimately resulting in a program crash
+ - Prevent memory leaks to ensure the games memory usage doesn’t increase after extended play time, ultimately resulting in a program crash
 
  \textbf{user experience} \newline
 
- - design a clean UI that is free of clutter and provides a consistent experience across different input devices
+ - Design a clean UI that is free of clutter and provides a consistent experience across different input devices
 
- - implement a sensible text size and UI scaling to ensure visibility regardless of how small a given split screen instance is 
+ - Implement a sensible text size and UI scaling to ensure visibility regardless of how small a given split screen instance is 
 
 \textbf{Secondary Objectives} \newline
 
 \textbf{Comprehensive real time strategy game}\newline
 
- - survey and respond to real time strategy players preferences
+ - Survey and respond to real time strategy players preferences
  
- - implement a progression system that allows players to continuously progress regardless of game stage
+ - Implement a progression system that allows players to continuously progress regardless of game stage
  
  \textbf{Comprehensive player interaction} \newline
  
- - allow players to form beneficial agreements 
+ - Allow players to form beneficial agreements 
  
- - implement an enmity system that expands on rivalries between players
+ - Implement an enmity system that expands on rivalries between players
  
- - allow transfers of resources between players
+ - Allow transfers of resources between players
  
 
 \subsection{Technology choices}
@@ -159,91 +158,96 @@ By combining the technical innovations of modern game development with older sty
 \textbf{Input Handling Library:} SDL2 \newline
 \textbf{UI and Overlay Library: } Ogre Overlay Component \newline
 \textbf{Concurrency Library: } <Threading> library in C++ included in std libraries \newline
+\textbf{Thread pooling library: } BSThreadPool \newline
+\textbf{Matrix library: } Eigen \newline
+\textbf{JSON parsing library: } nlohmann json \newline 
 \textbf{Dependency installation and linking: } vcpkg library integrated with Visual Studio 2022 \newline
 
 \chapter{Project Timeline}
 \section{Term 1 Timeline}
 \subsection{planned timeline}
-\textbf{ Week 1:} write unit tests following TDD and setup build dependencies \newline
+\textbf{Week 1:} write unit tests following TDD and setup build dependencies \newline
 \textbf{Week 2:} research efficient ECS and event architecture \newline
 \textbf{Week 3:} research input methods for controller and keyboard \newline
 \textbf{Week 4:} code central event bus and ECS registry class \newline
 \textbf{Week 5:} code input listeners + initial world and instance class \newline
 \textbf{Week 6:} code initial split screen functionality and implement event queue \newline
 \textbf{Weeks 7:} code entity factories and create entity components for ECS \newline
-\textbf{Week 8-9:} create initial game map with partial game functionality \newline
+\textbf{Weeks 8-9:} create initial game map with partial game functionality \newline
 \textbf{Weeks 10-11:} prepare interim transcript and improve implementation for presentation \newline
 \subsection{Development timeline}
-Week 1:
+\textbf{Week 1:} \newline
 
-Research efficient event architecture (moved up from planned Week 2)
+ - Research efficient event architecture (moved up from planned Week 2). \newline
 
-Week 2:
+\textbf{Week 2:} \newline
 
-Implement event bus and event queue architecture (significantly ahead of schedule - originally planned for Weeks 4 and 6)
+ - Implement event bus and event queue architecture (significantly ahead of schedule - originally planned for Weeks 4 and 6). \newline
 
-Weeks 3-5:
+\textbf{Weeks 3-5:} \newline
 
-Input handling system implementation (timing not explicitly stated, but completed successfully)
+ - Input handling system implementation. \newline
 
-Achieved reconnection for controllers
-Automatic device recognition and configuration
+ - Achieved reconnection for controllers. \newline
+ - Automatic device recognition and configuration. \newline
 
-Weeks 5-7:
-Overlay system implementation
+\textbf{Weeks 5-7:} \newline
+ - Overlay system implementation. \newline
 
-Attempted Dear ImGui integration with Ogre3D
-Encountered compatibility issues with ApplicationContextBase
-Researched and implemented alternative overlay solution (Ogre Overlay)
-Weeks 7-9:
-config system implementation
+ - Attempted Dear ImGui integration with Ogre3D. \newline
+ - Encountered compatibility issues with ApplicationContextBase. \newline
+ - Researched and implemented alternative overlay solution (Ogre Overlay). \newline
+\textbf{Weeks 7-9:}
+ - Config system implementation. \newline
 
-universal config system for storing and reading JSON files with nlohmann JSON
+ - Universal config system for storing and reading JSON files with nlohmann JSON. \newline
 
-Week 10:
-refinements to implementation
+\textbf{Week 10:} \newline
+ - refinements to implementation. \newline
 
-thread safety update to event architecture
-refined input system with more debug information available
+ - thread safety update to event architecture. \newline
+ - refined input system with more debug information available \newline
 
-Week 11:
+\textbf{Week 11:} \newline
 
-Create ECS registry class with demo implementation (delayed from planned Week 4)
-Create ECS components with ECS factory (delayed from planned Week 7)
+ - Create ECS registry class with demo implementation (delayed from planned Week 4). \newline
+ - Create ECS components with ECS factory (delayed from planned Week 7). \newline
 
-Week 12:
+\textbf{Week 12:} \newline
 
-Initial split screen functionality implemented (delayed from planned Week 6)
+ - Initial split screen functionality implemented (delayed from planned Week 6). \newline
 
-Automatic viewport creation on device connection
-Dynamic viewport resizing
-Consistent aspect ratio maintenance
+ - Automatic viewport creation on device connection. \newline
+ - Dynamic viewport resizing. \newline
+ - Consistent aspect ratio maintenance \newline
 
 
 
-Not Completed in Term 1:
+\textbf{Not Completed in Term 1:} \newline
 
-Partial game functionality (originally planned for Weeks 8-9)
-Deferred to Term 2 to allow for REA pattern integration
+ - Partial game functionality (originally planned for Weeks 8-9). \newline
+ - Deferred to Term 2 to allow for REA pattern integration \newline
+ 
  \subsection{Retrospective of Term 1s development}
- Over the development period in Term 1 there where some major differences between the planned timeline and actual development timeline. specifically, \newline
- - earlier development of event architecture fundamentals \newline
+ Over the development period in Term 1 there where some major differences between the planned timeline and actual development timeline. Specifically, \newline
+ - Earlier development of event architecture fundamentals \newline
  - 2 week delay to implementing an overlay system \newline
- - delay to split screen functionality \newline
- - absence of partial game functionality \newline
+ - Delay to split screen functionality \newline
+ - Absence of partial game functionality \newline
  
  Term 1's development has brought to my attention that more careful analysis of planned technologies is required. Specifically, investigating implementations in other projects using similar technologies to me and which prerequisites are required or which existing technology could conflict. Another lesson learned from term 1's development is that more consistent contribution to reports and documentation is required in term 2's development, this way the CFD can easily be used to identify potential race conditions or design flaws.
  
  Despite these delays to the projects timeline, This project has reached a satisfactory end result for term 1. Large architectural groundwork has been completed, making way for development in term 2 along with recognizing REA as a new proven beneficial technology.
+ 
 \section{Term 2 Timeline}
-\textbf{Week 1: revisit term 1 implementation, refactor threading model and class communication} \newline
+\textbf{Week 1: Revisit term 1 implementation, refactor threading model and class communication} \newline
 \textbf{Weeks 1-2: Research REA implementations, implement a basic scenario with multiple entities that can perform basic actions. } \newline
-\textbf{Weeks 3-4: create a game world and a basic test scenario where each player is given starting units and starting territory} \newline
-\textbf{Weeks 4-5: model and create simple REA actions for taking territory, attacking units, placing units.} \newline
-\textbf{Weeks 6-7: create an undecorated UI, including context menus for actions that change depending on where the cursor is. settings and main menu screen} \newline
-\textbf{Weeks 7-8: perform market analysis on experienced real time strategy players and implement suggestions as prototypes} \newline
-\textbf{Weeks 8-9: perform user testing with prototypes to produce an unrefined game as the basis for the finished project} \newline
-\textbf{Weeks 9-12: produce a shader complimenting a simplistic art style, implement a refined UI} \newline
+\textbf{Weeks 3-4: Create a game world and a basic test scenario where each player is given starting units and starting territory} \newline
+\textbf{Weeks 4-5: Model and create simple REA actions for taking territory, attacking units, placing units.} \newline
+\textbf{Weeks 6-7: Create an undecorated UI, including context menus for actions that change depending on where the cursor is. settings and main menu screen} \newline
+\textbf{Weeks 7-8: Perform market analysis on experienced real time strategy players and implement suggestions as prototypes} \newline
+\textbf{Weeks 8-9: Perform user testing with prototypes to produce an unrefined game as the basis for the finished project} \newline
+\textbf{Weeks 9-12: Produce a shader complimenting a simplistic art style, implement a refined UI} \newline
 
 \subsection{Development Timeline}
 \textbf{Week 1: Refactored threading model using BSthreadPool, implemented per viewport overlays} \newline
@@ -266,17 +270,20 @@ The most notable of these was a delay to the REA implementation. Rather than int
 
 A consequence of this change to the development timeline was that a working prototype wasn't available at the start of the user testing phase. However, valuable feedback was still gathered following early user testing and I was able to respond to this feedback with fixes to the UI and a visual representation of selected units. More feedback was gathered in the following weeks 8-9, bringing about major changes to the final implementation with the addition of cities that passively generate units.
 
-
 The final major change to the plan for term 2s development was the decision to implement a fragment shader focused on colouring enemy units instead of one focused on visual fidelity. This decision was made due to the development priorities of the project, those being prioritising function over visual fidelity. If I had opted for a fragment shader focused on fidelity then the overall performance of the project would suffer, since colouring enemy units could only otherwise be done with an inefficient CPU heavy loop, thus I opted to solve this problem efficiently with the fragment shader rather than compromise performance.
 
+Despite minor changes to the development timeline, this project has reached a final state consistent with it's primary aims. All planned functionality has been completed except one substituted technology, thus leaving this project in a completed end result.
+\subsection{Project aims evaluation}
+This project has prioritised the primary objectives laid out in interim report, however the secondary objectives haven't been fulfilled in their entirety. The reason for this is a focus on concurrency instead of comprehensive game functionality, thus more time was spent developing the primary focus of this project instead.
 
+This project meets the performance aims, with an fps of 1000 or more on capable hardware, remaining consistent at high entity counts. This project also meets the criteria for local multiplayer functionality, with multiple players being able to play the game at the same time across multiple input devices. A user interface has also been implemented in this project, whilst not fully meeting the specified fidelity standards, the project provides an interaction menu for players to interact with the game.
 
 \newpage
 \chapter{Technical Literature Survey}
 \section{Core Real time Strategy Game Architecture}
 \subsection{Entity Classification and Entity Interactions}
 RTS games are heavily focused on "units" such as friendly soldiers or a farm that produces food for the player every set amount of time. Each "unit" within an RTS game is highly varied in its behaviour, but may share common attributes such as a position on the screen and a 3D model. \newline
-A major challenge faced during the development of RTS games is storing and handling entities differently according to their behaviour; without an efficient method to store and compute the behaviour of large numbers of entities, it causes significant performance concerns as the number of entities increases. Despite there being pre-existing methods to tackle this problem, it is still common to see an "end year" or a "victory year" implemented within RTS games to prevent the number of units growing too large. The primary reason for RTS games still implementing a limit to game time is the inclusion of highly detailed 3D meshes where they would otherwise be unnecessary. \newline
+A major challenge faced during the development of RTS games is storing and handling entities differently according to their behaviour; without an efficient method to store and compute the behaviour of large numbers of entities, this causes significant performance concerns as the number of entities increases. Despite there being pre-existing methods to tackle this problem, it is still common to see an "end year" or a "victory year" implemented within RTS games to prevent the number of units from growing too large. The primary reason for RTS games still implementing a limit to game time is the inclusion of highly detailed 3D meshes where they would otherwise be unnecessary. \newline
 One popular choice used for entity storage in the development of RTS games is ECS (Entity Component System), since it not only provides efficient storage but also offers the perfect solution for classifying modular entity behaviour through its component system. ECS's component system allows developers to modularise entities into specific behaviours that can easily be reused or removed from an entity to modify its behaviour. \newline
 ECS is a powerful choice for real-time strategy games due to entity and component access being constant O(1) time, meaning that the time complexity of managing entities does not increase as more entities are added [5][6]. The reason for ECS achieving O(1) time is its employment of sparse sets --- a data structure consisting of two arrays, one sparsely filled with indices and another containing densely packed data. The indices in the sparse array point to entries in the dense array, and this bidirectional relationship is exploited by ECS to achieve O(1) time complexity for both retrieving an entity from a given component and retrieving a component from a given entity. Here is a visual representation of sparse set operation. \newline
 \begin{figure}[H]
@@ -301,7 +308,7 @@ As mentioned previously, REA uses a matrix to evaluate actions as resource excha
 \subsection{Split Screen Multiplayer Approaches }
 
 Local cooperative multiplayer (LCM) involves multiple players sharing a single device, with each player receiving an independent portion of the screen controlled by their own input device. LCM is rare in the RTS genre and has seen a general decline across other genres such as FPS and racing, largely due to the expense and complexity of implementation. \newline
-A significant technical challenge in LCM is managing multiple input devices simultaneously, as each device must be individually distinguishable and readable in parallel. Games requiring cursor or camera control typically rely on an input library to handle this, the most widely used being the GameInput library for Windows and Xbox [4]. SDL2 is a powerful choice for cross-platform compatibility, as it abstracts platform-specific code and keymaps automatically. \newline
+A significant technical challenge in LCM is managing multiple input devices simultaneously, as each device must be individually distinguishable and readable in parallel. Games requiring cursor or camera control typically rely on an input library to handle this, the most widely used of which being the GameInput library for Windows and Xbox [4]. SDL2 is a powerful choice for cross-platform compatibility, as it abstracts platform-specific code and keymaps automatically. \newline
 Display splitting in LCM is typically handled through fixed-size screen segments, though unified views and distance-based splitting are alternative approaches used by some developers. \newline
 
 \subsection{How I chose my implementations of ECS}
@@ -388,33 +395,33 @@ ECS entities within this project are created using a factory pattern, where enti
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\linewidth]{"../Cube creation example"}
+	\includegraphics[width=0.7\linewidth]{"Cube creation example"}
 	\caption{a CFD of the example cube creation process}
 	\label{fig:cube-creation-example}
 \end{figure}
 
-the example cube is made up of 2 ECS components. an OgreComponent and a MeshComponent, the OgreComponent contains an ogre scenenode (a universal object for any ogre entity) and the MeshComponent contains the mesh file path.
+The example cube is made up of 2 ECS components. an OgreComponent and a MeshComponent, the OgreComponent contains an ogre scenenode (a universal object for any ogre entity) and the MeshComponent contains the mesh file path.
 \subsection{how i chose my approach to split screen}
-My chosen approach to split screen in this project is fixed size screen regions. Whilst a unified view of the game world would have been an acceptable choice for this project i decided against it to prevent confusion with multiple user interfaces appearing simultaneously on the same camera, the lack of individual camera control was also a factor considered since users wouldn't be able to focus in on specific game events. fixed screen sizes however do mean that a large display size is required to comfortably play with 4 or more players, careful design will be required for future development of this project to maximise accessibility for smaller displays.
+My chosen approach to split screen in this project is fixed size screen regions. Whilst a unified view of the game world would have been an acceptable choice for this project, i decided against it to prevent confusion with multiple user interfaces appearing simultaneously on the same camera. The lack of individual camera control was also a factor considered, since users wouldn't be able to focus in on specific game events. Fixed screen sizes however do mean that a large display size is required to comfortably play with 4 or more players. This risk can't be mitigated fully, however consistent UI element sizes can assist with readability.
 
 \section{Concurrency in game Development}
 \subsection{threading models}
-threading models in game architecture is a fundamental architectural decision when designing games, threading models dictate how processing load is spread across different threads and thus spread across cpu cores. since modern CPU's almost always contain more than 1 core with most having 4-8, it's critical that these cores are utilized effectively to improve performance in game design. Single core dependence is a common issue faced in the RTS genre where only one cpu core is utilized due to architectural limitations, one example of this is Stellaris by Paradox Interactive which is known for poor late game performance since only 1 core is processing large numbers of game units.
+Threading models in game architecture is a fundamental architectural decision when designing games, threading models dictate how processing load is spread across different threads and thus across CPU cores. Since modern CPU's almost always contain more than 1 core with most having 4-8, It's critical that these cores are utilized effectively to improve performance in game design. Single core dependence is a common issue faced in the RTS genre, where only one cpu core is utilized due to architectural limitations, one example of this is Stellaris by Paradox Interactive which is known for this issue. Single core dependence is a major concern for the RTS genre, primarily because processing responsibility for large unit counts is placed solely on one CPU core.
 
-one common approach to threading in game architecture is thread pooling, thread pools split tasks over a finite number of worker threads through a shared worker queue. one issue with thread pooling however is that two threads may access the same game resource at the same time since two threads could take a task accessing the same data. thread pooling is an extremely common approach in game design as if implemented correctly can ensure consistent core utilization across each cpu core.
+One common approach to threading in game architecture is thread pooling, Thread pools split tasks over a finite number of worker threads through a shared worker queue. One issue with thread pooling however is that two threads may access the same game resource at the same time, requiring careful synchronisation to prevent a race condition. Thread pooling is an extremely common approach in game design, since if it's implemented correctly it can ensure consistent utilization across every CPU core.
 
-another approach to threading models in games is the actor-entity model where each game object (actors) maintains their own internal state and reacts to messages. this approach avoids race conditions entirely as each thread processes actors without direct memory sharing meaning two threads will never access the same memory location. this approach does however introduce latency and ordering challenges since messages may arrive late or out of order.
+Another approach to threading models in games is the actor-entity model where each game object (actors) maintains their own internal state and reacts to messages. This approach avoids race conditions entirely as each thread processes actors without direct memory sharing, meaning two threads will never access the same memory location. This approach does however introduce latency and ordering challenges, messages may arrive late or out of order.
 
 \subsection{race condition avoidance}
-Race conditions occur when two different threads attempt to enter the critical region at the same time e.g two threads access a variable at the same time. Race conditions are problematic since one thread could potentially read the value in the critical region whilst the other thread writes to the variable, causing thread 1’s read value of the variable to be incorrect.
-Race conditions can be avoided in multiple different ways, the most notable being mutex locks where once a thread accesses a critical region it will lock access for other threads until it has exited. However, this creates problems of its own since one thread will be stuck waiting to enter the critical region and will sit idle until the other thread exits.
+Race conditions occur when two different threads attempt to enter the critical region at the same time, e.g two threads access a variable at the same time. Race conditions are problematic since one thread could potentially read the value in the critical region whilst the other thread writes to the variable, causing thread 1’s read value of the variable to be incorrect.
+Race conditions can be avoided in multiple different ways, the most notable being mutex locks where once a thread accesses a critical region it will lock access for other threads until completion. However, this creates problems of its own since one thread will be stuck waiting to enter the critical region and will sit idle until the other thread exits.
 
-Another popular way game developers avoid race conditions is through Event architecture. Event architecture is composed of two main parts, Event Bus's and Event Queues with Event Bus's notifying subscribing functions immediately after an event is published then Event Queue's queuing up events to be processed in serial after its dispatch method is called. Event queues avoid race conditions by processing critical region accessing tasks one after the other thus preventing two accesses at the same time. 
+Another popular way game developers avoid race conditions is through Event architecture. Event architecture is composed of two main parts, the Event Bus and the Event Queue with the Event Bus notifying subscribing functions immediately after an event is published, then Event Queue's queuing up events to be processed in serial after its dispatch method is called. Event queues avoid race conditions by processing critical region accessing tasks one after the other thus preventing two accesses at the same time. 
 
 \subsection{My approach}
 My chosen Thread model for this project is thread pooling, each game instance will be assigned a thread that are synced at the end of each frame then reused for the next frame. Due to the nature of Ogre3d only being safely accessible from one thread i have seperated task queues into a local queue and a global queue. the local queue runs thread safe events only accessing that game instances data then the global queue is used to process non thread safe events such as moving a viewport.
 
-whilst it can be said that Ogre3d only being able to be accessed from a single thread is a limitation of my project its important to note that down to a fundamental level GPU's run tasks in serial so issuing rendering commands in a multithreaded environment provides no significant advantage.
+Whilst it can be said that Ogre3d only being able to be accessed from a single thread is a limitation of my project, its important to note that down to a fundamental level GPU's run tasks in serial so issuing rendering commands in a multithreaded environment provides no significant advantage.
 \section{Graphics/Rendering Engines}
 \subsection{Comparison of commonly used Engines}
 Game engines are systems that abstract complex rendering from developers. There are a variety of commercial and open source game engines available, each providing differing levels of abstraction. some well known choices being unreal engine and unity which are both considered heavyweight game engines since they abstract processes such as entity storage and concurrency. Open source and lightweight game engines are also widely used, the most popular being GoDot which abstracts considerably less than heavyweight game engines.
@@ -437,10 +444,10 @@ below is a picture of Dear Imguis UI
 	\label{fig:screenshot003}
 \end{figure}
 
-Another popular option is CEGUI, which is primarily used for GUI's.
+Another popular option is CEGUI, which is primarily used for game GUI's. CEGUI's age and out of date appearance are however criticised, with most game developers opting for a more modern library or creating their own.
 
 \subsection{My Approach}
-My chosen Overlay system is the Ogre Overlay library, which is natively included in Ogre3d. due to Ogre Overlay being part of Ogre3d's ecosystem it allows for convenient integration into this project, this has several benefits such as being able to create unique overlays for each viewport and inclusion within Ogre3d's rendering pipeline. Ogre Overlay is simplistic in terms of features such that Buttons and drop down menus must be created manually, although this means that a GUI library can be produced that is more specialised for this project's needs.
+My chosen Overlay system is the Ogre Overlay library, which is natively included in Ogre3d. Due to Ogre Overlay being part of Ogre3d's ecosystem it allows for convenient integration into this project, this has several benefits such as being able to create unique overlays for each viewport and inclusion within Ogre3d's rendering pipeline. Ogre Overlay is simplistic in terms of features such that Buttons and drop down menus must be created manually, although this means that a GUI library can be produced that is more specialised for this project's needs.
 
 I had initially planned to use Dear Imgui to produce a debug overlay for this project, however due to unforeseen issues with integrating Dear Imgui with ogre i now use Ogre Overlay exclusively.
 \section {Fragment shaders}
@@ -603,9 +610,10 @@ void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
 The next challenge was implementing UI elements that had an effect when pressed. My initial approach to this problem was to store a pointer to the buttons state, either true or false indicating whether the button was pressed. A large issue with this approach was the lack of thread safety, \texttt{OverlayController} may write true to the value on one tick then false on another causing the instance thread to completely miss the trigger window where the value is true. The final chosen approach to this problem was a callback system, once the button had been pressed \texttt{OverlayController} calls a stored lambda callback to trigger the desired effect. For example, the main menu "play" button is registered with a lambda to queue a state change event, thus once the same tick that the button is pressed the application changes state with no chance of the instance thread not recognising it.
 
 \section{concurrency}
-This project has implemented Concurrent execution of each game instance, each game instance thread is managed using the thread pooling pattern. 
+This project has implemented concurrent execution of each game instance, with each instance managed using the thread pooling pattern. BSThreadPool is the chosen library for achieving this functionality, selected for its straightforward integration and ease of development. In this project, each player is assigned their own independent game instance, and BSThreadPool manages the run method for each of these game instance threads automatically. Rather than constantly creating new threads, threads are recycled each frame, with new threads only being created when a new player connects.  
 
-due to the current project state, each game instance thread is currently taking on a very small amount of processing responsibility. however, the system infrastructure required to distribute complex processing across game instance threads is implemented and once the project reaches a more complete state then the advantages of multi threading becomes more apparent.
+Some concurrent aspects of the project do not however run within the thread pooling pattern, instead occupying dedicated standalone threads to reflect their independent, continuous nature. The input listener is one such example, running persistently on its own thread to ensure responsiveness is never delayed by game instance workload. Across the standalone threads and the thread pool workers, the implementation is designed to occupy a total of 4 threads, with the intention of leaving 4 spare cores on an 8-core CPU for game instances. Some of these independent threads such as Input analyser take up a very small amount of cpu resources, with 12 percent usage being recorded, allowing background OS tasks to not be disrupted by the projects operation.
+
 
 \subsection{My race condition avoidance approach}
 A race condition occurs when two threads running concurrently attempt to access 
@@ -675,24 +683,46 @@ void Enqueue(EventType&& Event) {
 
 \end{lstlisting}
 
-The Enqueue method can take any Event as a parameter
+The Enqueue method can take any Event as a parameter as signified by the template keyword, this allows any event to be added to the queue, without the need to create hundreds of Enqueue methods for each event type.
 
 \section {Resource Entity Action}
 
-A Major technology implemented throughout term 2's development was Resource Entity Action, a methodology using matrixs to evaluate entity interactions much faster than standard arithmetic.
+A Major technology implemented throughout term 2's development was Resource Entity Action, a methodology using a matrix to evaluate entity interactions much faster than standard arithmetic.
 
 Since this project is focused mainly on a rudimentary implementation of a game the only practical implementation of REA used is between two entities attacking eachother. As seen in the below snippet, a matrix is used to calculate the resulting HP (health points) of the defending entity.
+
+\begin{lstlisting}[
+	language=C++,
+	caption={evaluation of an attack event using an eigen matrix (\texttt{Product.sln}, 
+		\texttt{EntityInteractionEvaluator.cpp})},
+	label=lst:matrix
+	]
+Eigen::MatrixXf CombatMatrix(2, 2);
+CombatMatrix << 0.0f, 0.0f, -1.0f, 0.0f;
+void EntityInteractionEvaluator::ProcessAttackEvent(AttackEvent Event) {
+	Eigen::VectorXf Resource(2);
+	Resource << (Event.AttackPower), (*Event.DefendingEntityHP);
+	
+	AttackMatrix->EvaluateAction(Resource, Event.DeltaTime);
+	
+	*Event.DefendingEntityHP = Resource(1);
+}
+\end{lstlisting}
+
+The combat matrix used to evaluate the resulting defender HP is defined using Eigen as a 2x2 vector. The matrix definition is designed to evaluate the defenders hp with d(HP)/dt which equals -1·AP + 0·HP = -AP, causing a decrease in defender hp proportional to the attack power, additionally scaled by delta time for consistency. The use of a matrix such as this one to evaluate attack events is significantly faster than standard arithmetic, whilst this project doesn't utilise matrix's enough to make a comment about its speed, its been found to increase performance significantly [21].
 
 \section{input handling}
 This project has implemented Input handling using SDL2 with concurrent input translation happening for each game instance. both controller and keyboard+mouse input is read, both types of input device's activity is translated to a cursor position on the screen and a camera angle (changes based on relative movement).
 
-Another implemented feature for input handling in this project is disconnect handling. if a controller is disconnected whilst the project is running then the controller is reconnected to the correct game instance once the device reconnects. 
+Another implemented feature for input handling in this project is disconnect handling. if a controller is disconnected whilst the project is running, then the controller is reconnected to the correct game instance once the device reconnects. In addition to this, a new input device can be connected, causing another game instance to be created with its own viewport.
 
-however, the disconnect handling is not yet complete due to a limitation with SDL2 where generic controllers cant be distinguished on the basis of vendor and product id. the finalised disconnect handling will have a text prompt that prompts a user that has disconnected to press a button on their controller.
+However, the disconnect handling is limited by a known issue with SDL2, generic controllers cant be distinguished on the basis of vendor and product id. This limitation prevents truly accurate reconnect handling as soon as 2 or more controllers disconnect, most games solve this using a text prompt, but I decided against this solution as a faulty controller could cause a repeated prompt.
+
 \section{ECS}
-This project has implemented ECS for storage and classification of game objects. visible game objects such as the demonstration cube can easily be created through entity templates that construct ECS entities using a factory design pattern. the created ECS entities are automatically linked to ogre3d such that they are visible from a viewport.
+This project has implemented ECS for storage and classification of game objects. ECS entities can easily be created using entity templates, these entity templates define common game objects such as units and cities, adding relevant components such as ProducesUnitsComponent or AttackComponent to define their behaviour.
 
-the universal Entity components have been created storing pointers to Ogre objects to allow for easy modification of the stored entities.  
+ECS entities in the final version of this project also have common entity components, such as Ownership component, allowing common information to be readily available on demand. These common components don't define any behaviour, but eliminate the need for any context queries surrounding a given entity, increasing the efficiency of iterating over these entities.
+ 
 
 \subsection{Use of ECS within the final version}
 \subsubsection{The entity loop}
@@ -762,7 +792,17 @@ for (auto& [PlayerID, Entities] : PlayerProductionMap) {
 This is the visible state of the project when 2 input devices are connected. both input devices have their own perspective of the cube and can control their perspective simultaneously. the debug overlay also shows the current state of each input device such as the number of pressed buttons.
 \subsection {Term 2}
 
-This is the running state of the project in Term 2. As can be seen the world map is represented as a globe
+This is the running state of the project in Term 2. As can be seen the world map is represented as a globe, with raised land masses representing countries.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{Term2}
+	\caption{a screenshot taken of the running state of the project in term 2}
+	\label{fig:Term2}
+\end{figure}
+
+A 4 button interaction menu can be seen in the above screenshot, which is the primary way users interact with the project. From the interaction menu users can either move a selected unit, destroy a selected unit, place a city or place a unit. Since this project focus is mainly on concurrency rather than visual fidelity, the UI elements remain basic along with the main games UI. That being said, the UI elements are fully interactive, giving an indication of whether they're hovered or pressed.
+ 
 \section {Locking interaction and visibility between viewports}
 \subsection {Preventing controlling other viewports UI elements}
 Given the local cooperative nature of this project, it was necessary to implement safeguards preventing players from inadvertently or deliberately taking control of another player's viewport. \newline
@@ -845,18 +885,23 @@ A further benefit of this approach is scalability. The loop-based approach degra
 
 
 
-\section{Project CFD}
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.7\linewidth]{../CFD}
-	\caption{the control flow diagram of the projects execution. zooming in is required to read text clearly.}
-	\label{fig:cfd}
-\end{figure}
 \chapter{performance comparisons}
 \section{multi-threaded vs single-threaded}
 Since the primary focus of the project is to produce a multi-threaded game I have decided to outline the relative benefit that has been achieved through using concurrency.
 Below is a screenshot of the frames per second recorded in the program for the multi threaded implementation.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{Picture2}
+	\caption{a screenshot taken of the frames per second counter in the standard multi threaded mode}
+	\label{fig:Picture2}
+\end{figure}
 Below is a screenshot from a converted implementation where everything runs in the main thread.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{Picture3}
+	\caption{a screenshot taken of the frames per second counter in the converted single threaded mode}
+	\label{fig:Picture3}
+\end{figure}
 
 There are, however, some important limitations of this comparison to consider. 
 The most fundamental is that this project was designed specifically around 
@@ -916,16 +961,19 @@ constraints of this project and falls outside its intended scope.
 details on how to install and configure the above can be found in the deployment video provided in the git repository.
 \section{deployment instructions}
 
-* open product.sln (if a retarget prompt appears then refer to deployment perquisites) \newline
-* this project uses cpplint in pre build events, run "pip install cpplint" (important that this is done in the vs python command prompt and not a regular command prompt) \newline
-* you'll be presented with 3 different projects in visual studio, "product" is a static lib and "tests" + "application" is an exe \newline
-* before compiling, configure "multiple startup projects" and make sure that the static lib isn't run but the other 2 are \newline
-* clean then rebuild all using visual studio, vcpkg will download and install dependencies (usually takes ~2-~3 hours) \newline
+* Open product.sln (if a retarget prompt appears then refer to deployment perquisites) \newline
+* This project uses cpplint in pre build events, run "pip install cpplint" (important that this is done in the vs python command prompt and not a regular command prompt) \newline
+* You'll be presented with 3 different projects in visual studio, "product" is a static lib and "tests" + "application" is an exe \newline
+* Before compiling, configure "multiple startup projects" and make sure that the static lib isn't run but the other 2 are \newline
+* Clean then rebuild all using visual studio, vcpkg will download and install dependencies (usually takes ~2-~3 hours) \newline
 * Please note that if the first run fails it means that vcpkg automatic linking failed. as a fallback, post build events will copy all required DLLs to the output dir meaning the second run wont fail. \newline
 * Please note that this project requires OpenGL to be installed, the glsl shader will not function when this project is used with DirectX
 * *VERY IMPORTANT* if you are running my project from inside visual studio you must change the debugging directory (working directory in the debugging section) for each individual project (application, product, tests)  to \$(OutDir) (must be uniform between projects), prebuild events will copy the right ogre config to the outdir so please keep in mind if you decide to build my project to a different directory (outside of visual studio) then you need to recreate this behaviour.\newline
 
-\section{changes to the deployment process in term 2}
+* *VERY IMPORTANT* you must ensure that the pre and post build events have been preserved after cloning this repository. Without these, the dependancy DLLs and resource folders wont be copied to the output directory.
+\section {important note for linux}
+
+This project was designed fully around platform-neutral code. That being said, due to my use of visual studio as my preferred IDE the deployment process is very much intended for windows. This is due to the added time consumption of maintaining a CMAKE compiled version alongside the primary visual studio version, thus the intended way to run this project on linux is through proton (valve compatibility layer) on a pre compiled executable.
 
 
 
@@ -933,7 +981,7 @@ details on how to install and configure the above can be found in the deployment
 \section{testing environment}
 This project uses the Doctest C++ library for unit testing with Cpplint to check for google c++ style compliance.To test for memory leaks and concurrent performance within my project im using the native visual studio debugger with Open Hardware Monitor to check core utilization.
 
-This project is tested on 2 different computers
+This project is primarily tested on a computer runnings windows 11 and one running linux mint (through proton).
 
 \textbf{Primary development computer } \newline
 \textbf{Operating System:} Windows 11 Home edition \newline
@@ -943,7 +991,7 @@ This project is tested on 2 different computers
 disk running and storing project: Nvme SSD \newline
 
 \textbf{secondary development computer} \newline
-\textbf{Operating System:} Linux Mint with Wine installed \newline
+\textbf{Operating System:} Linux Mint with proton installed \newline
 \textbf{CPU:} Ryzen 7 3700x \newline
 \textbf{GPU:} AMD Radeon 7700XT \newline
 \textbf{RAM:} 16GB DDR4 \newline
@@ -958,10 +1006,8 @@ This project uses Event architecture and Entity Component System, an industry st
 
 Another architectural standard this project follows is Thread pooling, this is an industry standard approach to concurrency as it allows consistent hardware utilization across cpu cores. 
 
-throughout the development of this project, a control flow diagram was updated regularly to show the codes execution.
-
 \section{Version control}
-This project uses Git as a version control solution, with the Git repository being hosted on the department git lab. Progress was frequently committed throughout the development process and the main branch was kept in a working state throughout to keep a restore point available. major changes to this project where created on seperate branches with branch objectives set before hand, before merging into main the feature branch is thoroughly tested and checked against branch objectives.
+This project uses Git as a version control solution, with the Git repository being hosted on the department git lab. Progress was frequently committed throughout the development process, and the main branch was kept in a working state throughout to keep a restore point available. Major changes to this project where created on seperate branches with branch objectives set before hand, before merging into main the feature branch is thoroughly tested and checked against branch objectives.
 \newpage
 \chapter{Acronomys}
 \textbf{ECS - }Entity Component System \newline
@@ -975,10 +1021,11 @@ This project uses Git as a version control solution, with the Git repository bei
 \textbf{TDD - }Test Driven Development \newline
 \textbf{GUI - }Graphical user interface \newline
 \textbf{GUI - }Graphical user interface \newline
-\newpage{GLSL - }OpenGL shading language\newline
-\newpage{HLSL - }High level shading language\newline
-\newpage{MSL - }Metal shading language\newline
-\newpage{WGSL - }WebGPU shading language\newline
+\textbf{GLSL - }OpenGL shading language\newline
+\textbf{HLSL - }High level shading language\newline
+\textbf{MSL - }Metal shading language\newline
+\textbf{WGSL - }WebGPU shading language\newline
+
 \chapter{Glossary}
 \textbf{Ogre3d - }a lightweight rendering engine in the form of a c++ library \newline
 \textbf{Ogre Overlay -} a component included inside the Ogre3d ecosystem, focused on overlaying 2d objects over a 3d viewport \newline
@@ -994,6 +1041,8 @@ store entities \newline
 \textbf{nlohmann json-} a popular JSON library in c++ \newline
 \textbf{stellaris} a real time strategy game from Paradox interactive, known to have performance issues \newline
 \textbf{Fragment shader} A programmable stage of the rendering pipelines, running for each pixel on the screen\newline
+\textbf{Ray tracing} A methodology for computing the distance from a 3d origin point to other geometry, in a specified direction \newline
+\textbf{Eigen} A c++ library for defining and performing matrix calculations \newline
 
 
 \chapter{bibliography}
@@ -1020,141 +1069,144 @@ NVIDIA Technical Blog. Available at:
 [11] SDL Community (2004) Case sensitive key down? Simple DirectMedia Layer Development Forum. Available at: \url{https://discourse.libsdl.org/t/case-sensitive-key-down/10807} (Accessed: 5th November 2025). \newline
 [12] Stack Overflow (2023) fmt compile-time format string check without generating ASM code for the check. Stack Overflow. Available at: \url{https://stackoverflow.com/questions/76329898/fmt-compile-time-format-string-check-without-generating-asm-code-for-the-check} (Accessed: 7th November 2025). \newline
 [13] OGRECave (2025) Ogre 3D Engine --- Simple samples. GitHub. Available at: \url{https://github.com/OGRECave/ogre/tree/master/Samples/Simple/include} (Accessed: 8th November 2025). \newline
-[14] Wikipedia (2026) OpenGL Shading Language. Wikipedia. Available at: \detokenize{https://en.wikipedia.org/wiki/OpenGL_Shading_Language} (Accessed: 5th April 2026).
-[15] Generalist Programmer (2025) Shader Programming Complete Graphics Guide 2025: Master Real-Time Rendering. Available at: https://generalistprogrammer.com/tutorials/shader-programming-complete-graphics-guide-2025 (Accessed: 5th April 2026).
-[16] Galvan, A. (2024) A Review of Shader Languages. Alain.xyz. Available at: https://alain.xyz/blog/a-review-of-shader-languages (Accessed: 8th April 2026).
-[17] Wikipedia (2025) Shading language. Wikipedia. Available at:\detokenize{https://en.wikipedia.org/wiki/Shading_language} (Accessed: 8th April 2026).
-[18] Khronos Group (2015) Fixed Function Pipeline. OpenGL Wiki. Available at: \detokenize{https://wikis.khronos.org/opengl/Fixed_Function_Pipeline} (Accessed: 8th April 2026).
-[19] Quilez, I. (2018) \textit{Raymarching Distance Fields}. iquilezles.org. Available at: https://iquilezles.org/articles/raymarchingdf/ (Accessed: 8th April 2026).
-[20] Quilez, I. (2010) \textit{Soft Shadows in Raymarched Signed Distance Fields}. iquilezles.org. Available at: https://iquilezles.org/articles/rmshadows/ (Accessed: 8th April 2026).
+[14] Wikipedia (2026) OpenGL Shading Language. Wikipedia. Available at: \detokenize{https://en.wikipedia.org/wiki/OpenGL_Shading_Language} (Accessed: 5th April 2026). \newline
+[15] Generalist Programmer (2025) Shader Programming Complete Graphics Guide 2025: Master Real-Time Rendering. Available at: https://generalistprogrammer.com/tutorials/shader-programming-complete-graphics-guide-2025  (Accessed: 5th April 2026). \newline
+[16] Galvan, A. (2024) A Review of Shader Languages. Alain.xyz. Available at: https://alain.xyz/blog/a-review-of-shader-languages (Accessed: 8th April 2026). \newline
+[17] Wikipedia (2025) Shading language. Wikipedia. Available at:\detokenize{https://en.wikipedia.org/wiki/Shading_language} (Accessed: 8th April 2026). \newline
+[18] Khronos Group (2015) Fixed Function Pipeline. OpenGL Wiki. Available at: \detokenize{https://wikis.khronos.org/opengl/Fixed_Function_Pipeline} (Accessed: 8th April 2026). \newline
+[19] Quilez, I. (2018) \textit{Raymarching Distance Fields}. iquilezles.org. Available at: https://iquilezles.org/articles/raymarchingdf/ (Accessed: 8th April 2026). \newline
+[20] Quilez, I. (2010) \textit{Soft Shadows in Raymarched Signed Distance Fields}. iquilezles.org. Available at: https://iquilezles.org/articles/rmshadows/ (Accessed: 8th April 2026). \newline
+[21] Spronck, P. (2013) Resource Entity Action: a generalized design pattern for RTS games. spronck.net. Available at https://www.spronck.net/pubs/CG2013Abbadi.pdf (Accessed: 10th April 2026) \newline
 \newpage
 \chapter{appendices}
 \section{project diary}
-11/10/25 - researched convenient way to implement TDD
-11/10/25 - configured and succesfully setup project
-12/10/25 - configured cpplint to check c++ google standard
-12/10/25 - designed general structure of ECS Registry and Event bus
-12/10/25 - created initial test templates
-12/10/25 - created EventBus and EventQueue tests
-13/10/25 - researched ogre render system patterns
-13/10/25 - initial ViewPortController and RenderSystem classes and tests
-14/10/25 - investigated the best way of harvesting input simultaneously from multiple controllers (arrived at SDL2, integrated into ogre by default)
-15/10/25 - created initial event templates and InputListener class
-15/10/25 - shifted focus to ECS storage, researched how entt registry should be managed and who should own it. decided on a WorldManager singleton
-16/10/25 to 19/10/25 - modeling runtime scripts and researching other ogre3d projects
-20/10/25 - race condition tests, initial implementation of runtime scripts using app states
-21/10/25 - write base renderSystem class, designed error and logging system 
-22/10/25 - wrote EventBus and EventQueue class as prequisite to error and logging system 
-22/10/25 - realised EventQueue class erases type information, redesigned and placed queue items in a wrapper class
-24/10/25 - wrote passing tests for eventQueue
-25/10/25 - when doing ogre runtime tests i realised that the vcpkg version of ogre is incorrect, porting fully to a manual build
-26/10/25 - identified that the issue was due to string corruption of the package name, ported back to vcpkg and fixed by linking debug libraries when neccessary
-27/10/25 - wrote passing viewport tests (apart from an unidentified issue regarding viewport z-orders)
-28/10/25 - passing tests across the board (bar 2 viewport tests), created a responsive ogre render window
-29/10/25 - integrated and initialised SDL2 and Dear Imgui
-30/10/25 - partial implementation of error reporting (without handling yet)
-30/10/25 - looked at sample programs in the ogre and sdl doc, realised input listener cant be on a per instance basis, redesigned such that a singular input handler dispatches to each instance
+11/10/25 - researched convenient way to implement TDD \newline
+11/10/25 - configured and succesfully setup project \newline
+12/10/25 - configured cpplint to check c++ google standard \newline
+12/10/25 - designed general structure of ECS Registry and Event bus \newline
+12/10/25 - created initial test templates \newline
+12/10/25 - created EventBus and EventQueue tests \newline
+13/10/25 - researched ogre render system patterns \newline
+13/10/25 - initial ViewPortController and RenderSystem classes and tests \newline
+14/10/25 - investigated the best way of harvesting input simultaneously from multiple controllers (arrived at SDL2, integrated into ogre by default) \newline
+15/10/25 - created initial event templates and InputListener class \newline
+15/10/25 - shifted focus to ECS storage, researched how entt registry should be managed and who should own it. decided on a WorldManager singleton \newline
+16/10/25 to 19/10/25 - modeling runtime scripts and researching other ogre3d projects \newline
+20/10/25 - race condition tests, initial implementation of runtime scripts using app states \newline
+21/10/25 - write base renderSystem class, designed error and logging system  \newline
+22/10/25 - wrote EventBus and EventQueue class as prequisite to error and logging system \newline
+22/10/25 - realised EventQueue class erases type information, redesigned and placed queue items in a wrapper class \newline
+24/10/25 - wrote passing tests for eventQueue \newline
+25/10/25 - when doing ogre runtime tests i realised that the vcpkg version of ogre is incorrect, porting fully to a manual build \newline
+26/10/25 - identified that the issue was due to string corruption of the package name, ported back to vcpkg and fixed by linking debug libraries when neccessary \newline
+27/10/25 - wrote passing viewport tests (apart from an unidentified issue regarding viewport z-orders) \newline
+28/10/25 - passing tests across the board (bar 2 viewport tests), created a responsive ogre render window \newline
+29/10/25 - integrated and initialised SDL2 and Dear Imgui \newline
+30/10/25 - partial implementation of error reporting (without handling yet) \newline
+30/10/25 - looked at sample programs in the ogre and sdl doc, realised input listener cant be on a per instance basis, redesigned such that a singular input handler dispatches to each instance \newline
 31
-4/11/25 - which data structure and key is appropriate for having an input device bound to an sdl id? (same issue for input device and queue)
-4/11/25 - read \detokenize{https://www.geeksforgeeks.org/cpp/map-vs-unordered_map-c/}
-4/11/25 - \detokenize{read https://www.geeksforgeeks.org/cpp/set-vs-unordered_set-c-stl/}
-4/11/25 - read https://www.geeksforgeeks.org/cpp/advantages-of-vector-over-array-in-c/
-4/11/25 - settled on unordered set instead of vectors, mainly for O(1) lookups but also since its a set and it only needs to store unique data
-5/11/25 - how can i replicate case sensitivy for sdl when sdl2 doesnt generate capital letter events? 
-5/11/25 - read https://discourse.libsdl.org/t/case-sensitive-key-down/10807
-5/11/25 - realized sdl2 has global "mod" events, used them to check for shift and capslock state to replicate case sensitivity
-6/11/25 - test port to secondary pc
-6/11/25 - realized that plugins.cfg used by ogre reads exclusively from the build output dir which isnt replicated on gitlab
-6/11/25 - added a prebuild event to copy from product/ to (Outdir)
-7/11/25 - how can i add specific error information for my error handling?
-7/11/25 - used previously familiar format library
-7/11/25 - encountered issue where format would read string values at compile time as const
-7/11/25 - realized limitation of format library with a static lib and researched alternatives
-7/11/25 - read https://stackoverflow.com/questions/76329898/fmt-compile-time-format-string-check-without-generating-asm-code-for-the-check
-7/11/25 - implemented fmt library instead as dependancy then used fmt in CreateError calls to force runtime string building
-8/11/25 - researched Imgui implementation and consulted ogre doc with imgui example at https://github.com/OGRECave/ogre/tree/master/Samples/Simple/include
-8/11/25 - realized this example didnt apply to me due to their use of ApplicationBase (used to make cookie cutter ogre3d apps not relevant to me )
-8/11/25 - attempted custom implementation of imgui in my project, repeated failure
-8/11/25 - consulted countless forum posts on the ogre forum, many outdated and irrelevant to the issue
-8/11/25 - realized imguis IO string fields "BackEndRenderer" was corrupt/inaccesible
-9/11/25 - realized that im building imgui and ogre as dynamic library with no way of accessing a shared IO
-9/11/25 - edited project properties to build as static lib (for unified memory)
-9/11/25 - major edits to project setup for compatibility with static lib versions of ogre and sdl2 etc
-10/11/25 - using ogre in static lib mode proved to be a major pain, reverting back to last stable build
-10/11/25 - after revert, used native ogre overlay support to add OverlayController (class owned by RenderSystem and is responsible soley for overlays)
-11/11/25 - stopped checking controller GUID, realised it was manufacturer id and anyone using generic controllers (like me) would have their controllers lumped onto the same id
-11/11/25 - added a debug overlay that shows activity of all input devices
-11/11/25 - when refining before final merge, i noticed that SDL2 actually has a limitation with generic controllers, that being it has literally no idea which is which, this isnt a problem if they dont disconnect but finding the right controller to connect back to is now proving extremely difficult
-11/11/25 - my first idea for solving this problem is to just reconnect controllers to the slot that doesnt have a valid controller connected, this would work perfectly fine however a foreseeable issue is if two controllers disconnect at the same time then they may end up in the wrong slot. this is the most practical solution for now however once the project is at a later stage my definitive solution is to have a prompt pop up for each disconnected user saying "press any key (player)" so the user can manually put it back in the right slot
-11/11/25 - implemented fix to controller reconnection, as suspected theres an issue where disconnected 2 controllers can cause the slots to switch
-12/11/25 - noticed that the input sensitivity of controllers depended on the frame rate the game was running on when testing on multiple clamped frame rates
-12/11/25 - implemented a dynamic delta time value that can easily be retrieved from RenderSystem and scaled input sensitivity with it
-13/11/25 - 22/12/25 - time dedicated to multiple assignments for other modules
-23/11/25 - asked myself what should i be doing for users with different display types or render preferences
-24/11/25 - utilized nlohmann json to make a generic ConfigManager usable for any config elsewhere in my codebase
-25/11/25 - implemented the new config system for video settings, including render resolution, the default render resolution is 1920x1080 since its the most common resolution
-27/11/25 - researched ECS implementations for use cases similar to mine
-28/11/25 - researched the ogre docs to see what information i should be storing for my ECS entities
-29/11/25 - initial ECS implementation with a test cube (different coloured faces) for the demo
+4/11/25 - which data structure and key is appropriate for having an input device bound to an sdl id? (same issue for input device and queue) \newline
+4/11/25 - read \detokenize{https://www.geeksforgeeks.org/cpp/map-vs-unordered_map-c/} \newline
+4/11/25 - \detokenize{read https://www.geeksforgeeks.org/cpp/set-vs-unordered_set-c-stl/} \newline
+4/11/25 - read https://www.geeksforgeeks.org/cpp/advantages-of-vector-over-array-in-c/ \newline
+4/11/25 - settled on unordered set instead of vectors, mainly for O(1) lookups but also since its a set and it only needs to store unique data \newline
+5/11/25 - how can i replicate case sensitivy for sdl when sdl2 doesnt generate capital letter events? \newline
+5/11/25 - read https://discourse.libsdl.org/t/case-sensitive-key-down/10807 \newline
+5/11/25 - realized sdl2 has global "mod" events, used them to check for shift and capslock state to replicate case sensitivity \newline
+6/11/25 - test port to secondary pc \newline
+6/11/25 - realized that plugins.cfg used by ogre reads exclusively from the build output dir which isnt replicated on gitlab \newline
+6/11/25 - added a prebuild event to copy from product/ to (Outdir) \newline
+7/11/25 - how can i add specific error information for my error handling? \newline
+7/11/25 - used previously familiar format library \newline
+7/11/25 - encountered issue where format would read string values at compile time as const \newline
+7/11/25 - realized limitation of format library with a static lib and researched alternatives \newline
+7/11/25 - read https://stackoverflow.com/questions/76329898/fmt-compile-time-format-string-check-without-generating-asm-code-for-the-check \newline
+7/11/25 - implemented fmt library instead as dependancy then used fmt in CreateError calls to force runtime string building \newline
+8/11/25 - researched Imgui implementation and consulted ogre doc with imgui example at https://github.com/OGRECave/ogre/tree/master/Samples/Simple/include \newline
+8/11/25 - realized this example didnt apply to me due to their use of ApplicationBase (used to make cookie cutter ogre3d apps not relevant to me ) \newline
+8/11/25 - attempted custom implementation of imgui in my project, repeated failure \newline
+8/11/25 - consulted countless forum posts on the ogre forum, many outdated and irrelevant to the issue \newline
+8/11/25 - realized imguis IO string fields "BackEndRenderer" was corrupt/inaccesible\newline
+9/11/25 - realized that im building imgui and ogre as dynamic library with no way of accessing a shared IO\newline
+9/11/25 - edited project properties to build as static lib (for unified memory)\newline
+9/11/25 - major edits to project setup for compatibility with static lib versions of ogre and sdl2 etc\newline
+10/11/25 - using ogre in static lib mode proved to be a major pain, reverting back to last stable build\newline
+10/11/25 - after revert, used native ogre overlay support to add OverlayController (class owned by RenderSystem and is responsible soley for overlays)\newline
+11/11/25 - stopped checking controller GUID, realised it was manufacturer id and anyone using generic controllers (like me) would have their controllers lumped onto the same id\newline
+11/11/25 - added a debug overlay that shows activity of all input devices\newline
+11/11/25 - when refining before final merge, i noticed that SDL2 actually has a limitation with generic controllers, that being it has literally no idea which is which, this isnt a problem if they dont disconnect but finding the right controller to connect back to is now proving extremely difficult\newline
+11/11/25 - my first idea for solving this problem is to just reconnect controllers to the slot that doesnt have a valid controller connected, this would work perfectly fine however a foreseeable issue is if two controllers disconnect at the same time then they may end up in the wrong slot. this is the most practical solution for now however once the project is at a later stage my definitive solution is to have a prompt pop up for each disconnected user saying "press any key (player)" so the user can manually put it back in the right slot\newline
+11/11/25 - implemented fix to controller reconnection, as suspected theres an issue where disconnected 2 controllers can cause the slots to switch\newline
+12/11/25 - noticed that the input sensitivity of controllers depended on the frame rate the game was running on when testing on multiple clamped frame rates\newline
+12/11/25 - implemented a dynamic delta time value that can easily be retrieved from RenderSystem and scaled input sensitivity with it\newline
+13/11/25 - 22/12/25 - time dedicated to multiple assignments for other modules\newline
+23/11/25 - asked myself what should i be doing for users with different display types or render preferences\newline
+24/11/25 - utilized nlohmann json to make a generic ConfigManager usable for any config elsewhere in my codebase\newline
+25/11/25 - implemented the new config system for video settings, including render resolution, the default render resolution is 1920x1080 since its the most common resolution\newline
+27/11/25 - researched ECS implementations for use cases similar to mine\newline
+28/11/25 - researched the ogre docs to see what information i should be storing for my ECS entities\newline
+29/11/25 - initial ECS implementation with a test cube (different coloured faces) for the demo\newline
 
-12-20/12/25 - final refinements to interim report (extension used)
+12-20/12/25 - final refinements to interim report (extension used)\newline
 
---- out of term development 
-12/12/25 - research similar split overlay implementations (having overlays unique to a viewport)
-14/12/25 - implemented extended functionality to rendersystem through an owned class (PreViewPortUpdateListener)
-15/12/25 - implemented unique overlay functionality by hiding other overlays at the precise moment they are about to rendered, this is done using the PreViewPortUpdate event thats dispatched automatically by ogre
+--- out of term development \newline
+12/12/25 - research similar split overlay implementations (having overlays unique to a viewport) \newline
+14/12/25 - implemented extended functionality to rendersystem through an owned class (PreViewPortUpdateListener) \newline
+15/12/25 - implemented unique overlay functionality by hiding other overlays at the precise moment they are about to rendered, this is done using the PreViewPortUpdate event thats dispatched automatically by ogre \newline
 
-27/12/25 - limit the cursor position to the size of a unique overlay, this functionality will be extended in future by preventing the cursor from moving over other viewports
+27/12/25 - limit the cursor position to the size of a unique overlay, this functionality will be extended in future by preventing the cursor from moving over other viewports \newline
 
---- term 2 start
-19/01/26 - revisited \detokenize{https://liacs.leidenuniv.nl/~plaata1/papers/abbadi-resources_entities_actions_a_generalized_design_pattern-118.pdf} for a better understanding of resource entity action
-20/01/26 - wrote failing tests for the transformation matrix class
-20-25/01/26 - implementation of a rudimentary cursor implementation, noticed significant stability issues from this implementation
-26/01/26 - following testing of the cursor implementation, i decided that sticking to the default OS cursor for mouse was a better option for the mouse but keeping the system in place for controllers
-27/01/26 - refactored the dispatching order for events such that events are processed the same frame they are created, reducing the perceived delay from the cursor
-28/01/26 - created the entity interaction class, a class thats responsibility is to process all entity interactions and route matrixable interactions accordingly.
-29-31/01/26 - edge cases for matrix tests, stability improvements following detailed analysis from performance profiler.
+--- term 2 start \newline
+19/01/26 - revisited \detokenize{https://liacs.leidenuniv.nl/~plaata1/papers/abbadi-resources_entities_actions_a_generalized_design_pattern-118.pdf} for a better understanding of resource entity action \newline
+20/01/26 - wrote failing tests for the transformation matrix class \newline
+20-25/01/26 - implementation of a rudimentary cursor implementation, noticed significant stability issues from this implementation \newline
+26/01/26 - following testing of the cursor implementation, i decided that sticking to the default OS cursor for mouse was a better option for the mouse but keeping the system in place for controllers \newline
+27/01/26 - refactored the dispatching order for events such that events are processed the same frame they are created, reducing the perceived delay from the cursor \newline
+28/01/26 - created the entity interaction class, a class thats responsibility is to process all entity interactions and route matrixable interactions accordingly. \newline
+29-31/01/26 - edge cases for matrix tests, stability improvements following detailed analysis from performance profiler. \newline
 
-02/02/26 - read https://stackoverflow.com/questions/26516683/reusing-thread-in-loop-c to learn about reusing threads
-02/02/26 - added BS thread pool as a dependancy, implemented into the current thread pool pattern, improved fps and stability remarkability (500->2000fps) and cpu usage of the gameinstance->run method dropped from 12.8% of 1 core to 2.7%
-03/02/26 - noticed another significant performance limiter, updated application->run to follow the updated threading model and increased fps from 2000fps to 6000fps (cpu time dropped from 2.7% to 1.3%)
+02/02/26 - read https://stackoverflow.com/questions/26516683/reusing-thread-in-loop-c to learn about reusing threads \newline
+02/02/26 - added BS thread pool as a dependancy, implemented into the current thread pool pattern, improved fps and stability remarkability (500->2000fps) and cpu usage of the gameinstance->run method dropped from 12.8 percent of 1 core to 2.7 percent \newline
+03/02/26 - noticed another significant performance limiter, updated application->run to follow the updated threading model and increased fps from 2000fps to 6000fps (cpu time dropped from 2.7 percent to 1.3)\newline
 
-9/02/26 - designed an initial game map implementation, attempting to replicate the world map as a single mesh
-10/02/26 - after experimenting with the initial game map, i realised a cleaner approach would be to seperate the land masses as distinct meshes. this realisation came after investigating the ogre doc, specifically the ray tracing functionality. since ogre ray tracing handles mesh collision checks automatically, having the land masses be seperate meshes was a clean way of identifying land the units could spawn on (land masses) and ones they couldnt (the sea)
-11/02/26 - redesigned the world map after taking this into account, with countries also pertruding from the sea for an easier time with ogre raytracing.
-12/02/26 - updated world manager to load the new globe, each country is added to the same scenenode to make moving the globe easier if need be. the implemented world map does have a couple rendering errors, that being that some countries are visible through the globes surface (when the camera is facing the other side of the globe)
+9/02/26 - designed an initial game map implementation, attempting to replicate the world map as a single mesh\newline
+10/02/26 - after experimenting with the initial game map, i realised a cleaner approach would be to seperate the land masses as distinct meshes. this realisation came after investigating the ogre doc, specifically the ray tracing functionality. since ogre ray tracing handles mesh collision checks automatically, having the land masses be seperate meshes was a clean way of identifying land the units could spawn on (land masses) and ones they couldnt (the sea)\newline
+11/02/26 - redesigned the world map after taking this into account, with countries also pertruding from the sea for an easier time with ogre raytracing.\newline
+12/02/26 - updated world manager to load the new globe, each country is added to the same scenenode to make moving the globe easier if need be. the implemented world map does have a couple rendering errors, that being that some countries are visible through the globes surface (when the camera is facing the other side of the globe)\newline
 
-16/02/26 - investigated how input translator currently propogates input events
-17/02/26 - realized that input translator up until this point has mainly been focused on only communicating with the same instance thread it runs in (input events arent sent elsewhere but instead the instance thread reads the states manually)
-18/02/26 - designed a new struct for input events sent to the render thread to be identifiable back to the instance thread it was sent from (ActionContext), along with other context such as on a MousePressed event it includes the screen coordinates pressed and whether the button was pressed for the first time or is being held down (instead of a MousePressed event only indicating that that device was pressed and nothing else)
+16/02/26 - investigated how input translator currently propogates input events\newline
+17/02/26 - realized that input translator up until this point has mainly been focused on only communicating with the same instance thread it runs in (input events arent sent elsewhere but instead the instance thread reads the states manually)\newline
+18/02/26 - designed a new struct for input events sent to the render thread to be identifiable back to the instance thread it was sent from (ActionContext), along with other context such as on a MousePressed event it includes the screen coordinates pressed and whether the button was pressed for the first time or is being held down (instead of a MousePressed event only indicating that that device was pressed and nothing else)\newline
 
-27/02/26 - looked into how to fix the rendering errors present from the globe implementation. read https://forums.ogre3d.org/viewtopic.php?t=81112
-28/02/26 - since ive been using blender for my 3d meshes, the z order should be managed automatically so i deduced that the materials are the issue
-28/02/26 - read https://forums.ogre3d.org/viewtopic.php?t=57151 to identify the issue
-28/02/26 - added a depth \detokenize{pre_pass} level to the material scripts for the country material, this fixed the issue
+27/02/26 - looked into how to fix the rendering errors present from the globe implementation. read https://forums.ogre3d.org/viewtopic.php?t=81112\newline
+28/02/26 - since ive been using blender for my 3d meshes, the z order should be managed automatically so i deduced that the materials are the issue\newline
+28/02/26 - read https://forums.ogre3d.org/viewtopic.php?t=57151 to identify the issue\newline
+28/02/26 - added a depth \detokenize{pre_pass} level to the material scripts for the country material, this fixed the issue\newline
 
-6/03/26 - setup for raytracing functionality, initialised an Ogre:rayscenequery on startup
-7/03/26 - using the new functionality in input translator, Player general control now starts a raytrace when the mouse is pressed. the result isnt used yet but has been verified to be correct for future implementation
+6/03/26 - setup for raytracing functionality, initialised an Ogre:rayscenequery on startup\newline
+7/03/26 - using the new functionality in input translator, Player general control now starts a raytrace when the mouse is pressed. the result isnt used yet but has been verified to be correct for future implementation\newline
 
-9/03/26 - revisited older overlay code to try and figure out a clean method to add pressable buttons
-10/03/26 - decided on using a callback system for button functionality, buttons would register an event to be queued back to an event queue pointer once the button was clicked allowing OverlayController to handle all of the mouse hovering and mouse pressed checks.
-11/03/26 - implemented the new functionality into overlaycontroller and added a new button class to make adding a functional button easier (GenericButton.cpp)
+9/03/26 - revisited older overlay code to try and figure out a clean method to add pressable buttons\newline
+10/03/26 - decided on using a callback system for button functionality, buttons would register an event to be queued back to an event queue pointer once the button was clicked allowing OverlayController to handle all of the mouse hovering and mouse pressed checks.\newline
+11/03/26 - implemented the new functionality into overlaycontroller and added a new button class to make adding a functional button easier (GenericButton.cpp)\newline
 
-14/03/26 - implemented a basic state machine in preparation for a main menu
-15/03/26 - using the new button class (Generic button) i created a main menu button that issues ChangeState event when pressed
-15/03/26 - added functionality to rendersystem to hide or show a mesh when needed, allowing me to hide the globe by default then show the globe when the play button is pressed
+14/03/26 - implemented a basic state machine in preparation for a main menu\newline
+15/03/26 - using the new button class (Generic button) i created a main menu button that issues ChangeState event when pressed\newline
+15/03/26 - added functionality to rendersystem to hide or show a mesh when needed, allowing me to hide the globe by default then show the globe when the play button is pressed\newline
 
-20/03/26 - using previously unintegrated raytracing functionality, players can now select a unit or city
-20/03/26 - added functionality to highlight the selected unit or city by changing its colour to red
-21/03/26 - extended selection functionality by only allowing one city or unit to be selected, and pressing on a valid land mass will store the coordinates for future movement
+20/03/26 - using previously unintegrated raytracing functionality, players can now select a unit or city\newline
+20/03/26 - added functionality to highlight the selected unit or city by changing its colour to red\newline
+21/03/26 - extended selection functionality by only allowing one city or unit to be selected, and pressing on a valid land mass will store the coordinates for future movement\newline
 
-22/03/26 - added movement functionality to units, using the stored coordinates then the interaction wheel to move them
+22/03/26 - added movement functionality to units, using the stored coordinates then the interaction wheel to move them\newline
 
-25/03/26 - enemy units now appear as a different colour, this was done using a glsl fragment shader that does the ownership check on the gpu. units and cities now use a new material. \detokenize{unit_fp} that includes this check and once their initialised they have their ownership stored within it
+25/03/26 - enemy units now appear as a different colour, this was done using a glsl fragment shader that does the ownership check on the gpu. units and cities now use a new material. \detokenize{unit_fp} that includes this check and once their initialised they have their ownership stored within it\newline
 
-26/03/26 - added a new entity component, ProducesUnitsComponent. in the entitiy loop, this component adds to the available units passively
+26/03/26 - added a new entity component, ProducesUnitsComponent. in the entitiy loop, this component adds to the available units passively\newline
 
+30/03/26 - added attacking units functionality, final refinements to code\newline
 
+6/04/26 - cpplint compliance 100 percent \newline
 
 
 \end{document}
