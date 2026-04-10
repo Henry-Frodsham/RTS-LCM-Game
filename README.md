@@ -8,3 +8,13 @@
 * *VERY IMPORTANT* if you are running my project from inside visual studio you must change the debugging directory (working directory in the debugging section) for each individual project (application, product, tests)  to \$(OutDir) (must be uniform between projects), prebuild events will copy the right ogre config to the outdir so please keep in mind if you decide to build my project to a different directory (outside of visual studio) then you need to recreate this behaviour.\newline
 
 * *VERY IMPORTANT* you must ensure that the pre and post build events have been preserved after cloning this repository. Without these, the dependancy DLLs and resource folders wont be copied to the output directory.
+
+
+directory structure:
+documents/ - project documents including reports
+product/ - the code directory for the product project (product.sln)
+application/ - the executable code directory (the code that runs not the directory storing built exes)
+tests/ - the test project code directory
+resources/ - contains mesh and material files loaded into the scene
+config/ - the config files for settings
+
