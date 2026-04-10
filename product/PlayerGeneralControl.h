@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include "EventQueue.h"
 #include "InputTranslator.h"
@@ -7,6 +8,9 @@
 #include "RenderSystem.h"
 #include "ShareInfoEvent.h"
 
+// class responsible for general player control over the game world
+// such as (but not limited to), rotating the view point
+// checking hit points
 class PlayerGeneralControl {
  public:
   PlayerGeneralControl(InputTranslator* Translator, EventQueue* Queue,

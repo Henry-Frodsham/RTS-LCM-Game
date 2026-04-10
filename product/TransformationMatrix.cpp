@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Henry Frodsham
 #include "TransformationMatrix.h"
 
 TransformationMatrix::TransformationMatrix(Eigen::MatrixXf AMatrix) {

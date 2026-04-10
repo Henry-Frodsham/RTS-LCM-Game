@@ -1,6 +1,6 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "Player.h"
-Player::Player(Empire* Emp, int PlayerId) : PlayerEmpire(Emp), Id(PlayerId) {
+Player::Player(int PlayerId) : Id(PlayerId) {
   PlayerBus = new EventBus();
   PlayerQueue = new EventQueue(PlayerBus);
 
@@ -8,17 +8,8 @@ Player::Player(Empire* Emp, int PlayerId) : PlayerEmpire(Emp), Id(PlayerId) {
       std::bind(&Player::UpdateUnitProgress, this, std::placeholders::_1));
 }
 
-/*
-void Player::PlaceCity(ECSHelper* Factory, Ogre::Vector3 Pos) {
-  Factory->FactoryQueue->Enqueue(CreateMeshWorldEntityEvent(
-      "CityNode_" + std::to_string(Id) + "_" + std::to_string(Cities),
-      "city.mesh",
-      "CityEntity_" + std::to_string(Id) + "_" + std::to_string(Cities) ,Pos));
-
-  Cities += 1;
-}
-*/
-
+// returns the mesh name and entity name, and updates players internal state
+// before a new city
 CityConstructionInfo Player::PreCityPlace() {
   CityConstructionInfo New = CityConstructionInfo(
       "CityNode_" + std::to_string(Id) + "_" + std::to_string(Cities),
@@ -27,6 +18,7 @@ CityConstructionInfo Player::PreCityPlace() {
   return New;
 }
 
+// returns the mesh name and entity name, internal state before a new unit
 UnitConstructionInfo Player::PreUnitPlace() {
   UnitConstructionInfo New = UnitConstructionInfo(
       "UnitNode_" + std::to_string(Id) + "_" + std::to_string(Units),

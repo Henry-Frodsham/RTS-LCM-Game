@@ -1,5 +1,10 @@
+// Copyright (c) 2025 Henry Frodsham
 #include "PlayerGeneralControl.h"
 
+#include <vector>
+
+// general player control, class controlling input translator events and
+// transforming them into camera control and interactions
 PlayerGeneralControl::PlayerGeneralControl(InputTranslator* Translator,
                                            EventQueue* Queue,
                                            InteractionWheel* Wheel)
@@ -41,6 +46,7 @@ void PlayerGeneralControl::OnPress(PressActionCommand Cmd) {
       TriggerQueue));
 }
 
+// callback function from a completed raytrace in render system
 void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
   RenderSystem& RS = RenderSystem::GetInstance();
   if (Event.RayResult.size() != 0) {

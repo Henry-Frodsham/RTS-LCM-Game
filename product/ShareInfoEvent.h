@@ -1,5 +1,9 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
+
+// sharing info events, just for player general control to communicate selected
+// entities or hit pos to interaction wheel
 struct NotifySelectedEntity {
   Ogre::Entity* Entity;
   bool PressedTwice;
@@ -9,10 +13,10 @@ struct NotifySelectedEntity {
 
 struct NotifyLatLonEvent {
   Ogre::Vector2f LatLon;
-  NotifyLatLonEvent(Ogre::Vector2f L) : LatLon(L) {}
+  explicit NotifyLatLonEvent(Ogre::Vector2f L) : LatLon(L) {}
 };
 
 struct NotifyPosEvent {
   Ogre::Vector3f Pos;
-  NotifyPosEvent(Ogre::Vector3f Position) : Pos(Position) {}
+  explicit NotifyPosEvent(Ogre::Vector3f Position) : Pos(Position) {}
 };

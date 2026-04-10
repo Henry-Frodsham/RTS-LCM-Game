@@ -1,10 +1,12 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <Ogre/Ogre.h>
 
 #include <entt/entt.hpp>
+#include <memory>  // NOLINT(build/include_order)
+#include <string>  // NOLINT(build/include_order)
 
 #include "Player.h"
-
 // an event solely used to create a new registry entry
 // since an entity could exist without an ogre component its neccessary that is
 // standalone example usage: SomeQueue.enqueue(CreateEntityEvent(ERef, "myNode",
@@ -17,7 +19,8 @@ struct CreateEntityEvent {
   // (storing this shared ptr) are also destroyed
   std::shared_ptr<entt::entity> CreatedEntity;
 
-  CreateEntityEvent(std::shared_ptr<entt::entity> ent) : CreatedEntity(ent) {}
+  explicit CreateEntityEvent(std::shared_ptr<entt::entity> ent)
+      : CreatedEntity(ent) {}
 };
 
 // an event used to add an ogre component to a prexisting entity
@@ -49,6 +52,7 @@ struct AddMeshComponentEvent {
       : Entity(ent), MeshName(MeshN), EntityName(EntN) {}
 };
 
+// event to add an ownership comp to entity
 struct AddOwnerShipComponentEvent {
   std::shared_ptr<entt::entity> Entity;
   int PlayerID;
@@ -58,18 +62,21 @@ struct AddOwnerShipComponentEvent {
       : Entity(Ent), PlayerID(Id), GamePlayer(P) {}
 };
 
+// event to add a unit comp to entity
 struct AddUnitProductionEvent {
   std::shared_ptr<entt::entity> Entity;
   int ProdPerM;
   AddUnitProductionEvent(std::shared_ptr<entt::entity> Ent, int PPM)
       : Entity(Ent), ProdPerM(PPM) {}
 };
+// event to add a health comp to entity
 struct AddHealthEvent {
   std::shared_ptr<entt::entity> Entity;
   float Health;
   AddHealthEvent(std::shared_ptr<entt::entity> Ent, float H)
       : Entity(Ent), Health(H) {}
 };
+// event to add an attack comp to entity
 struct AddAttackEvent {
   std::shared_ptr<entt::entity> Entity;
   float Radius;
@@ -77,6 +84,7 @@ struct AddAttackEvent {
   AddAttackEvent(std::shared_ptr<entt::entity> Ent, float R, float D)
       : Entity(Ent), Radius(R), Damage(D) {}
 };
+// event to change an entities visibility, foreign to render system
 struct ChangeEntityVisibilityEvent {
   bool Visible;
   std::string NodeName;
@@ -84,6 +92,7 @@ struct ChangeEntityVisibilityEvent {
       : NodeName(ent), Visible(Vis) {}
 };
 
+// event to move an entity around a spherical origin
 struct MoveEntityAlongSphericalEvent {
   Ogre::Entity* Unit;
   Ogre::Real Radius;
@@ -93,7 +102,10 @@ struct MoveEntityAlongSphericalEvent {
       : Unit(U), Radius(R), TargetPos(TP) {}
 };
 
+// orientate an entity to surface normal event, so it sits flat
 struct OrientateEntityEvent {
   std::shared_ptr<entt::entity> Entity;
-  OrientateEntityEvent(std::shared_ptr<entt::entity> Ent) : Entity(Ent) {}
+  explicit OrientateEntityEvent(
+      std::shared_ptr<entt::entity> Ent)  // NOLINT(whitespace/line_length)
+      : Entity(Ent) {}
 };

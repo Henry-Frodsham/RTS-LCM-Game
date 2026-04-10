@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "ViewPortUpdateListener.h"
 
 ViewPortUpdateListener::ViewPortUpdateListener()

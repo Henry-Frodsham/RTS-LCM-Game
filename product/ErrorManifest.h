@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <SDL2/SDL.h>
 #include <fmt/format.h>
@@ -6,6 +6,7 @@
 #include <array>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 // 5 level system, stores how "serious" an error is
 enum ErrorLevel : uint16_t {
@@ -248,7 +249,8 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
 
     {ErrorCode::UNRECOGNISED,
      {ErrorCode::UNRECOGNISED, ErrorLevel::FATAL,
-      "an unrecognised error has occured", "APPLICATION PANIC"}}};
+      "an unrecognised error has occured", "APPLICATION PANIC"}}
+};
 
 // get default error from manifest
 inline Error CreateError(ErrorCode ECode) { return ErrorManifest.at(ECode); }

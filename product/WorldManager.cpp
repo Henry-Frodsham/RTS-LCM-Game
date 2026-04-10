@@ -1,5 +1,8 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "WorldManager.h"
+
+#include <unordered_map>
+#include <vector>
 
 #include "Player.h"
 

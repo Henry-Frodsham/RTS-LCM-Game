@@ -1,6 +1,7 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "Application.h"
 
+#include <vector>
 Application::Application()
     : IndependantThreads(std::thread::hardware_concurrency()),
       RenderSingleton(RenderSystem::GetInstance()),
@@ -21,6 +22,7 @@ void Application::Start() {
   Loop();
 }
 
+// initialise the app and its states
 bool Application::Init() {
   Menu.Init();
   Game.Init();
@@ -39,6 +41,7 @@ bool Application::Init() {
   return false;
 }
 
+// helper method to enforce correct initialising order of worldmanager
 SDL_Window* Application::InitAndGetWindow(RenderSystem& Render) {
   Render.Init();
   return Render.GetSDLWindow();

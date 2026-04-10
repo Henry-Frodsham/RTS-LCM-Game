@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include "CursorEvent.h"
 #include "EventBus.h"

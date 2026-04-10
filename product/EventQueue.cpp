@@ -1,5 +1,8 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "EventQueue.h"
+
+#include <queue>
+#include <utility>
 
 EventQueue::EventQueue(EventBus* DefaultBus) : AssumedBus(DefaultBus) {}
 

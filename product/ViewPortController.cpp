@@ -1,5 +1,7 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "ViewPortController.h"
+
+#include <vector>
 
 // constructor
 ViewPortController::ViewPortController(Ogre::Viewport* NewVP) {

@@ -1,5 +1,10 @@
+// Copyright (c) 2025 Henry Frodsham
 #include "GenericButton.h"
 
+#include <string>
+#include <vector>
+// generic button class
+// helper class that automatically defines a button with a specified behaviour
 GenericButton::GenericButton(std::string ButtonName, std::string ButtonText,
                              std::vector<float> Position,
                              InputDevice* DeviceToRespondTo,

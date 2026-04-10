@@ -1,11 +1,14 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <vector>
 
+// float health for units
 struct HealthComponent {
   float Health;
-  HealthComponent(float HP) : Health(HP) {}
+  explicit HealthComponent(float HP) : Health(HP) {}
 };
 
+// attacker unit behaviour definer
 struct AttackComponent {
   float Radius;
   float Damage;

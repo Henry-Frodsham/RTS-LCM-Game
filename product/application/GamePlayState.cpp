@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "GamePlayState.h"
 
 GameState::GameState(EventQueue* CallBacksQueue, WorldManager* WorldMng)
@@ -6,6 +6,7 @@ GameState::GameState(EventQueue* CallBacksQueue, WorldManager* WorldMng)
 void GameState::Init() {
   World->WorldQueue->Enqueue(ChangeGlobeVisibilityEvent(false));
 }
+// called same tick as a change state event
 void GameState::OnChangeState(ChangeStateEvent Event) {
   if (Event.NewState == AppState::GAME) {
     World->WorldQueue->Enqueue(ChangeGlobeVisibilityEvent(true));

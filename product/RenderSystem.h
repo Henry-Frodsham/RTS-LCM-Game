@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <OGRE/Ogre.h>
@@ -8,7 +8,7 @@
 #include <SDL2/SDL_syswm.h>
 #include <Windows.h>
 
-#include <filesystem>
+#include <filesystem>  // NOLINT(build/c++17)
 #include <iostream>
 #include <string>
 #include <vector>

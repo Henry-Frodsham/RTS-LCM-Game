@@ -1,5 +1,6 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include <doctest/doctest.h>
+#include <vector>
 
 #include "RenderSystem.h"
 #include "ViewPortController.h"

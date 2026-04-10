@@ -1,8 +1,8 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <BS_thread_pool.hpp>
-#include <iostream>
-#include <thread>
+#include <iostream>  // NOLINT(build/include_order)
+#include <thread>  // NOLINT(build/include_order)
 
 #include "ApplicationStateManager.h"
 #include "EventBus.h"
@@ -20,7 +20,7 @@
 class Application {
  public:
   Application();
-  ~Application() {};
+  ~Application() {}
   void Start();
 
  private:

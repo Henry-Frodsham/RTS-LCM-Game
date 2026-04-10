@@ -1,12 +1,15 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "InputAnalyser.h"
 
+#include <vector>
 InputAnalyser::InputAnalyser() {
   MetricBus = new EventBus();
   MetricQueue = new EventQueue(MetricBus);
   MetricError = new ErrorReporter();
 }
 
+// register a new device to be analysed
+// creates an overlay for it
 void InputAnalyser::RegisterNew(InputTranslator* NewTranslator) {
   Translators.push_back(NewTranslator);
   InputMetrics.emplace(InputMetric(0, 0, 0), NewTranslator);
@@ -35,6 +38,8 @@ void InputAnalyser::RegisterNew(InputTranslator* NewTranslator) {
       "RED", "DEBUG_" + std::to_string(Translators.size()), "FPS - 0"));
 }
 
+// updates the overlay in realtime
+// using events sent to render thread
 void InputAnalyser::Update(float DeltaTime) {
   MetricQueue->Dispatch();
   MetricError->Dispatch();

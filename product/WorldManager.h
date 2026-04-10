@@ -1,25 +1,27 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 
 #include <entt/entt.hpp>
+#include <unordered_map>  // NOLINT(build/include_order)
+#include <unordered_set>  // NOLINT(build/include_order)
 
+#include "CityComponents.h"
 #include "ECSHelper.h"
 #include "EntityConstructionTemplates.h"
+#include "EntityInteractionEvaluator.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
-#include "WorldEvent.h"
 #include "PlayerEvent.h"
-#include "EntityInteractionEvaluator.h"
 #include "UnitComponents.h"
-#include "CityComponents.h"
+#include "WorldEvent.h"
 
 // direct owner of the ECS registry, all game objects on the game map are stored
 // here however game logic is delegated
 class WorldManager {
  public:
-  WorldManager(bool CreateGlobe = true);
+  explicit WorldManager(bool CreateGlobe = true);
 
   void update(float DT);
 
@@ -28,8 +30,8 @@ class WorldManager {
   ECSHelper* CompFactory;
 
   void ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event);
+
  private:
-  
   EventBus* WorldBus;
 
   ErrorReporter* ECSReporter;

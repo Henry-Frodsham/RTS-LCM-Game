@@ -1,6 +1,8 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
-#include "InputDevice.h"
+#include <vector>
 
+#include "InputDevice.h"
 struct CursorMovementEvent {
   std::vector<float> AbsoluteXY;
   std::vector<float> RelativeXY;

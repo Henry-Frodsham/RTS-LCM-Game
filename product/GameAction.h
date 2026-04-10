@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include "InputDevice.h"
 // unifies game input from mouse and keyboard alike, makes managing input in
@@ -9,6 +9,8 @@ enum GameAction {
   BACK,
 };
 
+// context around a given game action
+// such as mouse pos and who issued the action
 struct ActionContext {
   float MouseX, MouseY;
   bool JustPressed;

@@ -1,9 +1,10 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "InputTranslator.h"
+
+#include <vector>
 
 #include "InputAnalyser.h"
 #include "SharedInputEvent.h"
-
 InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
                                  float VPHeight, int ThreadNum,
                                  std::vector<float> SDim) {
@@ -186,7 +187,7 @@ void InputTranslator::TranslateRawTriggerEvent(RawTriggerEvent Event) {
   Uint8 IncomingAxis = Event.AxisEvent.axis;
   float NormalizedValue = Event.NormalizedValue;
 
-  // Use the normalized 0.0–1.0 value with a threshold
+  // use normalised value with a threshold
   static constexpr float TriggerThreshold = 0.1f;
   bool Pressed = (NormalizedValue > TriggerThreshold);
 
@@ -309,19 +310,8 @@ void InputTranslator::TranslateRawAxis(RawAxisEvent Event) {
   // Left stick X axis
   if (SDL_Ev.axis == 0) {
     JoyStickStates[0] = NormalizedValue;
-  }
-  // Left stick Y axis
-  else if (SDL_Ev.axis == 1) {
+  } else if (SDL_Ev.axis == 1) {
     JoyStickStates[1] = NormalizedValue;
-  }
-
-  // Right stick X axis
-  else if (SDL_Ev.axis == 2) {
-    // TODO: Implement right stick functionality
-  }
-  // Right stick Y axis
-  else if (SDL_Ev.axis == 3) {
-    // TODO: Implement right stick functionality
   }
 
   RenderSystem& RS = RenderSystem::GetInstance();

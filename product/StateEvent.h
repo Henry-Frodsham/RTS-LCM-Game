@@ -1,7 +1,8 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include "AppState.h"
 struct ChangeStateEvent {
   AppState NewState;
-  ChangeStateEvent(AppState State) : NewState(State) {}
+  explicit ChangeStateEvent(AppState State)
+      : NewState(State) {}
 };

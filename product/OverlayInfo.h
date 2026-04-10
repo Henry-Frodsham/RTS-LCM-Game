@@ -1,6 +1,9 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 
+#include <string>
+// struct associated with an overlay, tracking if the overlay is hovered and who
+// owns it
 struct OverlayInfo {
   bool Pressed;
   bool Hovered;

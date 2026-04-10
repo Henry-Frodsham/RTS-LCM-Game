@@ -1,5 +1,8 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "OverlayController.h"
+
+#include <string>
+#include <vector>
 
 #include "RenderSystem.h"
 
@@ -8,6 +11,8 @@ OverlayController::OverlayController() : OverlayErrorReporter() {
   InitFont();
 }
 
+// create an ogre::overlay, link to scenemanager and viewport
+// register as a managed overlay
 void OverlayController::CreateOverlay(CreateOverlayEvent Event) {
   if (OverlayMngr->getByName(Event.OverlayName) == nullptr) {
     ManagedOverlays.emplace(Event.OverlayName,
@@ -23,6 +28,7 @@ void OverlayController::CreateOverlay(CreateOverlayEvent Event) {
   }
 }
 
+// add a 2d mesh to the scene, to a preexisting overlay
 void OverlayController::AddBox(OverlayAddBoxEvent Event) {
   if (!OverlayMngr) {
     OverlayErrorReporter.EnqueueError(
@@ -72,6 +78,7 @@ void OverlayController::AddBox(OverlayAddBoxEvent Event) {
   OverlayUsed->show();
 }
 
+// add text to scene, standalone by default. attached to a transparent panel
 void OverlayController::AddText(OverlayAddTextEvent Event) {
   if (!OverlayMngr) {
     OverlayErrorReporter.EnqueueError(
@@ -232,7 +239,8 @@ void OverlayController::EditPanel(OverlayEditPanelEvent Event) {
 
   FoundElement->setMetricsMode(Ogre::GMM_RELATIVE);
   if (Event.NewDimensions != std::vector<float>{-1.f, -1.f}) {
-    FoundElement->setDimensions(Event.NewDimensions[0] * scaleX, Event.NewDimensions[1] * scaleY);
+    FoundElement->setDimensions(Event.NewDimensions[0] * scaleX,
+                                Event.NewDimensions[1] * scaleY);
   }
   if (Event.NewPosition != std::vector<float>{-1.f, -1.f}) {
     FoundElement->setPosition(Event.NewPosition[0], Event.NewPosition[1]);

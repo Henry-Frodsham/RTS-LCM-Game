@@ -1,6 +1,7 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "InputListener.h"
 
+#include <vector>
 InputListener::InputListener(SDL_Window* SdlWindow)
     : SdlWindow(SdlWindow), InputErrorReporter() {
   // configure handlers
@@ -50,7 +51,7 @@ void InputListener::Update() {
         SdlDeviceIndex = -1;
         break;
       case SDL_MOUSEBUTTONDOWN:
-        SdlDeviceIndex = -1; 
+        SdlDeviceIndex = -1;
         break;
       case SDL_MOUSEBUTTONUP:
         SdlDeviceIndex = -1;
@@ -119,7 +120,8 @@ void InputListener::Update() {
       case SDL_MOUSEMOTION:
         QueueToNotify->Enqueue(RawCursorEvent{Event.motion});
         break;
-      //this case covers both joystick and trigger motion, hence both are handled here
+      // this case covers both joystick and trigger motion, hence both are
+      // handled here
       case SDL_JOYAXISMOTION:
         if (IsAxisTrigger(Device->Controller, Event.jaxis.axis)) {
           QueueToNotify->Enqueue(RawTriggerEvent{

@@ -1,13 +1,15 @@
+// Copyright (c) 2025 Henry Frodsham
 #include "GameInstance.h"
 
 #include "InstanceEvent.h"
 
+// a game instance class, a self contained class responsible for coordinating
+// and running an instance thread
 GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
                            InputDevice* Device,
                            InputTranslator* DeviceTranslator,
                            InteractionWheel* NewUIInteractionWheel,
-                           PlayerUI* PlayerInterface,
-                           Player* InstancePlayer,
+                           PlayerUI* PlayerInterface, Player* InstancePlayer,
                            int ThreadNumber)
     : ParentReporter(ParentR),
       UpstreamQueue(ParentQ),
@@ -16,7 +18,7 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
       InstanceNumber(ThreadNumber),
       PlayerUIOverlay(PlayerInterface),
       InstanceUIWheel(NewUIInteractionWheel),
-      GamePlayer(InstancePlayer){
+      GamePlayer(InstancePlayer) {
   LocalBus = new EventBus();
   LocalQueue = new EventQueue(LocalBus);
 

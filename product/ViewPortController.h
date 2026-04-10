@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 #include <OGRE/OgrePrerequisites.h>
@@ -53,7 +53,7 @@ class ViewPortController {
   // Move constructor
   ViewPortController(ViewPortController&&) noexcept = default;
 
-  ViewPortController(Ogre::Viewport* NewVP);
+  explicit ViewPortController(Ogre::Viewport* NewVP);
   ~ViewPortController() {}
 
   std::vector<float> GetCameraAngle();

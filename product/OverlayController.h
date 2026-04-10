@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 #include <OGRE/OgrePrerequisites.h>
@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 #include "ActionCommand.h"
 #include "ErrorReporter.h"

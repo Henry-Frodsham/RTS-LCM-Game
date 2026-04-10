@@ -1,8 +1,13 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "ECSHelper.h"
 
 #include "RenderEvent.h"
 
+#include <string>
+
+// helper class responsible for creating components
+// however, doesnt manage or evaluate components
+// (thats worldmanagers job)
 ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
     : RegistryToUse(Registry), ParentReporter(Reporter) {
   FactoryBus = new EventBus();
@@ -61,7 +66,6 @@ void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
 
     Rs.RenderQueue->Enqueue(AttachEntityToScenNodeEvent(
         std::ref(Component.Entity), std::ref(EntOgreComp.EntityNode)));
-
   } catch (std::exception& e) {
     ParentReporter->EnqueueError(ErrorDetail::CreateError(
         ErrorCode::ECS_WRONG_CREATION_ORDER,
@@ -92,7 +96,6 @@ void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
     if (Comp.EntityNode != nullptr) {
       Comp.EntityNode->setVisible(Event.Visible);
     }
-
   } catch (std::exception& e) {
     ParentReporter->EnqueueError(ErrorDetail::CreateError(
         ErrorCode::ECS_WRONG_CREATION_ORDER,
@@ -136,9 +139,7 @@ void ECSHelper::CreateAndAddOwnerShipComponent(
     } else {
       FactoryQueue->Enqueue(Event);
     }
-
-  } catch (std::exception e) {
-  }
+  } catch (std::exception e) {}
 }
 
 void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
@@ -153,9 +154,7 @@ void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
     } else {
       FactoryQueue->Enqueue(Event);
     }
-
-  } catch (std::exception e) {
-  }
+  } catch (std::exception e) {}
 }
 OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
   auto View = RegistryToUse->view<OgreComponent>();

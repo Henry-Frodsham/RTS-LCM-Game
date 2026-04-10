@@ -1,4 +1,8 @@
+// Copyright (c) 2025 Henry Frodsham
 #include "InteractionWheel.h"
+
+#include <memory>
+#include <vector>
 
 #include "EntityConstructionTemplates.h"
 InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
@@ -160,7 +164,7 @@ void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
       "interaction_wheel_B" + std::to_string(ThreadID),
       "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
-      {(Context.MouseX / Dimensions[0]) + (0.03f*scaleX),
+      {(Context.MouseX / Dimensions[0]) + (0.03f * scaleX),
        Context.MouseY / Dimensions[1]}));
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
       "interaction_wheel_C" + std::to_string(ThreadID),
@@ -170,7 +174,7 @@ void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
       "interaction_wheel_D" + std::to_string(ThreadID),
       "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
-      {(Context.MouseX / Dimensions[0]) + (0.03f*scaleX),
+      {(Context.MouseX / Dimensions[0]) + (0.03f * scaleX),
        (Context.MouseY / Dimensions[1]) - 0.03f}));
 
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
@@ -221,9 +225,7 @@ void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
   if (SelectedEntity != nullptr) {
     RenderSystem& RS = RenderSystem::GetInstance();
     RS.RenderQueue->Enqueue(DestroyEntityEvent(SelectedEntity));
-    SelectedEntity = nullptr;
-  }
-
+    SelectedEntity = nullptr; }
 }
 void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
   // move

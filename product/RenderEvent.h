@@ -1,19 +1,17 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 
 #include <functional>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 
 #include "CommonGameObjectComponents.h"
 
-// unimplemented as of yet, render events will be used for instance threads to
-// interact with ogre::root along with other RenderSystem owned ogre systems
-
-struct TickEvent {
-  float DeltaTime;
-};
+// common events issued to render system
+// self explanatory
+// e.g ScaleEntityEvent - Scales an entity
 
 struct CreateSceneNodeEvent {
   std::reference_wrapper<Ogre::SceneNode*> Node;
@@ -90,11 +88,10 @@ struct CacheRangeQueryEvent {
 
 struct DestroyNodeEvent {
   Ogre::SceneNode* NodeToDestroy;
-  DestroyNodeEvent(Ogre::SceneNode* Node) : NodeToDestroy(Node) {}
+  explicit DestroyNodeEvent(Ogre::SceneNode* Node) : NodeToDestroy(Node) {}
 };
-
 
 struct DestroyEntityEvent {
   Ogre::Entity* EntityToDestroy;
-  DestroyEntityEvent(Ogre::Entity* Node) : EntityToDestroy(Node) {}
+  explicit DestroyEntityEvent(Ogre::Entity* Node) : EntityToDestroy(Node) {}
 };

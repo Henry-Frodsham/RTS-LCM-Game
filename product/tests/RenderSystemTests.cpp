@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include <doctest/doctest.h>
 
 #include "RenderSystem.h"

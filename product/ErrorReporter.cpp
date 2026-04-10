@@ -1,6 +1,8 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "ErrorReporter.h"
 
+#include <iostream>
+#include <string>
 #define BRIGHT_RED "\033[91m"
 #define WHITE "\033[97m"
 #define ORANGE "\033[38;5;208m"

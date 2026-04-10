@@ -1,9 +1,10 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include "ActionCommand.h"
 #include "ConfigManager.h"
@@ -20,7 +21,6 @@ class InputTranslator {
  public:
   InputTranslator(InputDevice* Device, float VPWidth, float VPHeight,
                   int ThreadNum, std::vector<float> SDim);
-  //~InputTranslator();
 
   bool HasAction(GameAction Action);
 
@@ -65,7 +65,6 @@ class InputTranslator {
   float JoystickDeadzone;
   float ViewPortWidth;
   float ViewPortHeight;
-
 
   int ThreadNumber;
   // std::unordered_set<> ButtonStates;

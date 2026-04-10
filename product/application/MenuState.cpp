@@ -1,7 +1,8 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "MenuState.h"
 MenuState::MenuState(EventQueue* CallBacksQueue) : AppQueue(CallBacksQueue) {}
 void MenuState::Init() {
+  // add the play button
   PlayButton = new GenericButton(
       "menu_play", "play", {0.5f, 0.5f}, nullptr,
       [](EventQueue& queue) {

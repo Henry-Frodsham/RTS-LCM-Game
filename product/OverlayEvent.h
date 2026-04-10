@@ -1,8 +1,10 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
+#include <string>
+#include <vector>
+
 #include "InputDevice.h"
 #include "ViewPortController.h"
-
 // an event used to add a rectangle to the screen
 // the event is queued then handled by the overlay manager
 // from there it is attached to a scenenode and visible on the screen
@@ -100,6 +102,8 @@ struct OverlayEditTextEvent {
         NewText(Text),
         NameOfExisting(Name) {}
 };
+
+// add a new text overlay to an existing panel
 struct OverlayAddTextToPanelEvent {
   std::string PanelName;
   std::string TextName;
@@ -132,6 +136,7 @@ struct CreateOverlayEvent {
         InstanceViewPort(Viewport) {}
 };
 
+// change visibility of an overlay, true:visible false:not visible
 struct ChangeOverlayVisibilityEvent {
   std::string OverlayName;
   std::string ObjectName;

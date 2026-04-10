@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <SDL2/SDL.h>
 
@@ -16,7 +16,7 @@
 // device basis
 class InputListener {
  public:
-  InputListener(SDL_Window* SdlWindow);
+  explicit InputListener(SDL_Window* SdlWindow);
 
   void Update();
 

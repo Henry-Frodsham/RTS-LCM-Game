@@ -1,9 +1,9 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <BS_thread_pool.hpp>
-#include <thread>
-#include <unordered_map>
-#include <vector>
+#include <thread>  // NOLINT(build/include_order)
+#include <unordered_map>  // NOLINT(build/include_order)
+#include <vector>  // NOLINT(build/include_order)
 
 #include "ECSHelper.h"
 #include "ErrorReporter.h"

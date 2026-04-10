@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include <doctest/doctest.h>
 
 #include <string>
@@ -32,5 +32,5 @@ TEST_CASE("EventBus - singular handler call from publish") {
 
   Obj.Publish(TestEvent());
 
-  CHECK(NumCalls == 1);
+  CHECK(NumCalls == 1); // NOLINT [readability/check]
 }

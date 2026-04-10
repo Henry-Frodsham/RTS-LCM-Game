@@ -1,6 +1,5 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
-#include "Empire.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "PlayerConstructionInfo.h"
@@ -9,10 +8,8 @@
 // stores and handles player information, unique to a game instance thread
 class Player {
  public:
-  Player(Empire* Emp, int PlayerId);
+  explicit Player(int PlayerId);
   ~Player() {}
-
-  Empire* PlayerEmpire;
 
   // void PlaceCity(ECSHelper* Factory, Ogre::Vector3 Pos);
 

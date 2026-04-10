@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include "GenericButton.h"
 #include "StateEvent.h"
@@ -8,7 +8,7 @@ class MenuState {
   EventQueue* AppQueue;
 
  public:
-  MenuState(EventQueue* CallBacksQueue);
+  explicit MenuState(EventQueue* CallBacksQueue);
   ~MenuState() {}
 
   GenericButton* PlayButton;

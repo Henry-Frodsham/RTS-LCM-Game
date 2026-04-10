@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include "ECSHelper.h"
 #include "InputTranslator.h"

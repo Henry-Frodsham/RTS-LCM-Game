@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include "GenericButton.h"
 #include "StateEvent.h"
@@ -8,7 +8,7 @@ class PauseState {
   EventQueue* AppQueue;
 
  public:
-  PauseState(EventQueue* CallBacksQueue);
+  explicit PauseState(EventQueue* CallBacksQueue);
   ~PauseState() {}
 
   void Init();

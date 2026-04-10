@@ -1,9 +1,10 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <utility>
 
 #include "EventBus.h"
 
@@ -16,7 +17,7 @@ class EventQueue {
   EventBus* AssumedBus;
 
  public:
-  EventQueue(EventBus* DefaultBus = nullptr);
+  explicit EventQueue(EventBus* DefaultBus = nullptr);
   ~EventQueue() {}
 
   // template function implementation needs to be here

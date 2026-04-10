@@ -1,9 +1,11 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
 
 #include <entt/entt.hpp>
-#include <string>
+#include <string>  // NOLINT(build/include_order)
+#include <unordered_map>  // NOLINT(build/include_order)
+#include <unordered_set>  // NOLINT(build/include_order)
 
 #include "Player.h"
 
@@ -98,7 +100,7 @@ struct CreateAttackingEntityEvent {
 };
 struct ChangeGlobeVisibilityEvent {
   bool Visible;
-  ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}
+  explicit ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}
 };
 
 struct CachedEntitiesReturnEvent {

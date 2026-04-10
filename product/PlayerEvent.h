@@ -1,6 +1,8 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 
+// forward event to update progress to a placeable unit
 struct UpdateUnitProgressEvent {
   float AddProg;
-  UpdateUnitProgressEvent(float AP) : AddProg(AP) {}
+  explicit UpdateUnitProgressEvent(float AP) : AddProg(AP) {}
 };

@@ -1,4 +1,4 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include "AppState.h"
 #include "GamePlayState.h"
@@ -11,7 +11,7 @@
 class ApplicationStateManager {
  public:
   ApplicationStateManager();
-  ~ApplicationStateManager() {};
+  ~ApplicationStateManager() {}
 
   AppState CurrentState;
 

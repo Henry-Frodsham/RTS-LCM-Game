@@ -1,5 +1,11 @@
-// Copyright © 2025 Henry Frodsham
+// Copyright (c) 2025 Henry Frodsham
 #include "RenderSystem.h"
+
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+#include <string>
 
 RenderSystem::RenderSystem()
     : OgreRoot(nullptr),
@@ -66,7 +72,6 @@ void RenderSystem::Init() {
         ErrorDetail::CreateError(ErrorCode::SDL_FAILED_INIT));
   }
 
-
 #ifdef _DEBUG
   OgreRoot = new Ogre::Root("plugins_d.cfg", "", "ogre.log");
 #else
@@ -109,11 +114,11 @@ void RenderSystem::Init() {
         ErrorDetail::CreateError(ErrorCode::SDL_FAILED_BIND));
   }
 #ifdef _WIN32
-  while (::ShowCursor(TRUE) < 0); 
-  ::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+  while (::ShowCursor(TRUE) < 0); // NOLINT [whitespace/empty_loop_body]
+  ::SetCursor(::LoadCursor(NULL, IDC_ARROW)); // NOLINT [whitespace/end_of_line]
 #endif
 
-  SDL_SetRelativeMouseMode(SDL_FALSE);   
+  SDL_SetRelativeMouseMode(SDL_FALSE);
   SDL_SetWindowGrab(SDLWindow, SDL_FALSE);
   SceneManager = OgreRoot->createSceneManager();
   SceneManager->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
@@ -169,15 +174,15 @@ ViewPortController* RenderSystem::CreateViewPort() {
 }
 
 void RenderSystem::ScaleViewPorts() {
-  short int NumberToScale = ViewPorts.size();
-  for (short I = 0; I < NumberToScale; I++) {
+  int NumberToScale = ViewPorts.size();
+  for (int I = 0; I < NumberToScale; I++) {
     ViewPortController* VPC = ViewPorts.at(I);
 
     // the amount of relative screen size per viewport to add
     // each viewPort gets an equal portion
-    float SizePerVP = 1.f / float(NumberToScale);
+    float SizePerVP = 1.f / float(NumberToScale);  // NOLINT [readability/casting]
 
-    VPC->ChangeViewPortDimensions(SizePerVP * float(I), 0.f, SizePerVP, 1.f);
+    VPC->ChangeViewPortDimensions(SizePerVP * float(I), 0.f, SizePerVP, 1.f); // NOLINT [readability/casting]
   }
 }
 
@@ -237,8 +242,8 @@ void RenderSystem::InitRenderResponsibility() {
                 std::placeholders::_1));
   RenderBus->Subscribe<DestroyNodeEvent>(
       std::bind(&RenderSystem::DestroyNode, this, std::placeholders::_1));
-  RenderBus->Subscribe<DestroyEntityEvent>(std::bind(
-      &RenderSystem::DestroyEntity, this, std::placeholders::_1));
+  RenderBus->Subscribe<DestroyEntityEvent>(
+      std::bind(&RenderSystem::DestroyEntity, this, std::placeholders::_1));
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
       std::bind(&ViewPortUpdateListener::AssignOverlayToViewport,

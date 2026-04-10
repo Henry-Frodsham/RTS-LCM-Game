@@ -237,11 +237,9 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="City.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="ECSHelper.cpp" />
-    <ClCompile Include="Empire.cpp" />
     <ClCompile Include="EntityConstructionTemplates.h" />
     <ClCompile Include="EntityInteraction.cpp" />
     <ClCompile Include="ErrorReporter.cpp" />
@@ -259,7 +257,6 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="PlayerUI.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="TransformationMatrix.cpp" />
-    <ClCompile Include="Unit.cpp" />
     <ClCompile Include="ViewPortController.cpp" />
     <ClCompile Include="ViewPortUpdateListener.cpp" />
     <ClCompile Include="WorldManager.cpp" />
@@ -267,7 +264,6 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
   <ItemGroup>
     <ClInclude Include="ActionCommand.h" />
     <ClInclude Include="BaseComponents.h" />
-    <ClInclude Include="City.h" />
     <ClInclude Include="CityComponents.h" />
     <ClInclude Include="CommonGameObjectComponents.h" />
     <ClInclude Include="ConfigManager.h" />
@@ -275,8 +271,6 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="CursorEvent.h" />
     <ClInclude Include="ECSFactoryEvent.h" />
     <ClInclude Include="ECSHelper.h" />
-    <ClInclude Include="Empire.h" />
-    <ClInclude Include="EmpireEvent.h" />
     <ClInclude Include="EntityInteractionEvaluator.h" />
     <ClInclude Include="ErrorManifest.h" />
     <ClInclude Include="ErrorReporter.h" />
@@ -309,12 +303,10 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ResizeEvent.h" />
-    <ClInclude Include="Resource.h" />
     <ClInclude Include="SharedInputEvent.h" />
     <ClInclude Include="ShareInfoEvent.h" />
     <ClInclude Include="TransformationMatrix.h" />
     <ClInclude Include="UIEvent.h" />
-    <ClInclude Include="Unit.h" />
     <ClInclude Include="UnitComponents.h" />
     <ClInclude Include="ViewPortController.h" />
     <ClInclude Include="ViewPortUpdateEvent.h" />

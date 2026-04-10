@@ -64,15 +64,6 @@
     <ClCompile Include="PlayerGeneralControl.cpp">
       <Filter>Source\Player</Filter>
     </ClCompile>
-    <ClCompile Include="City.cpp">
-      <Filter>Source\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Empire.cpp">
-      <Filter>Source\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Unit.cpp">
-      <Filter>Source\Game</Filter>
-    </ClCompile>
     <ClCompile Include="GenericButton.cpp">
       <Filter>Source\UI</Filter>
     </ClCompile>
@@ -153,12 +144,6 @@
     <Filter Include="Headers\instance">
       <UniqueIdentifier>{0a9f0a4e-774c-4a35-988f-19d566d8a519}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\REA">
-      <UniqueIdentifier>{43d1d4c5-fc93-4f7f-acc6-ea5ac3d86047}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\REA">
-      <UniqueIdentifier>{22b2fcb0-4546-4598-b0c9-053679da12b8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\UI">
       <UniqueIdentifier>{8c437e23-2b60-4aff-a4cd-98eccda8bb27}</UniqueIdentifier>
     </Filter>
@@ -176,12 +161,6 @@
     </Filter>
     <Filter Include="Headers\Action">
       <UniqueIdentifier>{bee106f6-0a0d-47af-b0ba-12783cb54514}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Game">
-      <UniqueIdentifier>{338fa682-dc2c-4872-aa06-efaa0af9743b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Headers\Game">
-      <UniqueIdentifier>{dfa68ebc-3c16-437c-9a63-65fc20a52999}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -263,9 +242,6 @@
     <ClInclude Include="InstanceEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Headers\REA</Filter>
-    </ClInclude>
     <ClInclude Include="ViewPortUpdateListener.h">
       <Filter>Headers\Render</Filter>
     </ClInclude>
@@ -311,15 +287,6 @@
     <ClInclude Include="PlayerControlEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
-    <ClInclude Include="City.h">
-      <Filter>Headers\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Empire.h">
-      <Filter>Headers\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Unit.h">
-      <Filter>Headers\Game</Filter>
-    </ClInclude>
     <ClInclude Include="GenericButton.h">
       <Filter>Headers\UI</Filter>
     </ClInclude>
@@ -328,9 +295,6 @@
     </ClInclude>
     <ClInclude Include="UnitComponents.h">
       <Filter>Entity Components</Filter>
-    </ClInclude>
-    <ClInclude Include="EmpireEvent.h">
-      <Filter>Event Templates</Filter>
     </ClInclude>
     <ClInclude Include="ShareInfoEvent.h">
       <Filter>Event Templates</Filter>

@@ -1,4 +1,7 @@
+// Copyright (c) 2025 Henry Frodsham
 #include "Cursor.h"
+
+#include <vector>
 
 Cursor::Cursor(EventBus* ParentBus, InputTranslator* ControlingDevice,
                int CursorNumber)

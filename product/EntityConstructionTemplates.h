@@ -1,11 +1,12 @@
+// Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <array>
 #include <entt/entt.hpp>
-#include <functional>
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <functional>     // NOLINT(build/include_order)
+#include <memory>         // NOLINT(build/include_order)
+#include <string>         // NOLINT(build/include_order)
+#include <unordered_map>  // NOLINT(build/include_order)
+#include <vector>         // NOLINT(build/include_order)
 
 #include "ECSFactoryEvent.h"
 #include "ECSHelper.h"
@@ -41,6 +42,7 @@ inline std::shared_ptr<entt::entity> ConstructMeshEntity(
 
   return Entity;
 }
+// create any game object with ownership. e.g city
 inline std::shared_ptr<entt::entity> CreateGameObject(
     ECSHelper* Factory, CreateGameObjectEvent Event) {
   auto Entity = ConstructMeshEntity(
@@ -55,7 +57,7 @@ inline std::shared_ptr<entt::entity> CreateGameObject(
       OrientateEntityEvent(Entity));
   return Entity;
 }
-
+// template to produce a unit producing entity
 inline std::shared_ptr<entt::entity> CreateUnitProducingGameObject(
     ECSHelper* Factory, CreateUnitProducingGameObjectEvent Event) {
   auto Entity = CreateGameObject(
@@ -68,6 +70,8 @@ inline std::shared_ptr<entt::entity> CreateUnitProducingGameObject(
 
   return Entity;
 }
+
+// template to produce an attacking entity
 inline std::shared_ptr<entt::entity> CreateAttackingGameObject(
     ECSHelper* Factory, CreateAttackingEntityEvent Event) {
   auto Entity = CreateGameObject(
