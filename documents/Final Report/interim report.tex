@@ -74,7 +74,7 @@ This report has been prepared on the basis of my own work. Where other published
 
 \vskip3em
 
-Word Count: 14421
+Word Count: 15285
 
 \vskip3em
 
@@ -976,6 +976,37 @@ details on how to install and configure the above can be found in the deployment
 This project was designed fully around platform-neutral code. That being said, due to my use of visual studio as my preferred IDE the deployment process is very much intended for windows. This is due to the added time consumption of maintaining a CMAKE compiled version alongside the primary visual studio version, thus the intended way to run this project on linux is through proton (valve compatibility layer) on a pre compiled executable.
 
 
+\chapter {Professional issues}
+\section {Professional issues arisen during the development of this project}
+
+During the development of this project, careful steps where taken to avoid any professional issues. One example of a potential issue this project could have faced is the usage of third party dependencies (e.g OGRE3D, SDL2, Eigen, Entt, doctest or cpplint) and any potential legal responsibilities. One way I mitigated any risk of legal responsibility for me or the end user is by solely using open source external dependencies. 
+
+OGRE3D specified a desire to be credited on any application of its technology, however this wasn't a legal requirement neither did it have repercussions if unfulfilled. OGRE3D does however require a copy of the licensing text to be included, thus this was included in the final version in \texttt{product/Ogre3dlicense.txt}. OGRE3D operates under the MIT license which explicitly grants "the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software" [22].
+
+SDL2 is licensed under the zlib license, freely permitting any redistribution, however unlike OGRE3D it does not explicitly require any license text to be included. The zlib license does however impose some restrictions, the software origin cannot be misrepresented or modified without stating as such and the license text must not be removed [23]. I adhered to these restrictions throughout the development of this project by making sure to not modify my source installation of SDL2, developing this project solely around the installed vcpkg version.
+
+Eigen is primarily licensed under the MPL2 License (Mozila Public License Version 2.0), meaning it generates 0 obligations unless my project is distributed outside the university. However, the licensing text doesn't provide comprehensive clarification of what would count as distributing outside the university (officially referenced as an organization). Due to my limited knowledge of the handling of this project post submission, I decided to fully comply with all of the license's obligations. For this project, MPL2 requires there to be an included license text with no modifications to the MPL2 licensed source without releasing them publicly [24]. To comply with these obligations, I've included license text at \texttt{product/MPL2License} along with only using an unmodified version of Eigen. It's important to note that not all of Eigen's source is under MPL2, however this project didn't make use of any non MPL2 Eigen files.
+
+Entt is licensed under the MIT license, the same license as OGRE3D. Thus follows the same obligations, the licensing text for Entt has been included at \texttt{product/enttLicense.txt}.
+
+Doctest is also licensed under MIT, inheriting the same obligations. The Licensing text for doctest has been included at \texttt{product/doctestLicense}.
+
+Fmt is licensed under MIT, thus the obligated license text is included at \texttt{product/fmtLicense.txt}.
+
+Bshoshany thread pool is licensed under MIT, thus the obligated license text is included at \texttt{product/BSPLicense.txt}.
+
+Nlohmann json is licensed under MIT, thus the obligated license text is included at \newline \texttt{product/NlohmannJsonLicense.txt}.
+
+All external dependencies of this project run under permissive open source licenses, all of which allowing commercial distribution of in a closed source setting. This means that if I where to publish my project in future, I can do so without making my project open source and without paying royalties. 
+
+
+\section {Ethical importance of professional issues}
+
+Professional issues such as licenses are extremely important to adhere too, for both legal liability and ethical reasons. If professional issues aren't taken seriously throughout the development process, then a companies public reputation or even legal standing could be put in jeopardy. Developers also have a responsibility to honour professional issues, whilst they may not be legally liable they could tarnish their reputation within open source communities or damage their employability.
+
+One ethical issue I find particularly important within Licensing is honouring requests to be acknowledged in commercial software, such as OGRE3D's request to be acknowledged in a games title screen. Whilst OGRE3D's request isn't legally binding, I believe that a subtle acknowledgement of any open source libraries used is important for a developers or companies credibility. In light of this, I've decided to include a title screen reference to OGRE3D if and when I decide to make this project commercially available.
+
+Another ethical issue that I find important is making any substantially modified technologies available within it's ecosystem. This is a requirement under the MPL2 license although it doesn't explicitly state that it must be available in the same ecosystem. Throughout a development process, I believe any extended upon technologies (e.g extending OGRE3D to support a new render system ) should be published in the same repository as a branch so that any future users can easily access and benefit.
 
 \chapter{Software engineering methodologies}
 \section{testing environment}
@@ -1025,6 +1056,8 @@ This project uses Git as a version control solution, with the Git repository bei
 \textbf{HLSL - }High level shading language\newline
 \textbf{MSL - }Metal shading language\newline
 \textbf{WGSL - }WebGPU shading language\newline
+\textbf{MPL2 - }Mozila Public License Version 2.0\newline
+\textbf{MIT (License) - }Michigan Institute of Technology License\newline
 
 \chapter{Glossary}
 \textbf{Ogre3d - }a lightweight rendering engine in the form of a c++ library \newline
@@ -1043,7 +1076,8 @@ store entities \newline
 \textbf{Fragment shader} A programmable stage of the rendering pipelines, running for each pixel on the screen\newline
 \textbf{Ray tracing} A methodology for computing the distance from a 3d origin point to other geometry, in a specified direction \newline
 \textbf{Eigen} A c++ library for defining and performing matrix calculations \newline
-
+\textbf{zlib} a permissive license, primarily used for open source software \newline
+\textbf{BSThreadPool} a c++ library for implementing a thread pool pattern \newline
 
 \chapter{bibliography}
 [1] Colson, D. (2020) How to make a simple entity-component-system in C++. Available at: \url{https://www.david-colson.com/2020/02/09/making-a-simple-ecs.html} (Accessed: 10th November 2025). \newline
@@ -1077,6 +1111,9 @@ NVIDIA Technical Blog. Available at:
 [19] Quilez, I. (2018) \textit{Raymarching Distance Fields}. iquilezles.org. Available at: https://iquilezles.org/articles/raymarchingdf/ (Accessed: 8th April 2026). \newline
 [20] Quilez, I. (2010) \textit{Soft Shadows in Raymarched Signed Distance Fields}. iquilezles.org. Available at: https://iquilezles.org/articles/rmshadows/ (Accessed: 8th April 2026). \newline
 [21] Spronck, P. (2013) Resource Entity Action: a generalized design pattern for RTS games. spronck.net. Available at https://www.spronck.net/pubs/CG2013Abbadi.pdf (Accessed: 10th April 2026) \newline
+[22] OGRE3D (unspecified) Ogre3d licencing page. Available at https://www.ogre3d.org/licensing (Accessed: 13th April 2026) \newline
+[23] SDL2 (unspecified) SDL2 Licencing page. Available at https://www.libsdl.org/license.php (Accessed: 13th April 2026) \newline
+[24] Mozila (unspecified) MPL2 Licensing text. Available at https://www.mozilla.org/en-US/MPL/2.0/ (Accessed: 13th April 2026) \newline 
 \newpage
 \chapter{appendices}
 \section{project diary}

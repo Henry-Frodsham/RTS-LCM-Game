@@ -2,7 +2,6 @@
 #pragma once
 #include <OGRE/Bites/OgreWindowEventUtilities.h>
 #include <OGRE/Ogre.h>
-#include <OGRE/Overlay/OgreImGuiOverlay.h>
 #include <OGRE/Overlay/OgreOverlaySystem.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
