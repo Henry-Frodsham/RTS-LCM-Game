@@ -217,7 +217,6 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
       GamePlayer->AvailableCities -= 1;
     }
 
-    // GamePlayer->PlaceCity(Factory,Position);
   }
 }
 void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
@@ -225,7 +224,12 @@ void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
   if (SelectedEntity != nullptr) {
     RenderSystem& RS = RenderSystem::GetInstance();
     RS.RenderQueue->Enqueue(DestroyEntityEvent(SelectedEntity));
-    SelectedEntity = nullptr; }
+    SelectedEntity = nullptr; 
+    Factory->FactoryQueue->Enqueue(
+        NotifyConsequentialEntityStateChange(SelectedEntity));
+  }
+
+
 }
 void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
   // move
@@ -235,10 +239,10 @@ void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
     RS.RenderQueue->Enqueue(SetEntPositionEvent(SelectedEntity, Position));
     RS.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
         SelectedEntity, Ogre::Vector3(0.5f, 0.f, -5.f)));
-    /*
+
     Factory->FactoryQueue->Enqueue(
-        MoveEntityAlongSphericalEvent(SelectedEntity, 1.f, Position));
-    */
+        NotifyConsequentialEntityStateChange(SelectedEntity));
+    
   }
 }
 void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
@@ -253,6 +257,5 @@ void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
                            GamePlayer, 100.f, 10.f, 0.3f, ThreadID));
       GamePlayer->AvailableUnits -= 1;
     }
-    // GamePlayer->PlaceCity(Factory,Position);
   }
 }

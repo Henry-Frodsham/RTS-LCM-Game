@@ -34,8 +34,6 @@ WorldManager::WorldManager(bool CreateGlobe) {
       });
   WorldBus->Subscribe<ChangeGlobeVisibilityEvent>(std::bind(
       &WorldManager::ChangeGlobeVisibility, this, std::placeholders::_1));
-  WorldBus->Subscribe<CachedEntitiesReturnEvent>(
-      std::bind(&WorldManager::UpdateRangeCache, this, std::placeholders::_1));
   WorldBus->Subscribe<MoveEntityAlongSphericalEvent>(
       std::bind(&ECSHelper::MoveEntityAlongSpherical, CompFactory,
                 std::placeholders::_1));
@@ -97,78 +95,34 @@ void WorldManager::EvaluateTickerComponents(float DT) {
           UpdateUnitProgressEvent(ProgressPerSecond * DT));
     }
   }
-  // Combat evaluation
 
-  std::unordered_map<Ogre::SceneNode*, OwnershipComponent> ToCache;
-  std::unordered_map<int, std::vector<entt::entity>> PlayerCombatMap;
-  std::unordered_map<Ogre::SceneNode*, entt::entity> NodeMap;
-
-  auto CombatView = Registry.view<HealthComponent, AttackComponent,
-                                  OwnershipComponent, OgreComponent>();
-
+  // combat evaluation
   RenderSystem& Rs = RenderSystem::GetInstance();
 
-  for (auto Entity : CombatView) {
-    auto& Ownership = CombatView.get<OwnershipComponent>(Entity);
-    auto& Ogre = CombatView.get<OgreComponent>(Entity);
-    PlayerCombatMap[Ownership.PlayerID].push_back(Entity);
-    NodeMap[Ogre.EntityNode] = Entity;
-  }
-  for (auto& [PlayerID, Entities] : PlayerCombatMap) {
-    for (entt::entity Entity : Entities) {
-      if (!Registry.valid(Entity)) continue;
+  auto AttackView = Registry.view<HealthComponent, AttackComponent,
+                                  RangeCacheComponent, OgreComponent>();
 
-      auto& Health = CombatView.get<HealthComponent>(Entity);
-      auto& Attack = CombatView.get<AttackComponent>(Entity);
-      auto& Ownership = CombatView.get<OwnershipComponent>(Entity);
-      auto& Ogre = CombatView.get<OgreComponent>(Entity);
+  for (auto Entity : AttackView) {
+    auto& Range = AttackView.get<RangeCacheComponent>(Entity);
+    auto& Attack = AttackView.get<AttackComponent>(Entity);
+    auto& Health = AttackView.get<HealthComponent>(Entity);
+    auto& Ogre = AttackView.get<OgreComponent>(Entity);
 
-      auto CacheIt = CachedRangeEntities.find(Ogre.EntityNode);
-      if (CacheIt == CachedRangeEntities.end()) {
-        ToCache.emplace(Ogre.EntityNode, Ownership);
+    for (auto EntInRange : Range.EntitiesInRange) {
+      if (!Registry.valid(EntInRange)) {
         continue;
       }
+      auto& EntHealth = Registry.get<HealthComponent>(EntInRange);
+      auto& EntOgre = Registry.get<OgreComponent>(EntInRange);
 
-      for (Ogre::SceneNode* Node : CacheIt->second) {
-        auto NodeIt = NodeMap.find(Node);
-        if (NodeIt == NodeMap.end()) continue;
+      Evaluator->ProcessAttackEvent(
+          AttackEvent(Attack.Damage, &EntHealth.Health, DT));
 
-        entt::entity RangeEntity = NodeIt->second;
-        if (!Registry.valid(RangeEntity)) continue;
+      if (EntHealth.Health <= 0) {
+        Rs.RenderQueue->Enqueue(DestroyNodeEvent(EntOgre.EntityNode));
 
-        auto& RangeHealth = CombatView.get<HealthComponent>(RangeEntity);
-        auto& RangeOwnership = CombatView.get<OwnershipComponent>(RangeEntity);
-        auto& RangeOgre = CombatView.get<OgreComponent>(RangeEntity);
-
-        if (RangeOwnership.PlayerID == PlayerID) continue;
-
-        // attack logic, RangeEntity is to be attacked by Entity
-
-        Evaluator->ProcessAttackEvent(
-            AttackEvent(Attack.Damage, &RangeHealth.Health, DT));
-
-        if (RangeHealth.Health <= 0) {
-          Rs.RenderQueue->Enqueue(DestroyNodeEvent(RangeOgre.EntityNode));
-
-          NodeMap.erase(RangeOgre.EntityNode);
-          CachedRangeEntities.erase(RangeOgre.EntityNode);
-          ToCache.erase(RangeOgre.EntityNode);
-
-          Registry.destroy(RangeEntity);
-        }
+        Registry.destroy(EntInRange);
       }
-
-      ToCache.emplace(Ogre.EntityNode, Ownership);
     }
   }
-
-  if (ToCache.size() != 0) {
-    // theres 0 chance i can get entity positions thread safely and on demand
-    // so ive decided to cache in range units ahead of time.
-    Rs.RenderQueue->Enqueue(CacheRangeQueryEvent(0.01f, ToCache, WorldQueue));
-  }
-}
-
-void WorldManager::UpdateRangeCache(CachedEntitiesReturnEvent Event) {
-  CachedRangeEntities = Event.Entities;
 }

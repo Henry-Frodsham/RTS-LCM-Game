@@ -47,5 +47,4 @@ class WorldManager {
   std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
       CachedRangeEntities;
 
-  void UpdateRangeCache(CachedEntitiesReturnEvent Event);
 };

@@ -82,6 +82,8 @@ inline std::shared_ptr<entt::entity> CreateAttackingGameObject(
       AddHealthEvent(Entity, Event.Health));
   Factory->FactoryQueue->Enqueue<AddAttackEvent>(
       AddAttackEvent(Entity, Event.Radius, Event.Power));
+  Factory->FactoryQueue->Enqueue<AddRangeComponentEvent>(
+      AddRangeComponentEvent(Entity));
 
   return Entity;
 }

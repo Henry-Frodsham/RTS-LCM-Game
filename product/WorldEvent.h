@@ -103,11 +103,10 @@ struct ChangeGlobeVisibilityEvent {
   explicit ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}
 };
 
-struct CachedEntitiesReturnEvent {
-  std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
-      Entities;
-  CachedEntitiesReturnEvent(
-      std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
-          Ents)
-      : Entities(Ents) {}
+struct EntitiesInRangeUpdateEvent {
+  Ogre::SceneNode* OriginalNode;
+  std::unordered_set<Ogre::SceneNode*> EntitiesInRange;
+  explicit EntitiesInRangeUpdateEvent(Ogre::SceneNode* ONode, std::unordered_set<Ogre::SceneNode*> EInRange)
+      : OriginalNode(ONode), EntitiesInRange(EInRange) {}
 };
+

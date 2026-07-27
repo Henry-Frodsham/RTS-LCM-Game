@@ -1,9 +1,9 @@
 // Copyright (c) 2025 Henry Frodsham
 #include "ECSHelper.h"
 
-#include "RenderEvent.h"
-
 #include <string>
+
+#include "RenderEvent.h"
 
 // helper class responsible for creating components
 // however, doesnt manage or evaluate components
@@ -32,6 +32,12 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::CreateandAddHealthComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddAttackEvent>(std::bind(
       &ECSHelper::CreateandAddAttackComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddRangeComponentEvent>(std::bind(
+      &ECSHelper::CreateAndAddRangeComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<NotifyConsequentialEntityStateChange>(
+      std::bind(&ECSHelper::IssueRangeRevalEvent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<EntitiesInRangeUpdateEvent>(std::bind(
+      &ECSHelper::UpdateAndColludeEntityRanges, this, std::placeholders::_1));
 }
 
 void ECSHelper::CreateAndAddEntity(CreateEntityEvent Event) {
@@ -139,7 +145,14 @@ void ECSHelper::CreateAndAddOwnerShipComponent(
     } else {
       FactoryQueue->Enqueue(Event);
     }
-  } catch (std::exception e) {}
+  } catch (std::exception e) {
+  }
+}
+
+void ECSHelper::CreateAndAddRangeComponent(AddRangeComponentEvent Event) {
+  std::set<entt::entity> EmptyRangeContainer;
+  auto& Component = RegistryToUse->emplace<RangeCacheComponent>(
+      *Event.Entity, EmptyRangeContainer);
 }
 
 void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
@@ -154,8 +167,51 @@ void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
     } else {
       FactoryQueue->Enqueue(Event);
     }
-  } catch (std::exception e) {}
+  } catch (std::exception e) {
+  }
 }
+
+void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
+  auto RangeView =
+      RegistryToUse->view<HealthComponent, AttackComponent, OwnershipComponent,
+                          OgreComponent, RangeCacheComponent>();
+
+  std::vector<entt::entity> RelevantEntities;
+  entt::entity EntityOfInterest = FindEntityFromSceneNode(Event.OriginalNode);
+  RangeCacheComponent& RangeCompToUpdate =
+      RegistryToUse->get<RangeCacheComponent>(EntityOfInterest);
+  OwnershipComponent& EntityOfInterestOwnership =
+      RegistryToUse->get<OwnershipComponent>(EntityOfInterest);
+
+  for (auto Entity : RangeView) {
+    auto& Health = RangeView.get<HealthComponent>(Entity);
+    auto& Attack = RangeView.get<AttackComponent>(Entity);
+    auto& Ownership = RangeView.get<OwnershipComponent>(Entity);
+    auto& Ogre = RangeView.get<OgreComponent>(Entity);
+    auto& Range = RangeView.get<RangeCacheComponent>(Entity);
+
+    if (!Event.EntitiesInRange.contains(Ogre.EntityNode)) {
+      continue;
+    }
+
+    if (Ownership.PlayerID != EntityOfInterestOwnership.PlayerID) {
+      RelevantEntities.push_back(Entity);
+      // allow the entity in range to also attack this entity, since the other
+      // entity may not have updated
+      Range.EntitiesInRange.insert(EntityOfInterest);
+    }
+  }
+  RangeCompToUpdate.EntitiesInRange =
+      std::set<entt::entity>(RelevantEntities.begin(), RelevantEntities.end());
+}
+
+void ECSHelper::IssueRangeRevalEvent(
+    NotifyConsequentialEntityStateChange Notif) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  Rs.RenderQueue->Enqueue(
+      RevalEntityRangeEvent(Notif.Entity, FactoryQueue, 10.f));
+}
+
 OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
   auto View = RegistryToUse->view<OgreComponent>();
   for (auto Entity : View) {
@@ -166,4 +222,16 @@ OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
     }
   }
   return OgreComponent(nullptr, "");
+}
+
+entt::entity ECSHelper::FindEntityFromSceneNode(Ogre::SceneNode* Node) {
+  auto View = RegistryToUse->view<OgreComponent>();
+  for (auto Entity : View) {
+    OgreComponent EntComp = View.get<OgreComponent>(Entity);
+
+    if (EntComp.EntityNode == Node) {
+      return Entity;
+    }
+  }
+  return entt::null;
 }

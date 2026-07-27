@@ -94,7 +94,8 @@ class RenderSystem {
 
   void AddOwnerShipToEnt(AddOwnerShipToEntEvent Event);
 
-  void CacheRangeEntitiesAndCallback(CacheRangeQueryEvent Event);
+  void EntityRangeCheck(RevalEntityRangeEvent Event);
+
 
   void DestroyNode(DestroyNodeEvent Event);
   void DestroyEntity(DestroyEntityEvent Event);

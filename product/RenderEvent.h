@@ -76,16 +76,6 @@ struct AddOwnerShipToEntEvent {
       : Node(N), OwnershipId(Id) {}
 };
 
-struct CacheRangeQueryEvent {
-  float GeneralRange = 10.f;
-  std::unordered_map<Ogre::SceneNode*, OwnershipComponent> Entities;
-  EventQueue* Queue;
-  CacheRangeQueryEvent(
-      float GR, std::unordered_map<Ogre::SceneNode*, OwnershipComponent> Ents,
-      EventQueue* Q)
-      : GeneralRange(GR), Entities(Ents), Queue(Q) {}
-};
-
 struct DestroyNodeEvent {
   Ogre::SceneNode* NodeToDestroy;
   explicit DestroyNodeEvent(Ogre::SceneNode* Node) : NodeToDestroy(Node) {}
@@ -94,4 +84,12 @@ struct DestroyNodeEvent {
 struct DestroyEntityEvent {
   Ogre::Entity* EntityToDestroy;
   explicit DestroyEntityEvent(Ogre::Entity* Node) : EntityToDestroy(Node) {}
+};
+
+struct RevalEntityRangeEvent {
+  Ogre::Entity* EntToCheck;
+  EventQueue* CallBackQueue;
+  float GeneralRange;
+  RevalEntityRangeEvent(Ogre::Entity* Ent, EventQueue* CBQ, float GR)
+      : EntToCheck(Ent), CallBackQueue(CBQ), GeneralRange(GR) {}
 };
