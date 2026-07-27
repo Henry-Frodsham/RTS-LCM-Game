@@ -241,13 +241,12 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::ChangeEntityMaterial, this, std::placeholders::_1));
   RenderBus->Subscribe<AddOwnerShipToEntEvent>(
       std::bind(&RenderSystem::AddOwnerShipToEnt, this, std::placeholders::_1));
-  RenderBus->Subscribe<CacheRangeQueryEvent>(
-      std::bind(&RenderSystem::CacheRangeEntitiesAndCallback, this,
-                std::placeholders::_1));
   RenderBus->Subscribe<DestroyNodeEvent>(
       std::bind(&RenderSystem::DestroyNode, this, std::placeholders::_1));
   RenderBus->Subscribe<DestroyEntityEvent>(
       std::bind(&RenderSystem::DestroyEntity, this, std::placeholders::_1));
+  RenderBus->Subscribe<RevalEntityRangeEvent>(
+      std::bind(&RenderSystem::EntityRangeCheck, this, std::placeholders::_1));
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
       std::bind(&ViewPortUpdateListener::AssignOverlayToViewport,
@@ -400,33 +399,32 @@ void RenderSystem::DestroyEntity(DestroyEntityEvent Event) {
 
   SceneManager->destroySceneNode(NodeToDestroy);
 }
-void RenderSystem::CacheRangeEntitiesAndCallback(CacheRangeQueryEvent Event) {
-  std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
-      Results;
 
-  for (auto& [Node, Ownership] : Event.Entities) {
-    if (!Node) continue;
-    if (!Node->isInSceneGraph()) continue;
+void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
+  std::unordered_set<Ogre::SceneNode*> EntitiesInRange;
 
-    Ogre::SphereSceneQuery* Query = SceneManager->createSphereQuery(
-        Ogre::Sphere(Node->_getDerivedPosition(), Event.GeneralRange));
+  Ogre::SceneNode* Node = Event.EntToCheck->getParentSceneNode();
+  if (!Node) return;
+  if (!Node->isInSceneGraph()) return;
 
-    Ogre::SceneQueryResult& Result = Query->execute();
+  Ogre::SphereSceneQuery* Query = SceneManager->createSphereQuery(
+      Ogre::Sphere(Node->_getDerivedPosition(), Event.GeneralRange));
+  Ogre::SceneQueryResult& Result = Query->execute();
 
-    std::unordered_set<Ogre::SceneNode*> InRange;
-    for (Ogre::MovableObject* Movable : Result.movables) {
-      Ogre::SceneNode* TargetNode = Movable->getParentSceneNode();
-
-      if (TargetNode && TargetNode != Node) InRange.insert(TargetNode);
+  for (Ogre::MovableObject* Movable : Result.movables) {
+    Ogre::SceneNode* TargetNode = Movable->getParentSceneNode();
+    if (TargetNode && TargetNode != Node) {
+      EntitiesInRange.insert(TargetNode);
     }
-
-    if (!InRange.empty()) Results[Node] = std::move(InRange);
-
-    SceneManager->destroyQuery(Query);
   }
 
-  Event.Queue->Enqueue(CachedEntitiesReturnEvent(Results));
+  SceneManager->destroyQuery(Query);
+
+  Event.CallBackQueue->Enqueue(
+      EntitiesInRangeUpdateEvent(Node, EntitiesInRange));
+
 }
+
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
   ViewPortController* RayVPC = FindViewPortFromDevice(Event.Device);
   // populate here because i dont want a tonne of ogre singleton ptrs around

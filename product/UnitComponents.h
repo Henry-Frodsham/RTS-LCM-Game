@@ -14,3 +14,10 @@ struct AttackComponent {
   float Damage;
   AttackComponent(int R, int D) : Radius(R), Damage(D) {}
 };
+
+// entities in range
+struct RangeCacheComponent {
+  std::set<entt::entity> EntitiesInRange;
+  RangeCacheComponent(std::set<entt::entity> Entities)
+      : EntitiesInRange(Entities) {}
+};

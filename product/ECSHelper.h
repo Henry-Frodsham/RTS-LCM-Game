@@ -28,8 +28,10 @@ class ECSHelper {
 
   EventQueue* FactoryQueue;
   void ChangeEntityVisibility(ChangeEntityVisibilityEvent Event);
+
   void MoveEntityAlongSpherical(MoveEntityAlongSphericalEvent Event);
 
+  void UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event);
  private:
   EventBus* FactoryBus;
 
@@ -51,6 +53,13 @@ class ECSHelper {
 
   void CreateandAddHealthComponent(AddHealthEvent Event);
 
+  void CreateAndAddRangeComponent(AddRangeComponentEvent Event);
+
+  void IssueRangeRevalEvent(NotifyConsequentialEntityStateChange Notif);
+
   void OrientateAndAdditionalSetup(OrientateEntityEvent Event);
+
   OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
+
+  entt::entity FindEntityFromSceneNode(Ogre::SceneNode* Node);
 };

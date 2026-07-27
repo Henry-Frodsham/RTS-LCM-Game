@@ -109,3 +109,14 @@ struct OrientateEntityEvent {
       std::shared_ptr<entt::entity> Ent)  // NOLINT(whitespace/line_length)
       : Entity(Ent) {}
 };
+
+struct AddRangeComponentEvent {
+  std::shared_ptr<entt::entity> Entity;
+  AddRangeComponentEvent(std::shared_ptr<entt::entity> Ent)
+      : Entity(Ent) {}
+};
+
+struct NotifyConsequentialEntityStateChange {
+  Ogre::Entity* Entity;
+  NotifyConsequentialEntityStateChange(Ogre::Entity* Ent) : Entity(Ent) {}
+};
