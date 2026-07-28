@@ -120,7 +120,6 @@ void WorldManager::EvaluateTickerComponents(float DT) {
       if (!Registry.valid(EntInRange)) {
         continue;
       }
-
       auto& EntHealth = Registry.get<HealthComponent>(EntInRange);
       auto& EntOgre = Registry.get<OgreComponent>(EntInRange);
 

@@ -304,7 +304,7 @@ Ogre::SceneNode* RenderSystem::CreateSceneNode(std::string Name) {
 
 Ogre::SceneNode* RenderSystem::GetSceneNodeFromName(std::string Name) {
   try {
-    SceneManager->getSceneNode(Name);
+    return SceneManager->getSceneNode(Name);
   } catch (std::exception e) {
     RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(
         ErrorCode::SCENE_NODE_DOESNT_EXIST,
