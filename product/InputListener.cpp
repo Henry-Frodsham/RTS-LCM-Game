@@ -23,25 +23,14 @@ void InputListener::Update() {
     DeviceSetup();
   }
 
+  ControllersNeedReconnecting = CheckForDisconnectedDevices();
+
   while (SDL_PollEvent(&Event)) {
     // first, class which device it is then read which key/button
     Sint32 SdlDeviceIndex = -1;
 
     // discern which method to use when finding the device
     switch (Event.type) {
-      case SDL_CONTROLLERDEVICEADDED:
-        InputErrorReporter.EnqueueError(ErrorDetail::CreateError(
-            ErrorCode::SDL_CONTOLLER_CONNECT,
-            fmt::format("new controller with guid: {}", Event.cdevice.which)));
-        // init the controller
-        SDL_JoystickOpen(Event.cdevice.which);
-        break;
-      case SDL_CONTROLLERDEVICEREMOVED:
-        InputErrorReporter.EnqueueError(ErrorDetail::CreateError(
-            ErrorCode::SDL_CONTROLLER_DISCONNECT,
-            fmt::format("controller with guid: {} has disconnected",
-                        Event.cdevice.which)));
-        break;
       case SDL_KEYDOWN:
         // SDL2 doesnt have any device index for KBM so just use -1
         SdlDeviceIndex = -1;
@@ -77,14 +66,14 @@ void InputListener::Update() {
     try {
       Device = Devices.at(SdlDeviceIndex);
     } catch (const std::out_of_range& e) {
-      // throws when the sdl id has changed, so pass to the handler
-      InputErrorReporter.EnqueueError(DeadDeviceIdError{
-          SDL_JoystickOpen(SdlDeviceIndex), SdlDeviceIndex,
-          fmt::format("unrecognised device id {}", SdlDeviceIndex)});
-
-      // exit to allow the handler to register/edit the device then revisit next
-      // event poll
-      return;
+      if (PendingUnknownIds.insert(SdlDeviceIndex)
+              .second) {  // first sighting only
+        SDL_Joystick* J = JoystickFromInstance(SdlDeviceIndex);
+        InputErrorReporter.EnqueueError(DeadDeviceIdError{
+            J, SdlDeviceIndex,
+            fmt::format("unrecognised device id {}", SdlDeviceIndex)});
+      }
+      continue;
     }
 
     EventQueue* QueueToNotify = nullptr;
@@ -154,62 +143,53 @@ void InputListener::RemapOrCreateDevice(DeadDeviceIdError Context) {
       return;
     }
 
-    for (auto it = Devices.begin(); it != Devices.end();) {
-      Sint32 Key = it->first;
-      InputDevice* Value = it->second;
+    // only add new controllers if all controllers are active
+    if (!ControllersNeedReconnecting) {
+      // alloc to the heap since its a pointer
+      InputDevice* NewDevice =
+          new InputDevice{Context.JoyStick, InputDeviceType::CONTROLLER};
 
-      if (Value->InputType == InputDeviceType::KBM ||
-          Value->InputType == InputDeviceType::NONE) {
-        ++it;  // Only increment if not erasing
-        continue;
-      }
+      Sint32 Key = Context.SupposedId;
+      CacheTriggerAxes(NewDevice, Key);
+      Devices[Key] = NewDevice;
 
-      // non ideal temporary solution
-      // theres a well acknowledge issue with sdl where generic controllers cant
-      // be distinguished therefore, just check if theres a controller slot that
-      // isnt plugged in then reattach to that
-      SDL_bool Attached = SDL_JoystickGetAttached(Value->Controller);
-      if (Attached == SDL_FALSE) {
-        // dont just trust SupposedId
-        // regrab the active instance id from sdl
-        Sint32 NewKey = SDL_JoystickInstanceID(Context.JoyStick);
-        InputDevice* Device =
-            new InputDevice(Context.JoyStick, InputDeviceType::CONTROLLER);
-        CacheTriggerAxes(Device, NewKey);
-        EventQueue* OldQueue = ListeningQueues[Value];
+      InputErrorReporter.EnqueueError(ErrorDetail::CreateError(
+          ErrorCode::SDL_HANDLER_NEW_REG,
+          fmt::format("new controller with device id: {} has been succesfully "
+                      "registered",
+                      Key)));
+    } else {
+      Sint32 OldKey = ReconnectionQueue.front();
+      Sint32 NewKey = SDL_JoystickInstanceID(Context.JoyStick);
 
-        it = Devices.erase(it);
+      InputDevice* Device =
+          new InputDevice(Context.JoyStick, InputDeviceType::CONTROLLER);
+      InputDevice* OldDevice = Devices.at(OldKey);
 
-        Devices.emplace(NewKey, Device);
+      CacheTriggerAxes(Device, NewKey);
 
-        ListeningQueues.erase(Value);
-        ListeningQueues.emplace(Device, OldQueue);
+      EventQueue* OldQueue = ListeningQueues[OldDevice];
 
-        InputErrorReporter.EnqueueError(ErrorDetail::CreateError(
-            ErrorCode::SDL_HANDLER_ID_SUCCESS,
-            fmt::format("successfully relinked controller with device id: {}",
-                        NewKey)));
-        return;
-      } else {
-        ++it;
+      Devices.erase(OldKey);
+
+      Devices.emplace(NewKey, Device);
+
+      ListeningQueues.erase(OldDevice);
+      ListeningQueues.emplace(Device, OldQueue);
+
+      InputErrorReporter.EnqueueError(ErrorDetail::CreateError(
+          ErrorCode::SDL_HANDLER_ID_SUCCESS,
+          fmt::format("successfully relinked controller with device id: {}",
+                      NewKey)));
+
+      OldQueue->Enqueue(ReconnectControllerSuccessEvent());
+      ReconnectionQueue.pop();
+      ReconnectionSet.erase(OldKey);
+
+      if (ReconnectionSet.size() == 0) {
+        ControllersNeedReconnecting = false;
       }
     }
-    // if not then create
-
-    // alloc to the heap since its a pointer
-    InputDevice* NewDevice =
-        new InputDevice{Context.JoyStick, InputDeviceType::CONTROLLER};
-
-    Sint32 Key = Context.SupposedId;
-    CacheTriggerAxes(NewDevice, Key);
-    Devices[Key] = NewDevice;
-
-    InputErrorReporter.EnqueueError(ErrorDetail::CreateError(
-        ErrorCode::SDL_HANDLER_NEW_REG,
-        fmt::format(
-            "new controller with device id: {} has been succesfully registered",
-            Key)));
-
   } else {
     // KBM has no GUID so just find the key assigned to a KBM
     for (const auto& [Key, Value] : Devices) {
@@ -240,6 +220,36 @@ void InputListener::RemapOrCreateDevice(DeadDeviceIdError Context) {
   }
 }
 
+bool InputListener::CheckForDisconnectedDevices() {
+  bool MarkedDeviceAsInactive = false;
+  for (auto it = Devices.begin(); it != Devices.end();) {
+    Sint32 Key = it->first;
+    InputDevice* Value = it->second;
+
+    if (Value->InputType == InputDeviceType::KBM ||
+        Value->InputType == InputDeviceType::NONE) {
+      ++it;
+      continue;
+    }
+
+    SDL_bool Attached = SDL_JoystickGetAttached(Value->Controller);
+
+    if (Attached == SDL_FALSE) {
+      if (!ReconnectionSet.contains(Key)) {
+        EventQueue* OldQueue = ListeningQueues[Value];
+
+        ReconnectionQueue.push(Key);
+        ReconnectionSet.insert(Key);
+
+        OldQueue->Enqueue(
+            ReconnectControllerPromptEvent(ReconnectionQueue.size()));
+      }
+      MarkedDeviceAsInactive = true;
+    }
+    ++it;
+  }
+  return MarkedDeviceAsInactive;
+}
 InputDevice* InputListener::GetDeviceFromSDLId(Sint32 ID) {
   try {
     return Devices.at(ID);
@@ -274,22 +284,13 @@ void InputListener::DeviceSetup() {
   // initialise currently plugged in controllers, if a new one is plugged in
   // while the game is running then thats handled dynamically
   NumJoySticks = SDL_NumJoysticks();
-  for (int i = 0; i < NumJoySticks; i++) {
+  for (int i = 0; i <= NumJoySticks; i++) {
     SDL_Joystick* J = SDL_JoystickOpen(i);
     if (!J) {
       InputErrorReporter.EnqueueError(ErrorDetail::CreateError(
           ErrorCode::SDL_CONTROLLER_FAILED_INIT,
           fmt::format("controller with Device id: {} failed to init", i)));
     }
-
-    Sint32 InstanceId = SDL_JoystickInstanceID(J);
-
-    if (Devices.contains(InstanceId)) {
-      continue;
-    }
-
-    // additionally, add these to the managed devices
-    InputErrorReporter.EnqueueError(DeadDeviceIdError{J, InstanceId});
   }
 
   // force KB creation at device id -1 if it doesnt already exist
@@ -323,6 +324,18 @@ void InputListener::CacheTriggerAxes(InputDevice* Device, Sint32 InstanceId) {
     SDL_GameControllerClose(GC);
     return;
   }
+}
+SDL_Joystick* InputListener::JoystickFromInstance(SDL_JoystickID Id) {
+  if (SDL_Joystick* J = SDL_JoystickFromInstanceID(Id)) {
+    return J;  // already open (DeviceSetup opened it)
+  }
+  // fallback: not opened yet — find its device index and open it
+  for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+    if (SDL_JoystickGetDeviceInstanceID(i) == Id) {  // SDL 2.0.6+
+      return SDL_JoystickOpen(i);
+    }
+  }
+  return nullptr;
 }
 std::vector<InputDevice*> InputListener::GetUnintegratedDevices() {
   std::vector<InputDevice*> DeviceList;

@@ -108,20 +108,41 @@ void WorldManager::EvaluateTickerComponents(float DT) {
     auto& Health = AttackView.get<HealthComponent>(Entity);
     auto& Ogre = AttackView.get<OgreComponent>(Entity);
 
+    if (!Ogre.EntityNode) {
+      ECSReporter->EnqueueError(
+          ErrorDetail::CreateError(ErrorCode::ATTACK_LOGIC_EARLY));
+    }
+
+    std::erase_if(Range.EntitiesInRange,
+                  [&](entt::entity e) { return !Registry.valid(e); });
+
     for (auto EntInRange : Range.EntitiesInRange) {
       if (!Registry.valid(EntInRange)) {
         continue;
       }
+
       auto& EntHealth = Registry.get<HealthComponent>(EntInRange);
       auto& EntOgre = Registry.get<OgreComponent>(EntInRange);
 
-      Evaluator->ProcessAttackEvent(
-          AttackEvent(Attack.Damage, &EntHealth.Health, DT));
+      if (!EntOgre.EntityNode) {
+        ECSReporter->EnqueueError(
+            ErrorDetail::CreateError(ErrorCode::ATTACK_LOGIC_EARLY));
+      }
 
-      if (EntHealth.Health <= 0) {
-        Rs.RenderQueue->Enqueue(DestroyNodeEvent(EntOgre.EntityNode));
+      try {
+        Evaluator->ProcessAttackEvent(
+            AttackEvent(Attack.Damage, &EntHealth.Health, DT));
 
-        Registry.destroy(EntInRange);
+        if (EntHealth.Health <= 0) {
+          Rs.RenderQueue->Enqueue(DestroyNodeEvent(EntOgre.EntityNode));
+
+          Registry.destroy(EntInRange);
+        }
+      }
+
+      catch (std::exception& e) {
+        ECSReporter->EnqueueError(
+            ErrorDetail::CreateError(ErrorCode::ATTACK_LOGIC_FAILED));
       }
     }
   }

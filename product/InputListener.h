@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "ErrorReporter.h"
@@ -51,5 +52,14 @@ class InputListener {
   bool IsAxisTrigger(SDL_Joystick* Joystick, Uint8 Axis);
   void CacheTriggerAxes(InputDevice* Device, Sint32 InstanceId);
   float NormalizeTrigger(Sint16 RawValue);
+  bool CheckForDisconnectedDevices();
+  SDL_Joystick* JoystickFromInstance(SDL_JoystickID Id);
+  bool ControllersNeedReconnecting = false;
   int NumJoySticks;
+
+  std::queue<Sint32> ReconnectionQueue;
+  std::unordered_set<Sint32> ReconnectionSet;
+
+  std::unordered_set<Sint32> PendingUnknownIds;
+
 };

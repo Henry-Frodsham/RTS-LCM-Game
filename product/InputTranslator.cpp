@@ -29,6 +29,10 @@ InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
       &InputTranslator::TranslateRawMouseButton, this, std::placeholders::_1));
   InputEvents->Subscribe<RawTriggerEvent>(std::bind(
       &InputTranslator::TranslateRawTriggerEvent, this, std::placeholders::_1));
+  InputEvents->Subscribe<ReconnectControllerPromptEvent>(std::bind(
+      &InputTranslator::HandleReconnectPrompt, this, std::placeholders::_1));
+  InputEvents->Subscribe<ReconnectControllerSuccessEvent>(std::bind(
+      &InputTranslator::HideReconnectPrompt, this, std::placeholders::_1));
   CursorSensitivity = 1500.f;
   JoystickDeadzone = 0.1f;
 
@@ -38,6 +42,29 @@ InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
   ViewPortHeight = VPHeight;
   ScreenDimensions = SDim;
   TranslationErrorReporter = new ErrorReporter();
+
+  RenderSystem& Rs = RenderSystem::GetInstance();
+
+  Rs.RenderQueue->Enqueue(CreateOverlayEvent(
+      "PROMPT_OVERLAY_" + std::to_string(ThreadNumber), Device));
+
+  Rs.RenderQueue->Enqueue(
+      OverlayAddBoxEvent({0.2f, 0.3f}, {0.24f, 0.03f},
+                         "PROMPT_BORDER_" + std::to_string(ThreadNumber), "RED",
+                         "PROMPT_OVERLAY_" + std::to_string(ThreadNumber)));
+
+  Rs.RenderQueue->Enqueue(OverlayAddTextToPanelEvent{
+      "PROMPT_BORDER_" + std::to_string(ThreadNumber),
+      "PROMPT_TEXT_" + std::to_string(ThreadNumber),
+      "DEVICE " + std::to_string(ThreadNumber) +
+          " press any key, queue pos: 0 ",
+      "WHITE",
+      {0.f, 0.f},
+      {1.f, 1.f}});
+
+  Rs.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "PROMPT_OVERLAY_" + std::to_string(ThreadNumber),
+      "PROMPT_BORDER_" + std::to_string(ThreadNumber), false));
 
 #ifdef _DEBUG
   InputAnalyser::GetInstance().RegisterNew(this);
@@ -342,6 +369,31 @@ float InputTranslator::ApplyDeadzone(float Value, float Deadzone) {
   // stops a sudden accelleration when leaving deadzone
   float sign = (Value > 0.0f) ? 1.0f : -1.0f;
   return sign * ((std::abs(Value) - Deadzone) / (1.0f - Deadzone));
+}
+
+void InputTranslator::HandleReconnectPrompt(
+    ReconnectControllerPromptEvent Event) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+
+  Rs.RenderQueue->Enqueue(OverlayEditTextEvent(
+      "PROMPT_TEXT_" + std::to_string(ThreadNumber),
+      "PROMPT_OVERLAY_" + std::to_string(ThreadNumber), {-1.f, -1.f},
+      {-1.f, -1.f}, "USE_OLD",
+      "DEVICE " + std::to_string(ThreadNumber) + " press any key, queue pos: " +
+          std::to_string(Event.PositionInQueue)));
+
+  Rs.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "PROMPT_OVERLAY_" + std::to_string(ThreadNumber),
+      "PROMPT_BORDER_" + std::to_string(ThreadNumber), true));
+}
+
+void InputTranslator::HideReconnectPrompt(
+    ReconnectControllerSuccessEvent Event) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+
+  Rs.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      "PROMPT_OVERLAY_" + std::to_string(ThreadNumber),
+      "PROMPT_BORDER_" + std::to_string(ThreadNumber), false));
 }
 
 void InputTranslator::Update(float DeltaTime) {

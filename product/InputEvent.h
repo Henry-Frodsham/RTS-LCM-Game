@@ -54,4 +54,15 @@ struct RawMouseButtonEvent {
 struct RawTriggerEvent {
   SDL_JoyAxisEvent AxisEvent;
   float NormalizedValue;
+  RawTriggerEvent(SDL_JoyAxisEvent AE, float NV)
+      : AxisEvent(AE), NormalizedValue(NV) {}
+};
+
+struct ReconnectControllerPromptEvent {
+  int PositionInQueue;
+  ReconnectControllerPromptEvent(int PosInQ) : PositionInQueue(PosInQ) {}
+};
+
+struct ReconnectControllerSuccessEvent {
+  ReconnectControllerSuccessEvent() {}
 };
