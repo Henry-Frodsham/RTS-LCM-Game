@@ -68,20 +68,10 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
 
 void InstanceOverseer::RecalculateViewPortSizes(
     RecheckViewPortSizeCommand Cmd) {
-  RenderSystem& RS = RenderSystem::GetInstance();
-  Ogre::RenderWindowDescription WindowInfo = RS.GetPrimaryWindowInformation();
   for (auto Pair : InstanceViewports) {
-    std::vector<float> RelativeVPDimensions =
-        Pair.second->GetViewPortDimensions();
-
-    float TotalWindowWidth = static_cast<float>(WindowInfo.width);
-    float TotalWindowHeight = static_cast<float>(WindowInfo.height);
-
-    float ViewPortWidth = TotalWindowWidth * RelativeVPDimensions[2];
-    float ViewPortHeight = TotalWindowHeight * RelativeVPDimensions[3];
-
-    Pair.first->LocalQueue->Enqueue(
-        ResizedViewPortEvent(ViewPortWidth, ViewPortHeight));
+    std::vector<int> Actual = Pair.second->GetActualDimensions();
+    Pair.first->LocalQueue->Enqueue(ResizedViewPortEvent(
+        static_cast<float>(Actual[0]), static_cast<float>(Actual[1])));
   }
 }
 
