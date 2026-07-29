@@ -304,7 +304,7 @@ Ogre::SceneNode* RenderSystem::CreateSceneNode(std::string Name) {
 
 Ogre::SceneNode* RenderSystem::GetSceneNodeFromName(std::string Name) {
   try {
-    SceneManager->getSceneNode(Name);
+    return SceneManager->getSceneNode(Name);
   } catch (std::exception e) {
     RenderErrorReporter.EnqueueError(ErrorDetail::CreateError(
         ErrorCode::SCENE_NODE_DOESNT_EXIST,
@@ -407,19 +407,24 @@ void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
   if (!Node) return;
   if (!Node->isInSceneGraph()) return;
 
-  Ogre::SphereSceneQuery* Query = SceneManager->createSphereQuery(
-      Ogre::Sphere(Node->_getDerivedPosition(), Event.GeneralRange));
-  Ogre::SceneQueryResult& Result = Query->execute();
+  try {
+    Ogre::SphereSceneQuery* Query = SceneManager->createSphereQuery(
+        Ogre::Sphere(Node->_getDerivedPosition(), Event.GeneralRange));
+    Ogre::SceneQueryResult& Result = Query->execute();
 
-  for (Ogre::MovableObject* Movable : Result.movables) {
-    Ogre::SceneNode* TargetNode = Movable->getParentSceneNode();
-    if (TargetNode && TargetNode != Node) {
-      EntitiesInRange.insert(TargetNode);
+    for (Ogre::MovableObject* Movable : Result.movables) {
+      Ogre::SceneNode* TargetNode = Movable->getParentSceneNode();
+      if (TargetNode && TargetNode != Node) {
+        EntitiesInRange.insert(TargetNode);
+      }
     }
+
+    SceneManager->destroyQuery(Query);
   }
-
-  SceneManager->destroyQuery(Query);
-
+  catch (std::exception& e) {
+    RenderErrorReporter.EnqueueError(
+        ErrorDetail::CreateError(ErrorCode::RANGE_CHECK_FAILED));
+  }
   Event.CallBackQueue->Enqueue(
       EntitiesInRangeUpdateEvent(Node, EntitiesInRange));
 

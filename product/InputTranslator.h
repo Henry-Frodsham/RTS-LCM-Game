@@ -81,6 +81,8 @@ class InputTranslator {
   void TranslateRawAxis(RawAxisEvent Event);
   void TranslateRawMouseButton(RawMouseButtonEvent Event);
   void TranslateRawTriggerEvent(RawTriggerEvent Event);
+  void HandleReconnectPrompt(ReconnectControllerPromptEvent Event);
+  void HideReconnectPrompt(ReconnectControllerSuccessEvent Event);
   float ApplyDeadzone(float Value, float Deadzone);
 
   std::vector<bool> MouseButtonStates = std::vector<bool>{false, false, false};

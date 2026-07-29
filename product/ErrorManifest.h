@@ -55,6 +55,10 @@ enum ErrorCode : uint32_t {
   ILLEGAL_OVERLAY_COMMAND = 4018,
   OVERLAY_MISSING_INFO = 4019,
   CALLBACK_FAILED = 4020,
+  RANGE_CHECK_TOO_EARLY = 4021,
+  RANGE_CHECK_FAILED = 4022,
+  ATTACK_LOGIC_EARLY = 4023,
+  ATTACK_LOGIC_FAILED = 4024,
   // fatal
   OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
   SDL_FAILED_INIT = 5002,
@@ -64,6 +68,7 @@ enum ErrorCode : uint32_t {
   DEFAULT_JSON_VALUE_FAILURE = 5006,
   JSON_VALUE_MISSING_KEYS = 5007,
   TRANSLATOR_NO_DEVICE = 5008,
+  IDENTICAL_OVERLAY = 5009,
   UNRECOGNISED = 5999
 };
 
@@ -212,6 +217,25 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
     {ErrorCode::CALLBACK_FAILED,
      {ErrorCode::CALLBACK_FAILED, ErrorLevel::ERR,
       "An Overlay's interaction callback failed", "OverlayController"}},
+    {ErrorCode::RANGE_CHECK_TOO_EARLY,
+     {ErrorCode::RANGE_CHECK_TOO_EARLY, ErrorLevel::ERR,
+      "Attempted a range check on an entity without an initialised SceneNode",
+      "WorldManager"}},
+    {ErrorCode::RANGE_CHECK_FAILED,
+     {ErrorCode::RANGE_CHECK_FAILED, ErrorLevel::ERR,
+      "Failed to check for nearby entities due to an unknown error",
+      "WorldManager"}},
+    {ErrorCode::ATTACK_LOGIC_EARLY,
+     {ErrorCode::ATTACK_LOGIC_EARLY, ErrorLevel::ERR,
+      "Failed to attack a nearby entity due to the entity not having a valid SceneNode",
+      "WorldManager"}},
+    {ErrorCode::ATTACK_LOGIC_FAILED,
+     {ErrorCode::ATTACK_LOGIC_FAILED, ErrorLevel::ERR,
+      "Failed to attack a nearby entity due to an unknown error",
+      "WorldManager"}},
+    {ErrorCode::CALLBACK_FAILED,
+     {ErrorCode::CALLBACK_FAILED, ErrorLevel::ERR,
+      "An Overlay's interaction callback failed", "OverlayController"}},
     // fatal
     {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
      {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,
@@ -247,10 +271,14 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
       "a requested key wasnt found in either custom or default maps",
       "ConfigManager"}},
 
+    {ErrorCode::IDENTICAL_OVERLAY,
+     {ErrorCode::IDENTICAL_OVERLAY, ErrorLevel::FATAL,
+      "An attempt was made to create a duplicate overlay",
+      "OverlayController"}},
+
     {ErrorCode::UNRECOGNISED,
      {ErrorCode::UNRECOGNISED, ErrorLevel::FATAL,
-      "an unrecognised error has occured", "APPLICATION PANIC"}}
-};
+      "an unrecognised error has occured", "APPLICATION PANIC"}}};
 
 // get default error from manifest
 inline Error CreateError(ErrorCode ECode) { return ErrorManifest.at(ECode); }

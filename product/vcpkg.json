@@ -4,15 +4,12 @@
   "description": "RTS LCM game",
   "builtin-baseline": "f7423ee180c4b7f40d43402c2feb3859161ef625",
   "dependencies": [
-    "nlohmann-json",
-    "entt",
-    {
-	"name": "ogre",
-	"features": ["overlay"]
-    },
-    "doctest",
-    "fmt",
-    "eigen3",
-    "bshoshany-thread-pool"
+    "nlohmann-json", "entt", "doctest", "fmt", "eigen3",
+    "bshoshany-thread-pool", "sdl2",
+    { "name": "ogre", "features": ["overlay"] }
+  ],
+  "overrides": [
+    { "name": "sdl2", "version": "2.30.3" },
+    { "name": "ogre", "version": "14.2.2" }
   ]
 }

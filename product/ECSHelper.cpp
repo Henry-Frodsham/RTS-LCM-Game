@@ -178,11 +178,14 @@ void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
 
   std::vector<entt::entity> RelevantEntities;
   entt::entity EntityOfInterest = FindEntityFromSceneNode(Event.OriginalNode);
-  RangeCacheComponent& RangeCompToUpdate =
-      RegistryToUse->get<RangeCacheComponent>(EntityOfInterest);
-  OwnershipComponent& EntityOfInterestOwnership =
-      RegistryToUse->get<OwnershipComponent>(EntityOfInterest);
+  RangeCacheComponent* RangeCompToUpdate =
+      RegistryToUse->try_get<RangeCacheComponent>(EntityOfInterest);
+  OwnershipComponent* EntityOfInterestOwnership =
+      RegistryToUse->try_get<OwnershipComponent>(EntityOfInterest);
 
+  if (!RangeCompToUpdate || !EntityOfInterestOwnership) {
+    return;
+  }
   for (auto Entity : RangeView) {
     auto& Health = RangeView.get<HealthComponent>(Entity);
     auto& Attack = RangeView.get<AttackComponent>(Entity);
@@ -194,14 +197,14 @@ void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
       continue;
     }
 
-    if (Ownership.PlayerID != EntityOfInterestOwnership.PlayerID) {
+    if (Ownership.PlayerID != EntityOfInterestOwnership->PlayerID) {
       RelevantEntities.push_back(Entity);
       // allow the entity in range to also attack this entity, since the other
       // entity may not have updated
       Range.EntitiesInRange.insert(EntityOfInterest);
     }
   }
-  RangeCompToUpdate.EntitiesInRange =
+  RangeCompToUpdate->EntitiesInRange =
       std::set<entt::entity>(RelevantEntities.begin(), RelevantEntities.end());
 }
 
