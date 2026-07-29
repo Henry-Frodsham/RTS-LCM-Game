@@ -29,6 +29,9 @@
     <ClCompile Include="EntityInteractionTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="GlobeGenerationTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

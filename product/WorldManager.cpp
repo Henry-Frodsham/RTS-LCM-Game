@@ -6,7 +6,7 @@
 
 #include "Player.h"
 
-WorldManager::WorldManager(bool CreateGlobe) {
+WorldManager::WorldManager() {
   WorldBus = new EventBus();
   WorldQueue = new EventQueue(WorldBus);
   ECSReporter = new ErrorReporter();
@@ -37,32 +37,6 @@ WorldManager::WorldManager(bool CreateGlobe) {
   WorldBus->Subscribe<MoveEntityAlongSphericalEvent>(
       std::bind(&ECSHelper::MoveEntityAlongSpherical, CompFactory,
                 std::placeholders::_1));
-  if (CreateGlobe) {
-    CreateGlobeMesh();
-  }
-}
-
-void WorldManager::CreateGlobeMesh() {
-  WorldQueue->Enqueue(
-      CreateMeshWorldEntityEvent("GlobeNode", "PlanetBase.mesh", "GlobeBase",
-                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
-  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
-      "GlobeNode", "antartica_n.mesh", "GlobeAntarticaN",
-      Ogre::Vector3(0.5f, 0.f, -5.f)));
-  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
-      "GlobeNode", "antartica_s.mesh", "GlobeAntarticaS",
-      Ogre::Vector3(0.5f, 0.f, -5.f)));
-  WorldQueue->Enqueue(
-      CreateMeshWorldEntityEvent("GlobeNode", "europa.mesh", "GlobeEuropa",
-                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
-  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
-      "GlobeNode", "greenland.mesh", "GlobeGreenland",
-      Ogre::Vector3(0.5f, 0.f, -5.f)));
-  WorldQueue->Enqueue(
-      CreateMeshWorldEntityEvent("GlobeNode", "iceland.mesh", "GlobeIceland",
-                                 Ogre::Vector3(0.5f, 0.f, -5.f)));
-  WorldQueue->Enqueue(CreateMeshWorldEntityEvent(
-      "GlobeNode", "UK.mesh", "GlobeUK", Ogre::Vector3(0.5f, 0.f, -5.f)));
 }
 
 void WorldManager::ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event) {
