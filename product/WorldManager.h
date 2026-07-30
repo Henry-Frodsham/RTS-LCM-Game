@@ -21,7 +21,7 @@
 // here however game logic is delegated
 class WorldManager {
  public:
-  explicit WorldManager(bool CreateGlobe = true);
+  explicit WorldManager();
 
   void update(float DT);
 
@@ -29,7 +29,6 @@ class WorldManager {
   EventQueue* WorldQueue;
   ECSHelper* CompFactory;
 
-  void ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event);
 
  private:
   EventBus* WorldBus;

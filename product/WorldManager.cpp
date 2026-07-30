@@ -32,16 +32,11 @@ WorldManager::WorldManager() {
       [this](const ChangeEntityVisibilityEvent& Event) {
         CompFactory->ChangeEntityVisibility(Event);
       });
-  WorldBus->Subscribe<ChangeGlobeVisibilityEvent>(std::bind(
-      &WorldManager::ChangeGlobeVisibility, this, std::placeholders::_1));
   WorldBus->Subscribe<MoveEntityAlongSphericalEvent>(
       std::bind(&ECSHelper::MoveEntityAlongSpherical, CompFactory,
                 std::placeholders::_1));
 }
 
-void WorldManager::ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event) {
-  WorldQueue->Enqueue(ChangeEntityVisibilityEvent("GlobeNode", Event.Visible));
-}
 void WorldManager::update(float DT) {
   ECSReporter->Dispatch();
   WorldQueue->Dispatch();

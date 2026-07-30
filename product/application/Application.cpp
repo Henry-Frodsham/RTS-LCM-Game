@@ -12,7 +12,7 @@ Application::Application()
       Appbus(new EventBus()),
       AppQueue(new EventQueue(Appbus)),
       Menu(MenuState(AppQueue)),
-      Game(GameState(AppQueue, &WM)),
+      Game(GameState(AppQueue)),
       Pause(PauseState(AppQueue)) {}
 
 // initialises game into the correct state, by default the game starts at the

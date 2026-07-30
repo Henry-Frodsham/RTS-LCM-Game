@@ -3,14 +3,15 @@
 
 #include "GenericButton.h"
 #include "StateEvent.h"
-#include "WorldManager.h"
+#include "GlobeEvent.h"
+#include "RenderSystem.h"
+
 class GameState {
  private:
   EventQueue* AppQueue;
-  WorldManager* World;
 
  public:
-  GameState(EventQueue* CallBacksQueue, WorldManager* WorldMng);
+  GameState(EventQueue* CallBacksQueue);
   ~GameState() {}
 
   void Init();

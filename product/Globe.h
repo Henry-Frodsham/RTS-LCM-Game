@@ -19,6 +19,13 @@ struct GeodesicMesh {
   std::vector<std::array<uint32_t, 3>> Faces;  // indices into Vertices
 };
 
+struct GlobeCreationConfiguration {
+  unsigned int NumSubdivisions;
+  unsigned int CreationSeed;
+  GlobeCreationConfiguration(unsigned int NumSubDiv, unsigned int Seed)
+      : NumSubdivisions(NumSubDiv), CreationSeed(Seed) {}
+};
+
 class Globe {
  public:
   Globe();

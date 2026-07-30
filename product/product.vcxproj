@@ -247,6 +247,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="GenericButton.cpp" />
     <ClCompile Include="Globe.cpp" />
+    <ClCompile Include="GlobeInterface.cpp" />
     <ClCompile Include="InputAnalyser.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
@@ -266,6 +267,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
   <ItemGroup>
     <ClInclude Include="ActionCommand.h" />
     <ClInclude Include="BaseComponents.h" />
+    <ClInclude Include="CameraEvent.h" />
     <ClInclude Include="CityComponents.h" />
     <ClInclude Include="CommonGameObjectComponents.h" />
     <ClInclude Include="ConfigManager.h" />
@@ -282,6 +284,8 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="GenericButton.h" />
     <ClInclude Include="Globe.h" />
+    <ClInclude Include="GlobeEvent.h" />
+    <ClInclude Include="GlobeInterface.h" />
     <ClInclude Include="InputAnalyser.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="InputEvent.h" />

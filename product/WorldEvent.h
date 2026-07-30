@@ -98,10 +98,7 @@ struct CreateAttackingEntityEvent {
         Power(Pwr),
         PlayerId(Id) {}
 };
-struct ChangeGlobeVisibilityEvent {
-  bool Visible;
-  explicit ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}
-};
+
 
 struct EntitiesInRangeUpdateEvent {
   Ogre::SceneNode* OriginalNode;

@@ -55,6 +55,9 @@ void InputListener::Update() {
         // for simplicity, just keep KB -1 and mouse -2
         SdlDeviceIndex = -1;
         break;
+      case SDL_MOUSEWHEEL:
+        SdlDeviceIndex = -1;
+        break;
       case SDL_JOYAXISMOTION:
         SdlDeviceIndex = Event.jaxis.which;
         break;
@@ -109,6 +112,10 @@ void InputListener::Update() {
       case SDL_MOUSEMOTION:
         QueueToNotify->Enqueue(RawCursorEvent{Event.motion});
         break;
+      case SDL_MOUSEWHEEL:
+        QueueToNotify->Enqueue(RawMouseWheelEvent{Event.wheel});
+        break;
+      
       // this case covers both joystick and trigger motion, hence both are
       // handled here
       case SDL_JOYAXISMOTION:

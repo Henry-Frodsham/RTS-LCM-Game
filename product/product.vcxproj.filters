@@ -76,6 +76,9 @@
     <ClCompile Include="Tile.cpp">
       <Filter>Source\World</Filter>
     </ClCompile>
+    <ClCompile Include="GlobeInterface.cpp">
+      <Filter>Source\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -328,6 +331,15 @@
     </ClInclude>
     <ClInclude Include="Tile.h">
       <Filter>Headers\World</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobeInterface.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobeEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraEvent.h">
+      <Filter>Event Templates</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

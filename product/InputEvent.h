@@ -58,6 +58,11 @@ struct RawTriggerEvent {
       : AxisEvent(AE), NormalizedValue(NV) {}
 };
 
+struct RawMouseWheelEvent {
+  SDL_MouseWheelEvent WheelEvent;
+  RawMouseWheelEvent(SDL_MouseWheelEvent WheelEv) : WheelEvent(WheelEv) {}
+};
+
 struct ReconnectControllerPromptEvent {
   int PositionInQueue;
   ReconnectControllerPromptEvent(int PosInQ) : PositionInQueue(PosInQ) {}

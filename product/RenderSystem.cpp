@@ -16,6 +16,7 @@ RenderSystem::RenderSystem()
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
       ViewPortListener(nullptr),
+      GlobeInt(nullptr),
       RaySceneQuery(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
@@ -51,6 +52,8 @@ void RenderSystem::RenderFrame() {
   if (PrimaryWindow && !PrimaryWindow->isClosed()) {
     Ogre::WindowEventUtilities::messagePump();
     RenderQueue->Dispatch();
+    GlobeInt->Update();
+
     OgreRoot->renderOneFrame();
   } else {
     // window closed, shutdown app
@@ -130,9 +133,12 @@ void RenderSystem::Init() {
 
   InitBasicResourceGroups();
 
-  OverlayControl = new OverlayController();
+  GlobeInt = new GlobeInterface();
 
-  InitRenderResponsibility();
+  GlobeInt->Initialise();
+  GlobeInt->GenerateGlobe(GlobeCreationConfiguration(200, 82352312993));
+
+  OverlayControl = new OverlayController();
 
   DefaultViewPort = CreateViewPort();
 
@@ -141,6 +147,7 @@ void RenderSystem::Init() {
   RaySceneQuery = SceneManager->createRayQuery(Ogre::Ray());
   RaySceneQuery->setSortByDistance(true);
 
+  InitRenderResponsibility();
   IsInit = true;
 }
 
@@ -167,6 +174,13 @@ ViewPortController* RenderSystem::CreateViewPort() {
       Camera, CameraList.size());  // temporary Z order
 
   ViewPortController* newController = new ViewPortController(AddedViewPort);
+  const float SurfaceRadius =
+      GlobeInt->GetGlobeRadius() * 1.05f;  // matches kHeightScale headroom
+  newController->SetOrbitDistanceLimits(
+      SurfaceRadius * 2.f,    // never clip terrain
+      SurfaceRadius * 6.0f);  // arbitrary max zoom-out
+  newController->InitOrbitCamera(GlobeInt->GetGlobeCentre(),
+                                 SurfaceRadius * 1.12f);  // low orbit
 
   ViewPorts.push_back(newController);
 
@@ -193,6 +207,7 @@ void RenderSystem::ScaleViewPorts() {
 // delegates render responsibility to other classes
 // think of e.g OverlayController as an arm and RenderSystem as the body
 void RenderSystem::InitRenderResponsibility() {
+  // overlay controller
   RenderBus->Subscribe<OverlayAddBoxEvent>(std::bind(
       &OverlayController::AddBox, OverlayControl, std::placeholders::_1));
   RenderBus->Subscribe<OverlayAddTextEvent>(std::bind(
@@ -247,10 +262,18 @@ void RenderSystem::InitRenderResponsibility() {
       std::bind(&RenderSystem::DestroyEntity, this, std::placeholders::_1));
   RenderBus->Subscribe<RevalEntityRangeEvent>(
       std::bind(&RenderSystem::EntityRangeCheck, this, std::placeholders::_1));
+  RenderBus->Subscribe<ChangeCameraOrbitAngleEvent>(
+      std::bind(&RenderSystem::ChangeCameraOrbit, this, std::placeholders::_1));
+  RenderBus->Subscribe<ChangeCameraOrbitDepthEvent>(
+      std::bind(&RenderSystem::ChangeCameraDepth, this, std::placeholders::_1));
+
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
       std::bind(&ViewPortUpdateListener::AssignOverlayToViewport,
                 ViewPortListener, std::placeholders::_1));
+  // globe events
+  RenderBus->Subscribe<ChangeGlobeVisibilityEvent>(std::bind(
+      &GlobeInterface::ChangeGlobeVisibility, GlobeInt, std::placeholders::_1));
 }
 
 // initialise the basic resources (not game textures and mats etc)
@@ -420,14 +443,12 @@ void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
     }
 
     SceneManager->destroyQuery(Query);
-  }
-  catch (std::exception& e) {
+  } catch (std::exception& e) {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::RANGE_CHECK_FAILED));
   }
   Event.CallBackQueue->Enqueue(
       EntitiesInRangeUpdateEvent(Node, EntitiesInRange));
-
 }
 
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
@@ -470,6 +491,15 @@ void RenderSystem::AddOwnerShipToEnt(AddOwnerShipToEntEvent Event) {
           0, Ogre::Vector4(Event.OwnershipId, 0.0f, 0.0f, 0.0f));
     }
   }
+}
+
+void RenderSystem::ChangeCameraOrbit(ChangeCameraOrbitAngleEvent Event) {
+  Event.ViewportToControl->MoveCameraOrbitingPoint2DMotion(
+      Event.RelativeMotion, GlobeInt->GetGlobeCentre());
+}
+void RenderSystem::ChangeCameraDepth(ChangeCameraOrbitDepthEvent Event) {
+  Event.ViewportToControl->MoveCameraDepth(Event.MouseWheelY,
+                                           GlobeInt->GetGlobeCentre());
 }
 // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {

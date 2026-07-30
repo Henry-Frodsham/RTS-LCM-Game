@@ -93,3 +93,17 @@ struct RevalEntityRangeEvent {
   RevalEntityRangeEvent(Ogre::Entity* Ent, EventQueue* CBQ, float GR)
       : EntToCheck(Ent), CallBackQueue(CBQ), GeneralRange(GR) {}
 };
+
+struct ChangeCameraOrbitAngleEvent {
+  ViewPortController* ViewportToControl;
+  Ogre::Vector2f RelativeMotion;
+  ChangeCameraOrbitAngleEvent(Ogre::Vector2f RelMotion, ViewPortController* VPC)
+      : RelativeMotion(RelMotion), ViewportToControl(VPC) {}
+};
+
+struct ChangeCameraOrbitDepthEvent {
+  ViewPortController* ViewportToControl;
+  int MouseWheelY;
+  ChangeCameraOrbitDepthEvent(int WheelY, ViewPortController* VPC)
+      : MouseWheelY(WheelY), ViewportToControl(VPC) {}
+};
