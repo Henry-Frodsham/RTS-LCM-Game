@@ -27,9 +27,5 @@ class PlayerGeneralControl {
  private:
   EventQueue* TriggerQueue;
 
-  Ogre::Vector2f HitPointToDeltaLatLon(Ogre::Vector3 UnitPos,
-                                       Ogre::Vector3 HitPoint);
-
-  Ogre::Vector2f LastDeltaLatLon;
   Ogre::Entity* SelectedEntity;
 };

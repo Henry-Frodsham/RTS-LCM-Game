@@ -61,16 +61,12 @@ std::vector<float> ViewPortController::GetCameraAngle() {
   return Angles;
 }
 
-EndRayTraceResultEvent ViewPortController::TraceRay(StartRayTraceEvent Event) {
+// builds the world-space ray from the viewport's camera - no scene query
+// involved, the caller (RenderSystem) now tests this ray against the globe
+// mesh directly via GlobeInterface::CastRayFromWorld
+Ogre::Ray ViewPortController::GetWorldRayForDevice(StartRayTraceEvent Event) {
   Ogre::Camera* RayC = ViewPort->getCamera();
-
-  Ogre::Ray MouseRay =
-      RayC->getCameraToViewportRay(Event.Point[0], Event.Point[1]);
-
-  Event.RaySceneQuery->setRay(MouseRay);
-  Ogre::RaySceneQueryResult& Result = Event.RaySceneQuery->execute();
-
-  return (EndRayTraceResultEvent(Result, MouseRay));
+  return RayC->getCameraToViewportRay(Event.Point[0], Event.Point[1]);
 }
 
 // get the dimensions of a specific split screen instance

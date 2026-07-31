@@ -57,9 +57,9 @@ struct SetEntPositionEvent {
 
 struct RotateEntToSurfaceNormalEvent {
   Ogre::Entity* Entity;
-  Ogre::Vector3f RelativeRotCentre;
-  RotateEntToSurfaceNormalEvent(Ogre::Entity* Ent, Ogre::Vector3f RRC)
-      : Entity(Ent), RelativeRotCentre(RRC) {}
+  Ogre::Vector3f SurfaceNormal;  // was RelativeRotCentre
+  RotateEntToSurfaceNormalEvent(Ogre::Entity* Ent, Ogre::Vector3f Normal)
+      : Entity(Ent), SurfaceNormal(Normal) {}
 };
 
 struct ChangeEntMaterialEvent {

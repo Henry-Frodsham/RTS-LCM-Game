@@ -53,7 +53,7 @@ class ViewPortController {
 
   bool IsControllerByDevice(InputDevice* Device);
 
-  EndRayTraceResultEvent TraceRay(StartRayTraceEvent Event);
+  Ogre::Ray GetWorldRayForDevice(StartRayTraceEvent Event);
   // Copy constructor - required for vector storage
   ViewPortController(const ViewPortController&) = default;
   // Move constructor

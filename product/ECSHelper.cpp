@@ -163,7 +163,7 @@ void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
 
     if (EntOgreComp->Entity != nullptr) {
       Rs.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
-          EntOgreComp->Entity, Ogre::Vector3(0.5f, 0.f, -5.f)));
+          EntOgreComp->Entity, Event.SurfaceNormal));
     } else {
       FactoryQueue->Enqueue(Event);
     }

@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <unordered_map>
 
 #include "FastNoiseLite.h"
@@ -81,6 +82,7 @@ Globe::Globe() : Center(Ogre::Vector3::ZERO), Radius(1.f) {}
 void Globe::Generate(unsigned int subdivisionFreq, unsigned int seed) {
   VisualMesh = BuildSubdividedIcosahedron(subdivisionFreq);
   BuildTilesFromMesh(VisualMesh);
+  BuildTileSpatialIndex();
   AssignElevationAndBiome(seed);
 }
 
@@ -236,17 +238,7 @@ void Globe::AssignElevationAndBiome(unsigned int seed) {
 uint32_t Globe::FindTileAt(const Ogre::Vector3& directionFromCenter) const {
   Ogre::Vector3 dir = directionFromCenter;
   dir.normalise();
-
-  uint32_t best = InvalidTileID;
-  float bestDot = -2.f;  // dot product range is [-1, 1]
-  for (uint32_t i = 0; i < Tiles.size(); ++i) {
-    const float d = dir.dotProduct(Tiles[i].GetCenter());
-    if (d > bestDot) {
-      bestDot = d;
-      best = i;
-    }
-  }
-  return best;
+  return FindNearestTileFast(dir);
 }
 
 Ogre::MeshPtr Globe::BuildVisualMesh() {
@@ -297,7 +289,7 @@ Ogre::MeshPtr Globe::BuildVisualMesh() {
     v[2] = pos.z;
     v[3] = dir.x;
     v[4] = dir.y;
-    v[5] = dir.z; 
+    v[5] = dir.z;
     v[6] = colour.r;
     v[7] = colour.g;
     v[8] = colour.b;
@@ -326,4 +318,157 @@ Ogre::MeshPtr Globe::BuildVisualMesh() {
   mesh->load();
 
   return mesh;
+}
+
+Ogre::Vector3 Globe::GetDisplacedVertexPosition(uint32_t VertexIndex) const {
+  const Ogre::Vector3& Dir = VisualMesh.Vertices[VertexIndex];
+  const float Elevation = Tiles[VertexIndex].GetElevation();
+  return Center +
+         Dir * (Radius * (1.f + std::max(0.f, Elevation) * kHeightScale));
+}
+
+GlobeRayHit Globe::CastRay(const Ogre::Ray& LocalRay) const {
+  GlobeRayHit Result;
+  const float ElevatedRadius = Radius * (1.f + kHeightScale);
+
+  const std::pair<bool, Ogre::Real> BoundsTest =
+      Ogre::Math::intersects(LocalRay, Ogre::Sphere(Center, ElevatedRadius));
+  if (!BoundsTest.first) {
+    return Result;  // DidHit stays false
+  }
+
+  const std::pair<bool, Ogre::Real> NominalHit =
+      Ogre::Math::intersects(LocalRay, Ogre::Sphere(Center, Radius));
+
+  Ogre::Vector3 ApproxDir;
+  if (NominalHit.first) {
+    ApproxDir =
+        (LocalRay.getPoint(NominalHit.second) - Center).normalisedCopy();
+  } else {
+    const Ogre::Vector3 ToOrigin = LocalRay.getOrigin() - Center;
+    const float ClosestT = -ToOrigin.dotProduct(LocalRay.getDirection());
+    const Ogre::Vector3 ClosestPoint =
+        LocalRay.getPoint(std::max(0.f, ClosestT));
+    ApproxDir = (ClosestPoint - Center).normalisedCopy();
+  }
+
+  const uint32_t TileID = FindNearestTileFast(ApproxDir);
+  if (TileID == InvalidTileID) {
+    return Result;
+  }
+
+  const float TileElevation = Tiles[TileID].GetElevation();
+  const float TileRadius =
+      Radius * (1.f + std::max(0.f, TileElevation) * kHeightScale);
+  const std::pair<bool, Ogre::Real> PreciseHit =
+      Ogre::Math::intersects(LocalRay, Ogre::Sphere(Center, TileRadius));
+
+  if (!PreciseHit.first) {
+    return Result;
+  }
+
+  Result.DidHit = true;
+  Result.Distance = PreciseHit.second;
+  Result.HitPoint = LocalRay.getPoint(PreciseHit.second);
+  Result.TileID = TileID;
+  Result.SurfaceNormal = ComputeApproximateNormal(TileID);
+
+  return Result;
+}
+
+std::pair<int, int> Globe::DirectionToBin(const Ogre::Vector3& UnitDir,
+                                          int LonBins, int LatBins) {
+  const float Lat =
+      std::asin(std::clamp(UnitDir.y, -1.f, 1.f));     // [-pi/2, pi/2]
+  const float Lon = std::atan2(UnitDir.z, UnitDir.x);  // [-pi, pi]
+
+  int LonIdx = static_cast<int>((Lon + Ogre::Math::PI) /
+                                (2.f * Ogre::Math::PI) * LonBins);
+  int LatIdx = static_cast<int>((Lat + Ogre::Math::PI * 0.5f) / Ogre::Math::PI *
+                                LatBins);
+  LonIdx = std::clamp(LonIdx, 0, LonBins - 1);
+  LatIdx = std::clamp(LatIdx, 0, LatBins - 1);
+  return {LonIdx, LatIdx};
+}
+
+void Globe::BuildTileSpatialIndex() {
+  const size_t TileCount = Tiles.size();
+
+  // Aim for a handful of tiles per bucket on average. Longitude gets twice
+  // as many bins as latitude since it spans 2*pi vs pi.
+  SpatialIndex.LatBins =
+      std::max(1, static_cast<int>(std::sqrt(TileCount / 2.0)));
+  SpatialIndex.LonBins = SpatialIndex.LatBins * 2;
+  SpatialIndex.Buckets.assign(
+      static_cast<size_t>(SpatialIndex.LonBins) * SpatialIndex.LatBins, {});
+
+  for (uint32_t i = 0; i < TileCount; ++i) {
+    const auto [LonIdx, LatIdx] = DirectionToBin(
+        Tiles[i].GetCenter(), SpatialIndex.LonBins, SpatialIndex.LatBins);
+    SpatialIndex.Buckets[LatIdx * SpatialIndex.LonBins + LonIdx].push_back(i);
+  }
+}
+uint32_t Globe::FindNearestTileFast(const Ogre::Vector3& UnitDir) const {
+  const int LonBins = SpatialIndex.LonBins;
+  const int LatBins = SpatialIndex.LatBins;
+  if (LonBins == 0 || LatBins == 0) return InvalidTileID;  // index not built
+
+  const auto [CenterLon, CenterLat] = DirectionToBin(UnitDir, LonBins, LatBins);
+
+  uint32_t Best = InvalidTileID;
+
+  // 3x3 buckets covers the overwhelming majority of queries in one pass.
+  // Widen only if that neighbourhood is empty - can happen in the sparser
+  // longitude bins near the poles of the equirectangular grid.
+  for (int Radius = 1; Radius <= std::max(LonBins, LatBins); Radius *= 2) {
+    float BestDot = -2.f;
+    Best = InvalidTileID;
+
+    for (int dLat = -Radius; dLat <= Radius; ++dLat) {
+      const int LatIdx = CenterLat + dLat;
+      if (LatIdx < 0 || LatIdx >= LatBins) continue;
+
+      for (int dLon = -Radius; dLon <= Radius; ++dLon) {
+        int LonIdx = (CenterLon + dLon) % LonBins;
+        if (LonIdx < 0) LonIdx += LonBins;
+
+        for (uint32_t TileIdx :
+             SpatialIndex.Buckets[LatIdx * LonBins + LonIdx]) {
+          const float d = UnitDir.dotProduct(Tiles[TileIdx].GetCenter());
+          if (d > BestDot) {
+            BestDot = d;
+            Best = TileIdx;
+          }
+        }
+      }
+    }
+    if (Best != InvalidTileID) break;
+  }
+
+  return Best;
+}
+Ogre::Vector3 Globe::ComputeApproximateNormal(uint32_t TileID) const {
+  const Tile& T = Tiles[TileID];
+  const uint8_t NeighborCount = T.GetNeighborCount();
+  if (NeighborCount < 2) {
+    return T.GetCenter();  // fall back to the radial direction
+  }
+
+  const Ogre::Vector3 P0 = GetDisplacedVertexPosition(TileID);
+
+  // Standard vertex-normal estimate: average the cross products of
+  // consecutive neighbour edges. This picks up the terrain's local slope
+  // from elevation without touching the global triangle list.
+  Ogre::Vector3 Accum = Ogre::Vector3::ZERO;
+  for (uint8_t i = 0; i < NeighborCount; ++i) {
+    const uint32_t NA = T.GetNeighbor(i);
+    const uint32_t NB = T.GetNeighbor((i + 1) % NeighborCount);
+    const Ogre::Vector3 EdgeA = GetDisplacedVertexPosition(NA) - P0;
+    const Ogre::Vector3 EdgeB = GetDisplacedVertexPosition(NB) - P0;
+    Accum += EdgeA.crossProduct(EdgeB);
+  }
+  Accum.normalise();
+
+  if (Accum.dotProduct(T.GetCenter()) < 0.f) Accum = -Accum;  // guard winding
+  return Accum;
 }

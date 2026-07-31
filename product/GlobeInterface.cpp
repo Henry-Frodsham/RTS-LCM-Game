@@ -35,3 +35,22 @@ void GlobeInterface::InitialiseGlobeMaterials() {
 void GlobeInterface::ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event) {
   GlobeEntity->setVisible(Event.Visible);
 }
+
+GlobeRayHit GlobeInterface::CastRayFromWorld(const Ogre::Ray& WorldRay) const {
+  // GlobeSceneNode is translated to CGlobe->GetCenter() in world space, and
+  // Globe's own vertex positions are already generated in that same
+  // Center-relative space (see Globe::BuildVisualMesh) - so we only need to
+  // undo the node's world translation to get into the globe's local space.
+  // Using _getDerivedPosition() rather than getPosition() so this still
+  // works if the node is ever parented under something else later.
+  const Ogre::Vector3 NodeWorldPos = GlobeSceneNode->_getDerivedPosition();
+
+  const Ogre::Ray LocalRay(WorldRay.getOrigin() - NodeWorldPos,
+                           WorldRay.getDirection());
+
+  GlobeRayHit Hit = CGlobe->CastRay(LocalRay);
+  if (Hit.DidHit) {
+    Hit.HitPoint += NodeWorldPos;  // back to world space for the caller
+  }
+  return Hit;
+}

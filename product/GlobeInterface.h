@@ -25,6 +25,8 @@ class GlobeInterface {
 
   float GetGlobeRadius() { return CGlobe->GetRadius(); }
 
+  GlobeRayHit CastRayFromWorld(const Ogre::Ray& WorldRay) const;
+
  private:
   Globe* CGlobe;
 

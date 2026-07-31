@@ -54,7 +54,7 @@ inline std::shared_ptr<entt::entity> CreateGameObject(
       AddOwnerShipComponentEvent(Entity, Event.PlayerId, Event.GamePlayer));
 
   Factory->FactoryQueue->Enqueue<OrientateEntityEvent>(
-      OrientateEntityEvent(Entity));
+      OrientateEntityEvent(Entity, Event.SurfaceNormal));
   return Entity;
 }
 // template to produce a unit producing entity
@@ -62,7 +62,7 @@ inline std::shared_ptr<entt::entity> CreateUnitProducingGameObject(
     ECSHelper* Factory, CreateUnitProducingGameObjectEvent Event) {
   auto Entity = CreateGameObject(
       Factory, CreateGameObjectEvent(Event.NodeName, Event.MeshName,
-                                     Event.EntityName, Event.InitialPosition,
+                                     Event.EntityName, Event.InitialPosition, Event.SurfaceNormal,
                                      Event.GamePlayer, Event.PlayerId));
 
   Factory->FactoryQueue->Enqueue<AddUnitProductionEvent>(
@@ -75,8 +75,8 @@ inline std::shared_ptr<entt::entity> CreateUnitProducingGameObject(
 inline std::shared_ptr<entt::entity> CreateAttackingGameObject(
     ECSHelper* Factory, CreateAttackingEntityEvent Event) {
   auto Entity = CreateGameObject(
-      Factory, CreateGameObjectEvent(Event.NodeName, Event.MeshName,
-                                     Event.EntityName, Event.InitialPosition,
+      Factory, CreateGameObjectEvent(Event.NodeName, Event.MeshName, Event.EntityName,
+                            Event.InitialPosition, Event.SurfaceNormal,
                                      Event.GamePlayer, Event.PlayerId));
   Factory->FactoryQueue->Enqueue<AddHealthEvent>(
       AddHealthEvent(Entity, Event.Health));

@@ -29,11 +29,12 @@ class InteractionWheel {
 
   EventBus* ForeignNotifBus;
   Ogre::Entity* SelectedEntity;
-  Ogre::Vector2f LatLonR;
   Ogre::Vector3f Position;
+  Ogre::Vector3f SurfaceNormal;
+
   void ShareInfoSelectedEntReceive(NotifySelectedEntity Event);
-  void ShareInfoLatLonReceive(NotifyLatLonEvent Event);
   void ShareInfoHitPosReceive(NotifyPosEvent Event);
+  void ShareInfoSurfaceNormal(NotifySurfaceNormalEvent Event);
   void CallBackButtonA(CallBackACommand Cmd);
   void CallBackButtonB(CallBackBCommand Cmd);
   void CallBackButtonC(CallBackCCommand Cmd);

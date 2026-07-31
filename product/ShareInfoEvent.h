@@ -20,3 +20,8 @@ struct NotifyPosEvent {
   Ogre::Vector3f Pos;
   explicit NotifyPosEvent(Ogre::Vector3f Position) : Pos(Position) {}
 };
+
+struct NotifySurfaceNormalEvent {
+  Ogre::Vector3f SurfaceNormal;
+  NotifySurfaceNormalEvent(Ogre::Vector3f SN) : SurfaceNormal(SN) {}
+};

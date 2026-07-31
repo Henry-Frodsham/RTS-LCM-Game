@@ -15,8 +15,8 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
   ForeignNotifQueue = new EventQueue(ForeignNotifBus);
   SelectedEntity = nullptr;
   GamePlayer = Play;
-  LatLonR = Ogre::Vector2f();
   Position = Ogre::Vector3f();
+  SurfaceNormal = Ogre::Vector3f();
   Device->ActionBus->Subscribe<ContextActionCommand>(std::bind(
       &InteractionWheel::OnContextActionCommand, this, std::placeholders::_1));
   ForeignNotifBus->Subscribe<NotifySelectedEntity>(
@@ -24,8 +24,9 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
                 std::placeholders::_1));
   ForeignNotifBus->Subscribe<NotifyPosEvent>(std::bind(
       &InteractionWheel::ShareInfoHitPosReceive, this, std::placeholders::_1));
-  ForeignNotifBus->Subscribe<NotifyLatLonEvent>(std::bind(
-      &InteractionWheel::ShareInfoLatLonReceive, this, std::placeholders::_1));
+  ForeignNotifBus->Subscribe<NotifySurfaceNormalEvent>(std::bind(
+      &InteractionWheel::ShareInfoSurfaceNormal, this, std::placeholders::_1));
+
   ForeignNotifBus->Subscribe<CallBackACommand>(std::bind(
       &InteractionWheel::CallBackButtonA, this, std::placeholders::_1));
   ForeignNotifBus->Subscribe<CallBackBCommand>(std::bind(
@@ -116,11 +117,13 @@ void InteractionWheel::UpdateAndWarmupContext() {
 void InteractionWheel::ShareInfoSelectedEntReceive(NotifySelectedEntity Event) {
   SelectedEntity = Event.Entity;
 }
-void InteractionWheel::ShareInfoLatLonReceive(NotifyLatLonEvent Event) {
-  LatLonR = Event.LatLon;
-}
+
 void InteractionWheel::ShareInfoHitPosReceive(NotifyPosEvent Event) {
   Position = Event.Pos;
+}
+
+void InteractionWheel::ShareInfoSurfaceNormal(NotifySurfaceNormalEvent Event) {
+  SurfaceNormal = Event.SurfaceNormal;
 }
 void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   ActionContext Context = Cmd.Context;
@@ -213,6 +216,7 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
           EntityTemplates::CreateUnitProducingGameObject(
               Factory, CreateUnitProducingGameObjectEvent(
                            Info.NodeName, "city.mesh", Info.EntName, Position,
+                           SurfaceNormal,
                            GamePlayer, 30, ThreadID));
       GamePlayer->AvailableCities -= 1;
     }
@@ -238,7 +242,7 @@ void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
     RenderSystem& RS = RenderSystem::GetInstance();
     RS.RenderQueue->Enqueue(SetEntPositionEvent(SelectedEntity, Position));
     RS.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
-        SelectedEntity, Ogre::Vector3(0.5f, 0.f, -5.f)));
+        SelectedEntity, SurfaceNormal));
 
     Factory->FactoryQueue->Enqueue(
         NotifyConsequentialEntityStateChange(SelectedEntity));
@@ -253,7 +257,7 @@ void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
       std::shared_ptr<entt::entity> Ent =
           EntityTemplates::CreateAttackingGameObject(
               Factory, CreateAttackingEntityEvent(
-                           Info.NodeName, "unit.mesh", Info.EntName, Position,
+                           Info.NodeName, "unit.mesh", Info.EntName, Position, SurfaceNormal,
                            GamePlayer, 100.f, 10.f, 0.3f, ThreadID));
       GamePlayer->AvailableUnits -= 1;
     }

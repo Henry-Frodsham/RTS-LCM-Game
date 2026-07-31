@@ -11,6 +11,7 @@ PlayerUI::PlayerUI(Player* player, int ThreadId)
 
 void PlayerUI::SetUp() {
   RenderSystem& RS = RenderSystem::GetInstance();
+  /*
   RS.RenderQueue->Enqueue(OverlayAddTextEvent(
       {0.02f, 0.14f}, {1.f, 1.f}, "UnitsA_ui_" + std::to_string(Id), "RED",
       "UI_Overlay_" + std::to_string(Id), "Units Available - 0"));
@@ -23,10 +24,12 @@ void PlayerUI::SetUp() {
   RS.RenderQueue->Enqueue(OverlayAddTextEvent(
       {0.02f, 0.2f}, {1.f, 1.f}, "prog_ui_" + std::to_string(Id), "RED",
       "UI_Overlay_" + std::to_string(Id), "Unit Production Progress % - 0"));
+  */
 }
 
 void PlayerUI::Update() {
   PlayerUIQueue->Dispatch();
+  /*
   RenderSystem& RS = RenderSystem::GetInstance();
   if (GamePlayer->AvailableUnits != KnownAUnits) {
     RS.RenderQueue->Enqueue(OverlayEditTextEvent(
@@ -57,4 +60,5 @@ void PlayerUI::Update() {
             std::to_string(GamePlayer->UnitProdProg)));
     KnownProg = GamePlayer->UnitProdProg;
   }
+  */
 }

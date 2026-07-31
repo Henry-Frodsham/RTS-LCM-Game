@@ -3,6 +3,8 @@
 
 #include <OgreMesh.h>
 #include <OgreVector3.h>
+#include <OGRE/Ogre.h>
+#include <OGRE/OgreRay.h>
 
 #include <array>
 #include <cstdint>
@@ -10,14 +12,36 @@
 
 #include "Tile.h"
 
-// Intermediate triangulated geodesic-sphere representation. Doubles as both
-// the working data during generation and the (invisible-tile-border) render
-// mesh, since the hex/pentagon dual is a logic-only concept - the player
-// never sees tile edges, so there's no need to build actual hexagon polygons.
+
 struct GeodesicMesh {
   std::vector<Ogre::Vector3> Vertices;         // unit-sphere directions
   std::vector<std::array<uint32_t, 3>> Faces;  // indices into Vertices
+  GeodesicMesh(std::vector<Ogre::Vector3> Vert,
+               std::vector<std::array<uint32_t, 3>> Fcs)
+      : Vertices(Vert), Faces(Fcs) {}
+  GeodesicMesh() {}
 };
+
+struct GlobeRayHit {
+  bool DidHit;
+  float Distance;
+  Ogre::Vector3 HitPoint;         // local (globe) space
+  Ogre::Vector3 SurfaceNormal;  // local (globe) space
+  uint32_t TileID;
+  GlobeRayHit()
+      : DidHit(false),
+        Distance(0.f),
+        HitPoint(Ogre::Vector3::ZERO),
+        SurfaceNormal(Ogre::Vector3::UNIT_Y),
+        TileID(InvalidTileID) {}
+};
+
+struct TileSpatialIndex {
+  int LonBins = 0;
+  int LatBins = 0;
+  std::vector<std::vector<uint32_t>> Buckets;  // size LonBins * LatBins
+};
+
 
 struct GlobeCreationConfiguration {
   unsigned int NumSubdivisions;
@@ -41,19 +65,30 @@ class Globe {
 
   const Ogre::Vector3& GetCenter() const { return Center; }
   float GetRadius() const { return Radius; }
+
   void SetTransform(const Ogre::Vector3& center, float radius) {
     Center = center;
     Radius = radius;
   }
 
+  GlobeRayHit CastRay(const Ogre::Ray& LocalRay) const;
+
  private:
   GeodesicMesh BuildSubdividedIcosahedron(unsigned int subdivisionFreq) const;
   void BuildTilesFromMesh(const GeodesicMesh& mesh);
   void AssignElevationAndBiome(unsigned int seed);
-
+  Ogre::Vector3 GetDisplacedVertexPosition(uint32_t VertexIndex) const;
   std::vector<Tile> Tiles;
   Ogre::Vector3 Center;
   float Radius;
+
+  TileSpatialIndex SpatialIndex;
+
+  void BuildTileSpatialIndex();
+  uint32_t FindNearestTileFast(const Ogre::Vector3& UnitDir) const;
+  static std::pair<int, int> DirectionToBin(const Ogre::Vector3& UnitDir,
+                                            int LonBins, int LatBins);
+  Ogre::Vector3 ComputeApproximateNormal(uint32_t TileID) const;
 
   GeodesicMesh VisualMesh;
 };

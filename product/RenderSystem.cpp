@@ -136,7 +136,7 @@ void RenderSystem::Init() {
   GlobeInt = new GlobeInterface();
 
   GlobeInt->Initialise();
-  GlobeInt->GenerateGlobe(GlobeCreationConfiguration(200, 82352312993));
+  GlobeInt->GenerateGlobe(GlobeCreationConfiguration(400, 87798387783485));
 
   OverlayControl = new OverlayController();
 
@@ -363,14 +363,12 @@ void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
 void RenderSystem::RotateEntityToSurfaceNormal(
     RotateEntToSurfaceNormalEvent Event) {
   Ogre::SceneNode* UnitSN = Event.Entity->getParentSceneNode();
-  Ogre::Vector3 HitPoint = UnitSN->getPosition();
-  Ogre::Vector3 SphereCenter = Event.RelativeRotCentre;
 
-  Ogre::Vector3 SurfaceNormal = (HitPoint - SphereCenter).normalisedCopy();
-
+  // Event.SurfaceNormal now comes straight from GlobeRayHit::SurfaceNormal,
+  // i.e. the actual face normal of the triangle that was hit - this already
+  // accounts for per-tile elevation, unlike the old sphere-radial normal.
   Ogre::Quaternion Rotation =
-      Ogre::Vector3::UNIT_Y.getRotationTo(SurfaceNormal);
-
+      Ogre::Vector3::UNIT_Y.getRotationTo(Event.SurfaceNormal);
   UnitSN->setOrientation(Rotation);
 }
 void RenderSystem::SetEntPosFromEvent(SetEntPositionEvent Event) {
@@ -453,9 +451,17 @@ void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
 
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
   ViewPortController* RayVPC = FindViewPortFromDevice(Event.Device);
-  // populate here because i dont want a tonne of ogre singleton ptrs around
-  Event.RaySceneQuery = RaySceneQuery;
-  EndRayTraceResultEvent ResultEvent = RayVPC->TraceRay(Event);
+
+  // We no longer hand out RaySceneQuery here - it can only answer "which
+  // entity", not "where exactly on the globe", which is what the caller
+  // actually needs now. The viewport just needs to build the world-space
+  // Ogre::Ray from the device/camera as before.
+  Ogre::Ray WorldRay = RayVPC->GetWorldRayForDevice(Event);
+
+  GlobeRayHit Hit = GlobeInt->CastRayFromWorld(WorldRay);
+
+  EndRayTraceResultEvent ResultEvent(Hit.DidHit, Hit.HitPoint,
+                                     Hit.SurfaceNormal, Hit.TileID);
   Event.Callback(Event.CallQueue, ResultEvent);
 }
 

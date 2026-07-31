@@ -105,9 +105,11 @@ struct MoveEntityAlongSphericalEvent {
 // orientate an entity to surface normal event, so it sits flat
 struct OrientateEntityEvent {
   std::shared_ptr<entt::entity> Entity;
+  Ogre::Vector3f SurfaceNormal;
   explicit OrientateEntityEvent(
-      std::shared_ptr<entt::entity> Ent)  // NOLINT(whitespace/line_length)
-      : Entity(Ent) {}
+      std::shared_ptr<entt::entity> Ent,
+      Ogre::Vector3f Sn)  // NOLINT(whitespace/line_length)
+      : Entity(Ent), SurfaceNormal(Sn) {}
 };
 
 struct AddRangeComponentEvent {
