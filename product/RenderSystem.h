@@ -11,15 +11,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "GlobeInterface.h"
+
 #include "ConfigManager.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
+#include "GlobeInterface.h"
 #include "OverlayController.h"
 #include "OverlayEvent.h"
 #include "RayTraceEvent.h"
 #include "RenderEvent.h"
+#include "RenderQueryFlags.h"
 #include "ViewPortController.h"
 #include "ViewPortUpdateEvent.h"
 #include "ViewPortUpdateListener.h"

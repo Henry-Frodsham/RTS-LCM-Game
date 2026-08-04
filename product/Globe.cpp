@@ -372,6 +372,7 @@ GlobeRayHit Globe::CastRay(const Ogre::Ray& LocalRay) const {
   Result.HitPoint = LocalRay.getPoint(PreciseHit.second);
   Result.TileID = TileID;
   Result.SurfaceNormal = ComputeApproximateNormal(TileID);
+  Result.HitBiome = Tiles.at(TileID).GetBiome();
 
   return Result;
 }

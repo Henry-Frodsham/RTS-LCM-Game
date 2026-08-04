@@ -7,6 +7,32 @@
 #include <utility>
 #include <vector>
 
+// anonymous namespace for entity selection
+namespace {
+bool RefineHit(const Ogre::Ray& WorldRay, Ogre::Entity* Ent,
+               float* OutWorldDistance) {
+  Ogre::SceneNode* Node = Ent->getParentSceneNode();
+  if (!Node || !Node->isInSceneGraph()) return false;
+
+  const auto World = Node->_getFullTransform();
+  const auto Inverse = World.inverse();
+
+  const Ogre::Vector3 LocalOrigin = Inverse * WorldRay.getOrigin();
+  const Ogre::Vector3 LocalAhead =
+      Inverse * (WorldRay.getOrigin() + WorldRay.getDirection());
+  const Ogre::Ray LocalRay(LocalOrigin,
+                           (LocalAhead - LocalOrigin).normalisedCopy());
+
+  const std::pair<bool, Ogre::Real> Test =
+      Ogre::Math::intersects(LocalRay, Ent->getBoundingBox());
+  if (!Test.first) return false;
+
+  const Ogre::Vector3 WorldHit = World * LocalRay.getPoint(Test.second);
+  *OutWorldDistance = (WorldHit - WorldRay.getOrigin()).length();
+  return true;
+}
+}  // namespace
+
 RenderSystem::RenderSystem()
     : OgreRoot(nullptr),
       SceneManager(nullptr),
@@ -126,6 +152,7 @@ void RenderSystem::Init() {
   SDL_SetRelativeMouseMode(SDL_FALSE);
   SDL_SetWindowGrab(SDLWindow, SDL_FALSE);
   SceneManager = OgreRoot->createSceneManager();
+  Ogre::MovableObject::setDefaultQueryFlags(0);
   SceneManager->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
 
   OverlaySystem = new Ogre::OverlaySystem();
@@ -136,7 +163,7 @@ void RenderSystem::Init() {
   GlobeInt = new GlobeInterface();
 
   GlobeInt->Initialise();
-  GlobeInt->GenerateGlobe(GlobeCreationConfiguration(400, 87798387783485));
+  GlobeInt->GenerateGlobe(GlobeCreationConfiguration(50, 34645764576));
 
   OverlayControl = new OverlayController();
 
@@ -354,8 +381,16 @@ void RenderSystem::CreateSceneNodeFromEvent(CreateSceneNodeEvent Event) {
   }
 }
 void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event) {
-  Event.Entity.get() =
+  Ogre::Entity* Ent =
       SceneManager->createEntity(Event.EntityName, Event.MeshName);
+
+  Ent->setQueryFlags(Event.QueryFlags);
+
+  Ent->getUserObjectBindings().setUserAny(
+      "EnttHandle",
+      Ogre::Any(static_cast<uint32_t>(entt::to_integral(Event.OwningEntity))));
+
+  Event.Entity.get() = Ent;
 }
 void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
   Event.NodeToChange.get()->setPosition(Event.NewPosition);
@@ -451,18 +486,43 @@ void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
 
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
   ViewPortController* RayVPC = FindViewPortFromDevice(Event.Device);
-
-  // We no longer hand out RaySceneQuery here - it can only answer "which
-  // entity", not "where exactly on the globe", which is what the caller
-  // actually needs now. The viewport just needs to build the world-space
-  // Ogre::Ray from the device/camera as before.
   Ogre::Ray WorldRay = RayVPC->GetWorldRayForDevice(Event);
 
   GlobeRayHit Hit = GlobeInt->CastRayFromWorld(WorldRay);
 
-  EndRayTraceResultEvent ResultEvent(Hit.DidHit, Hit.HitPoint,
-                                     Hit.SurfaceNormal, Hit.TileID);
-  Event.Callback(Event.CallQueue, ResultEvent);
+  RayPickResult Pick;
+  Pick.Terrain = Hit;
+
+  RaySceneQuery->setRay(WorldRay);
+  RaySceneQuery->setQueryMask(RenderQueryFlags::kSelectableUnit);
+  Ogre::RaySceneQueryResult& Results = RaySceneQuery->execute();
+
+  float BestDistance = std::numeric_limits<float>::max();
+  for (const Ogre::RaySceneQueryResultEntry& Entry : Results) {
+    Ogre::Entity* Candidate = dynamic_cast<Ogre::Entity*>(Entry.movable);
+    if (!Candidate) continue;
+
+    float Distance = 0.f;
+    if (!RefineHit(WorldRay, Candidate, &Distance)) continue;
+    if (Distance >= BestDistance) continue;
+
+    const Ogre::Any& Stored =
+        Candidate->getUserObjectBindings().getUserAny("EnttHandle");
+    if (!Stored.has_value()) continue;
+
+    BestDistance = Distance;
+    Pick.HitEntity =
+        static_cast<entt::entity>(Ogre::any_cast<uint32_t>(Stored));
+    Pick.EntityDistance = Distance;
+  }
+
+  // a unit only wins if it is in front of the terrain it stands on
+  if (Pick.HitEntity != entt::null && Hit.DidHit &&
+      Pick.EntityDistance > Hit.Distance) {
+    Pick.HitEntity = entt::null;
+  }
+
+  Event.Callback(Event.CallQueue, RayPickResult(Pick));
 }
 
 ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {

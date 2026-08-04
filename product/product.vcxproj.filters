@@ -341,5 +341,14 @@
     <ClInclude Include="CameraEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
+    <ClInclude Include="TraversalComponents.h">
+      <Filter>Entity Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Biome.h">
+      <Filter>Headers\World</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderQueryFlags.h">
+      <Filter>Headers\Render</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

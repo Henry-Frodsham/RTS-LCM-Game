@@ -267,6 +267,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
   <ItemGroup>
     <ClInclude Include="ActionCommand.h" />
     <ClInclude Include="BaseComponents.h" />
+    <ClInclude Include="Biome.h" />
     <ClInclude Include="CameraEvent.h" />
     <ClInclude Include="CityComponents.h" />
     <ClInclude Include="CommonGameObjectComponents.h" />
@@ -308,12 +309,14 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="PlayerUI.h" />
     <ClInclude Include="RayTraceEvent.h" />
     <ClInclude Include="RenderEvent.h" />
+    <ClInclude Include="RenderQueryFlags.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ResizeEvent.h" />
     <ClInclude Include="SharedInputEvent.h" />
     <ClInclude Include="ShareInfoEvent.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TransformationMatrix.h" />
+    <ClInclude Include="TraversalComponents.h" />
     <ClInclude Include="UIEvent.h" />
     <ClInclude Include="UnitComponents.h" />
     <ClInclude Include="ViewPortController.h" />

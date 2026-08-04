@@ -1,27 +1,26 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
+#include "Biome.h"
 
-// sharing info events, just for player general control to communicate selected
-// entities or hit pos to interaction wheel
-struct NotifySelectedEntity {
-  Ogre::Entity* Entity;
-  bool PressedTwice;
-  NotifySelectedEntity(Ogre::Entity* E, bool PT)
-      : Entity(E), PressedTwice(PT) {}
-};
 
-struct NotifyLatLonEvent {
-  Ogre::Vector2f LatLon;
-  explicit NotifyLatLonEvent(Ogre::Vector2f L) : LatLon(L) {}
-};
-
-struct NotifyPosEvent {
+struct NotifyRayResult {
   Ogre::Vector3f Pos;
-  explicit NotifyPosEvent(Ogre::Vector3f Position) : Pos(Position) {}
+  Ogre::Vector3f SurfaceNormal;
+  BiomeType Biome;
+  NotifyRayResult(Ogre::Vector3f Position, Ogre::Vector3f SN, BiomeType BT)
+      : Pos(Position), SurfaceNormal(SN), Biome(BT) {}
+
 };
 
-struct NotifySurfaceNormalEvent {
-  Ogre::Vector3f SurfaceNormal;
-  NotifySurfaceNormalEvent(Ogre::Vector3f SN) : SurfaceNormal(SN) {}
+struct NotifyEntityResult {
+  entt::entity Entity;
+  NotifyEntityResult (entt::entity Ent) : Entity(Ent){
+  }
+};
+
+
+struct SelectEntitySuccessEvent {
+  entt::entity Entity;
+  SelectEntitySuccessEvent(entt::entity Ent) : Entity(Ent) {}
 };

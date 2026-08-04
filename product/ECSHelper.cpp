@@ -34,10 +34,22 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::CreateandAddAttackComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddRangeComponentEvent>(std::bind(
       &ECSHelper::CreateAndAddRangeComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddExistableComponentEvent>(std::bind(
+      &ECSHelper::CreateAndAddExistableComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddMovableComponentEvent>(std::bind(
+      &ECSHelper::CreateAndAddMovableComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<NotifyConsequentialEntityStateChange>(
       std::bind(&ECSHelper::IssueRangeRevalEvent, this, std::placeholders::_1));
   FactoryBus->Subscribe<EntitiesInRangeUpdateEvent>(std::bind(
       &ECSHelper::UpdateAndColludeEntityRanges, this, std::placeholders::_1));
+  FactoryBus->Subscribe<TrySelectEntityEvent>(std::bind(
+      &ECSHelper::ValidateEntitySelection, this, std::placeholders::_1));
+  FactoryBus->Subscribe<TryMoveEntityEvent>(std::bind(
+      &ECSHelper::ValidateEntityMovement, this, std::placeholders::_1));
+  FactoryBus->Subscribe<TryUnselectEntityEvent>(
+      std::bind(&ECSHelper::TryUnselectEntity, this, std::placeholders::_1));
+  FactoryBus->Subscribe<TryDestroyEntityEvent>(
+      std::bind(&ECSHelper::TryDestroyEntity, this, std::placeholders::_1));
 }
 
 void ECSHelper::CreateAndAddEntity(CreateEntityEvent Event) {
@@ -68,7 +80,8 @@ void ECSHelper::CreateAndAddMeshComponent(AddMeshComponentEvent Event) {
         *Event.Entity, nullptr, Event.MeshName, Event.EntityName);
 
     Rs.RenderQueue->Enqueue(CreateOgreEntityEvent(
-        std::ref(Component.Entity), Event.EntityName, Event.MeshName));
+        std::ref(Component.Entity), Event.EntityName, Event.MeshName,
+        *Event.Entity, RenderQueryFlags::kSelectableUnit));
 
     Rs.RenderQueue->Enqueue(AttachEntityToScenNodeEvent(
         std::ref(Component.Entity), std::ref(EntOgreComp.EntityNode)));
@@ -155,6 +168,19 @@ void ECSHelper::CreateAndAddRangeComponent(AddRangeComponentEvent Event) {
       *Event.Entity, EmptyRangeContainer);
 }
 
+
+
+void ECSHelper::CreateAndAddExistableComponent(
+    AddExistableComponentEvent Event) {
+  auto& Component = RegistryToUse->emplace<ExistableComponent>(
+      *Event.Entity, Event.ExistableBiomes);
+}
+
+void ECSHelper::CreateAndAddMovableComponent(AddMovableComponentEvent Event) {
+  auto& Component = RegistryToUse->emplace<MovableComponent>(
+      *Event.Entity, Event.MovableBiomes);
+}
+
 void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
   try {
@@ -169,6 +195,75 @@ void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
     }
   } catch (std::exception e) {
   }
+}
+
+void ECSHelper::ValidateEntitySelection(TrySelectEntityEvent Event) {
+  if (!RegistryToUse->valid(Event.Entity) || !Event.TryingPlayer) {
+    return;
+  }
+  OwnershipComponent* OComp =
+      RegistryToUse->try_get<OwnershipComponent>(Event.Entity);
+  MeshComponent* MeshComp = RegistryToUse->try_get<MeshComponent>(Event.Entity);
+  if (!OComp || !MeshComp) {
+    return;
+  }
+
+  if (OComp->GamePlayer == Event.TryingPlayer) {
+    // success
+    RenderSystem& Rs = RenderSystem::GetInstance();
+    Rs.RenderQueue->Enqueue(
+        ChangeEntMaterialEvent(MeshComp->Entity, "RED_UNIT"));
+    Event.Respond();
+  }
+}
+
+void ECSHelper::ValidateEntityMovement(TryMoveEntityEvent Event) {
+  if (!RegistryToUse->valid(Event.Entity) || !Event.TryingPlayer) {
+    return;
+  }
+  OwnershipComponent* OComp =
+      RegistryToUse->try_get<OwnershipComponent>(Event.Entity);
+  MeshComponent* MeshComp = RegistryToUse->try_get<MeshComponent>(Event.Entity);
+  MovableComponent* MovComp =
+      RegistryToUse->try_get<MovableComponent>(Event.Entity);
+  if (!OComp || !MeshComp || !MovComp) {
+    return;
+  }
+  if (!MovComp->MovableBiomes.at(Event.SelectedBiome)) {
+    return;
+  }
+  if (OComp->GamePlayer == Event.TryingPlayer) {
+    // success
+    RenderSystem& Rs = RenderSystem::GetInstance();
+    Rs.RenderQueue->Enqueue(
+        SetEntPositionEvent(MeshComp->Entity, Event.Position));
+    Rs.RenderQueue->Enqueue(
+        RotateEntToSurfaceNormalEvent(MeshComp->Entity, Event.SurfaceNormal));
+  }
+}
+
+void ECSHelper::TryUnselectEntity(TryUnselectEntityEvent Event) {
+  if (!RegistryToUse->valid(Event.Entity)) {
+    return;
+  }
+  MeshComponent* MeshComp = RegistryToUse->try_get<MeshComponent>(Event.Entity);
+  if (!MeshComp) {
+    return;
+  }
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  Rs.RenderQueue->Enqueue(ChangeEntMaterialEvent(MeshComp->Entity, "WHITE"));
+}
+
+void ECSHelper::TryDestroyEntity(TryDestroyEntityEvent Event) {
+  if (!RegistryToUse->valid(Event.Entity)) {
+    return;
+  }
+  MeshComponent* MeshComp = RegistryToUse->try_get<MeshComponent>(Event.Entity);
+  if (!MeshComp) {
+    return;
+  }
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  Rs.RenderQueue->Enqueue(DestroyEntityEvent(MeshComp->Entity));
 }
 
 void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {

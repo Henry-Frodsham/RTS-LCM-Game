@@ -1,6 +1,7 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
+#include "Biome.h"
 
 #include <entt/entt.hpp>
 #include <string>  // NOLINT(build/include_order)
@@ -66,6 +67,7 @@ struct CreateUnitProducingGameObjectEvent {
   std::string MeshName;
   std::string EntityName;
   Player* GamePlayer;
+
   int UnitProdPerM;
   int PlayerId;
   CreateUnitProducingGameObjectEvent(std::string NodeN, std::string MeshN,

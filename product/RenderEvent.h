@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <entt/entt.hpp>
 
 #include "CommonGameObjectComponents.h"
 
@@ -24,8 +25,11 @@ struct CreateOgreEntityEvent {
   std::reference_wrapper<Ogre::Entity*> Entity;
   std::string EntityName;
   std::string MeshName;
-  CreateOgreEntityEvent(Ogre::Entity*& Ent, std::string EN, std::string MN)
-      : Entity(Ent), EntityName(EN), MeshName(MN) {}
+  entt::entity OwningEntity;
+  Ogre::uint32 QueryFlags;
+  CreateOgreEntityEvent(Ogre::Entity*& Ent, std::string EN, std::string MN,
+                        entt::entity Entt, Ogre::uint32 Flags)
+      : Entity(Ent), EntityName(EN), MeshName(MN), OwningEntity(Entt), QueryFlags(Flags) {}
 };
 
 struct SetNodePositionEvent {

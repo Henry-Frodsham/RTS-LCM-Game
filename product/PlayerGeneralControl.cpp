@@ -16,7 +16,7 @@ PlayerGeneralControl::PlayerGeneralControl(InputTranslator* Translator,
 
   PlayerTranslator->ActionBus->Subscribe<PressActionCommand>(
       std::bind(&PlayerGeneralControl::OnPress, this, std::placeholders::_1));
-  TriggerBus->Subscribe<EndRayTraceResultEvent>(std::bind(
+  TriggerBus->Subscribe<RayPickResult>(std::bind(
       &PlayerGeneralControl::OnCompletedTrace, this, std::placeholders::_1));
 
   SelectedEntity = nullptr;
@@ -42,19 +42,18 @@ void PlayerGeneralControl::OnPress(PressActionCommand Cmd) {
       std::vector<float>{Cmd.Context.MouseX, Cmd.Context.MouseY};
   RS.RenderQueue->Enqueue(StartRayTraceEvent(
       Position, PlayerTranslator->ManagedDevice,
-      [](EventQueue* queue, EndRayTraceResultEvent Event) {
-        queue->Enqueue(Event);
-      },
+      [](EventQueue* queue, RayPickResult Event) { queue->Enqueue(Event); },
       TriggerQueue));
 }
 
 // callback function from a completed raytrace in render system
-void PlayerGeneralControl::OnCompletedTrace(EndRayTraceResultEvent Event) {
-  if (!Event.DidHit) {
-    return;
+void PlayerGeneralControl::OnCompletedTrace(RayPickResult Event) {
+  if (!Event.HasEntity() && Event.Terrain.DidHit) {
+    InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
+        NotifyRayResult(Event.Terrain.HitPoint, Event.Terrain.SurfaceNormal,
+                        Event.Terrain.HitBiome));
+  } else if (Event.HasEntity()) {
+    InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
+        NotifyEntityResult(Event.HitEntity));
   }
-  InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
-      NotifySurfaceNormalEvent(Event.SurfaceNormal));
-  InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
-      NotifyPosEvent(Event.HitPoint));
 }

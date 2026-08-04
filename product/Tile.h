@@ -6,16 +6,7 @@
 #include <array>
 #include <cstdint>
 
-// Coarse landscape classification for a tile. Extend as your biome logic grows.
-enum class BiomeType : uint8_t {
-  Ocean,
-  Plains,
-  Forest,
-  Desert,
-  Tundra,
-  Mountain,
-  Count
-};
+#include "Biome.h"
 
 constexpr uint32_t InvalidTileID = UINT32_MAX;
 constexpr uint32_t InvalidCountryID = UINT32_MAX;
@@ -59,7 +50,7 @@ class Tile {
                                     InvalidTileID, InvalidTileID};
   uint8_t NeighborCount = 0;
 
-  float Elevation = 0.f;  
+  float Elevation = 0.f;
   BiomeType Biome = BiomeType::Ocean;
 
   uint32_t OwnerCountryID = InvalidCountryID;

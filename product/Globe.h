@@ -5,7 +5,6 @@
 #include <OgreVector3.h>
 #include <OGRE/Ogre.h>
 #include <OGRE/OgreRay.h>
-
 #include <array>
 #include <cstdint>
 #include <vector>
@@ -28,13 +27,16 @@ struct GlobeRayHit {
   Ogre::Vector3 HitPoint;         // local (globe) space
   Ogre::Vector3 SurfaceNormal;  // local (globe) space
   uint32_t TileID;
+  BiomeType HitBiome;
   GlobeRayHit()
       : DidHit(false),
         Distance(0.f),
         HitPoint(Ogre::Vector3::ZERO),
         SurfaceNormal(Ogre::Vector3::UNIT_Y),
-        TileID(InvalidTileID) {}
+        TileID(InvalidTileID),
+        HitBiome(BiomeType::Ocean){}
 };
+
 
 struct TileSpatialIndex {
   int LonBins = 0;

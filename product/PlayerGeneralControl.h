@@ -1,5 +1,7 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
+#include <entt/entt.hpp>
+
 #include "EventQueue.h"
 #include "InputTranslator.h"
 #include "InteractionWheel.h"
@@ -7,7 +9,6 @@
 #include "RayTraceEvent.h"
 #include "RenderSystem.h"
 #include "ShareInfoEvent.h"
-
 // class responsible for general player control over the game world
 // such as (but not limited to), rotating the view point
 // checking hit points
@@ -21,7 +22,7 @@ class PlayerGeneralControl {
   InteractionWheel* InteractionWheelToNotify;
   void Update(float Dt);
   void OnPress(PressActionCommand Cmd);
-  void OnCompletedTrace(EndRayTraceResultEvent Event);
+  void OnCompletedTrace(RayPickResult Event);
   EventBus* TriggerBus;
 
  private:
