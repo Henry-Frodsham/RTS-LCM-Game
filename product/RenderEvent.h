@@ -107,7 +107,7 @@ struct ChangeCameraOrbitAngleEvent {
 
 struct ChangeCameraOrbitDepthEvent {
   ViewPortController* ViewportToControl;
-  int MouseWheelY;
-  ChangeCameraOrbitDepthEvent(int WheelY, ViewPortController* VPC)
-      : MouseWheelY(WheelY), ViewportToControl(VPC) {}
+  float WheelDelta;
+  ChangeCameraOrbitDepthEvent(float WheelY, ViewPortController* VPC)
+      : WheelDelta(WheelY), ViewportToControl(VPC) {}
 };

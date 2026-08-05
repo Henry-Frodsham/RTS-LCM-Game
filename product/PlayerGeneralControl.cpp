@@ -30,7 +30,7 @@ void PlayerGeneralControl::Update(float Dt) {
   if (PlayerTranslator->HasRelativeMotion()) {
     TriggerQueue->Enqueue(RelativeMotionTrigger());
   }
-  if (PlayerTranslator->GetMouseWheelY() != 0) {
+  if (PlayerTranslator->GetPreciseMouseWheelY() != 0.f) {
     TriggerQueue->Enqueue(MouseWheelTrigger());
   }
   TriggerQueue->Dispatch();

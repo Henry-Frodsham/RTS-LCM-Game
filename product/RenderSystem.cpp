@@ -441,6 +441,7 @@ void RenderSystem::DestroyEntity(DestroyEntityEvent Event) {
   if (!Event.EntityToDestroy) return;
 
   Ogre::SceneNode* NodeToDestroy = Event.EntityToDestroy->getParentSceneNode();
+  if (!NodeToDestroy) return;
   NodeToDestroy->detachAllObjects();
 
   std::vector<Ogre::MovableObject*> Attached;
@@ -564,7 +565,7 @@ void RenderSystem::ChangeCameraOrbit(ChangeCameraOrbitAngleEvent Event) {
       Event.RelativeMotion, GlobeInt->GetGlobeCentre());
 }
 void RenderSystem::ChangeCameraDepth(ChangeCameraOrbitDepthEvent Event) {
-  Event.ViewportToControl->MoveCameraDepth(Event.MouseWheelY,
+  Event.ViewportToControl->MoveCameraDepth(Event.WheelDelta,
                                            GlobeInt->GetGlobeCentre());
 }
 // singleton access to prevent 2 Ogre roots being made

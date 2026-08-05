@@ -52,7 +52,7 @@ class ECSHelper {
 
   void CreateandAddUnitProductionComponent(AddUnitProductionEvent Event);
 
-  void CreateandAddAttackComponent(AddAttackEvent Event);
+  void CreateandAddAttackComponent(AddMeleeAttackEvent Event);
 
   void CreateandAddHealthComponent(AddHealthEvent Event);
 

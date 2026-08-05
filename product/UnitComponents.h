@@ -9,10 +9,9 @@ struct HealthComponent {
 };
 
 // attacker unit behaviour definer
-struct AttackComponent {
-  float Radius;
+struct MeleeAttackComponent {
   float Damage;
-  AttackComponent(int R, int D) : Radius(R), Damage(D) {}
+  MeleeAttackComponent(float D) : Damage(D) {}
 };
 
 // entities in range

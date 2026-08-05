@@ -68,12 +68,12 @@ void WorldManager::EvaluateTickerComponents(float DT) {
   // combat evaluation
   RenderSystem& Rs = RenderSystem::GetInstance();
 
-  auto AttackView = Registry.view<HealthComponent, AttackComponent,
+  auto AttackView = Registry.view<HealthComponent, MeleeAttackComponent,
                                   RangeCacheComponent, OgreComponent>();
 
   for (auto Entity : AttackView) {
     auto& Range = AttackView.get<RangeCacheComponent>(Entity);
-    auto& Attack = AttackView.get<AttackComponent>(Entity);
+    auto& Attack = AttackView.get<MeleeAttackComponent>(Entity);
     auto& Health = AttackView.get<HealthComponent>(Entity);
     auto& Ogre = AttackView.get<OgreComponent>(Entity);
 

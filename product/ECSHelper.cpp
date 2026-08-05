@@ -30,7 +30,7 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
                 std::placeholders::_1));
   FactoryBus->Subscribe<AddHealthEvent>(std::bind(
       &ECSHelper::CreateandAddHealthComponent, this, std::placeholders::_1));
-  FactoryBus->Subscribe<AddAttackEvent>(std::bind(
+  FactoryBus->Subscribe<AddMeleeAttackEvent>(std::bind(
       &ECSHelper::CreateandAddAttackComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddRangeComponentEvent>(std::bind(
       &ECSHelper::CreateAndAddRangeComponent, this, std::placeholders::_1));
@@ -103,9 +103,9 @@ void ECSHelper::CreateandAddHealthComponent(AddHealthEvent Event) {
   auto& Component =
       RegistryToUse->emplace<HealthComponent>(*Event.Entity, Event.Health);
 }
-void ECSHelper::CreateandAddAttackComponent(AddAttackEvent Event) {
-  auto& Component = RegistryToUse->emplace<AttackComponent>(
-      *Event.Entity, Event.Radius, Event.Damage);
+void ECSHelper::CreateandAddAttackComponent(AddMeleeAttackEvent Event) {
+  auto& Component = RegistryToUse->emplace<MeleeAttackComponent>(
+      *Event.Entity, Event.Damage);
 }
 void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
@@ -268,7 +268,7 @@ void ECSHelper::TryDestroyEntity(TryDestroyEntityEvent Event) {
 
 void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
   auto RangeView =
-      RegistryToUse->view<HealthComponent, AttackComponent, OwnershipComponent,
+      RegistryToUse->view<HealthComponent, OwnershipComponent,
                           OgreComponent, RangeCacheComponent>();
 
   std::vector<entt::entity> RelevantEntities;
@@ -283,7 +283,6 @@ void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
   }
   for (auto Entity : RangeView) {
     auto& Health = RangeView.get<HealthComponent>(Entity);
-    auto& Attack = RangeView.get<AttackComponent>(Entity);
     auto& Ownership = RangeView.get<OwnershipComponent>(Entity);
     auto& Ogre = RangeView.get<OgreComponent>(Entity);
     auto& Range = RangeView.get<RangeCacheComponent>(Entity);

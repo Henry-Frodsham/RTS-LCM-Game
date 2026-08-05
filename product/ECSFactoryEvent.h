@@ -80,12 +80,11 @@ struct AddHealthEvent {
       : Entity(Ent), Health(H) {}
 };
 // event to add an attack comp to entity
-struct AddAttackEvent {
+struct AddMeleeAttackEvent {
   std::shared_ptr<entt::entity> Entity;
-  float Radius;
   float Damage;
-  AddAttackEvent(std::shared_ptr<entt::entity> Ent, float R, float D)
-      : Entity(Ent), Radius(R), Damage(D) {}
+  AddMeleeAttackEvent(std::shared_ptr<entt::entity> Ent, float D)
+      : Entity(Ent), Damage(D) {}
 };
 // event to change an entities visibility, foreign to render system
 struct ChangeEntityVisibilityEvent {

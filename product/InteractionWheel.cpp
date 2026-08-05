@@ -24,9 +24,9 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
                 std::placeholders::_1));
   ForeignNotifBus->Subscribe<NotifyRayResult>(std::bind(
       &InteractionWheel::ReceiveRayResult, this, std::placeholders::_1));
-  ForeignNotifBus->Subscribe<SelectEntitySuccessEvent>(std::bind(
-      &InteractionWheel::SucessfulEntitySelection, this, std::placeholders::_1));
-
+  ForeignNotifBus->Subscribe<SelectEntitySuccessEvent>(
+      std::bind(&InteractionWheel::SucessfulEntitySelection, this,
+                std::placeholders::_1));
 
   ForeignNotifBus->Subscribe<CallBackACommand>(std::bind(
       &InteractionWheel::CallBackButtonA, this, std::placeholders::_1));
@@ -117,11 +117,9 @@ void InteractionWheel::UpdateAndWarmupContext() {
 
 void InteractionWheel::ShareInfoSelectedEntReceive(NotifyEntityResult Event) {
   Factory->FactoryQueue->Enqueue(TrySelectEntityEvent(
-      Event.Entity, GamePlayer,
-      [Queue = ForeignNotifQueue](entt::entity Ent) {
+      Event.Entity, GamePlayer, [Queue = ForeignNotifQueue](entt::entity Ent) {
         Queue->Enqueue(SelectEntitySuccessEvent(Ent));
       }));
-
 }
 void InteractionWheel::SucessfulEntitySelection(
     SelectEntitySuccessEvent Event) {
@@ -136,8 +134,7 @@ void InteractionWheel::ReceiveRayResult(NotifyRayResult Event) {
   SurfaceNormal = Event.SurfaceNormal;
   SelectedBiome = Event.Biome;
 }
-void InteractionWheel::
-    OnContextActionCommand(ContextActionCommand Cmd) {
+void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   ActionContext Context = Cmd.Context;
 
   std::vector<float> Dimensions = DeviceState->GetViewPortDimensions();
@@ -172,25 +169,22 @@ void InteractionWheel::
   float scaleX = SDimensions[0] / static_cast<float>(Dimensions[0]);
   float scaleY = SDimensions[1] / static_cast<float>(Dimensions[1]);
 
-  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
-      "interaction_wheel_A" + std::to_string(ThreadID),
-      "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
-      {Context.MouseX / Dimensions[0], Context.MouseY / Dimensions[1]}));
+  RS.RenderQueue->Enqueue(
+      OverlayEditPanelEvent("interaction_wheel_A" + std::to_string(ThreadID),
+                            "UI_Overlay_" + std::to_string(ThreadID),
+                            {0.03f, 0.03f}, {Context.MouseX, Context.MouseY}));
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
       "interaction_wheel_B" + std::to_string(ThreadID),
       "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
-      {(Context.MouseX / Dimensions[0]) + (0.03f * scaleX),
-       Context.MouseY / Dimensions[1]}));
+      {Context.MouseX + (0.03f * scaleX), Context.MouseY}));
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
       "interaction_wheel_C" + std::to_string(ThreadID),
       "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
-      {Context.MouseX / Dimensions[0],
-       (Context.MouseY / Dimensions[1]) - 0.03f}));
+      {Context.MouseX, Context.MouseY - 0.03f}));
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
       "interaction_wheel_D" + std::to_string(ThreadID),
       "UI_Overlay_" + std::to_string(ThreadID), {0.03f, 0.03f},
-      {(Context.MouseX / Dimensions[0]) + (0.03f * scaleX),
-       (Context.MouseY / Dimensions[1]) - 0.03f}));
+      {Context.MouseX + (0.03f * scaleX), Context.MouseY - 0.03f}));
 
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
@@ -232,27 +226,22 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
           EntityTemplates::CreateUnitProducingGameObject(
               Factory, CreateUnitProducingGameObjectEvent(
                            Info.NodeName, "city.mesh", Info.EntName, Position,
-                           SurfaceNormal,
-                           GamePlayer, 30, ThreadID));
+                           SurfaceNormal, GamePlayer, 30, ThreadID));
       GamePlayer->AvailableCities -= 1;
     }
-
   }
 }
 void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
   // destroy
   if (SelectedEntity != entt::null) {
-    Factory->FactoryQueue->Enqueue(TryDestroyEntityEvent(
-        SelectedEntity));
+    Factory->FactoryQueue->Enqueue(TryDestroyEntityEvent(SelectedEntity));
   }
-
-
 }
 void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
   // move
   if (SelectedEntity != entt::null) {
-    Factory->FactoryQueue->Enqueue(
-        TryMoveEntityEvent(SelectedEntity, Position, SurfaceNormal, SelectedBiome, GamePlayer));
+    Factory->FactoryQueue->Enqueue(TryMoveEntityEvent(
+        SelectedEntity, Position, SurfaceNormal, SelectedBiome, GamePlayer));
   }
 }
 void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
@@ -266,9 +255,10 @@ void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
       UnitConstructionInfo Info = GamePlayer->PreUnitPlace();
       std::shared_ptr<entt::entity> Ent =
           EntityTemplates::CreateAttackingGameObject(
-              Factory, CreateAttackingEntityEvent(
-                           Info.NodeName, "unit.mesh", Info.EntName, Position, SurfaceNormal,
-                           GamePlayer, 100.f, 10.f, 0.3f, ThreadID));
+              Factory, CreateAttackingEntityEvent(Info.NodeName, "unit.mesh",
+                                                  Info.EntName, Position,
+                                                  SurfaceNormal, GamePlayer,
+                                                  100.f, 10.f, 0.3f, ThreadID));
       GamePlayer->AvailableUnits -= 1;
     }
   }
