@@ -16,10 +16,12 @@
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
+#include "GlobeInterface.h"
 #include "OverlayController.h"
 #include "OverlayEvent.h"
 #include "RayTraceEvent.h"
 #include "RenderEvent.h"
+#include "RenderQueryFlags.h"
 #include "ViewPortController.h"
 #include "ViewPortUpdateEvent.h"
 #include "ViewPortUpdateListener.h"
@@ -40,6 +42,7 @@ class RenderSystem {
   std::chrono::steady_clock::time_point LastFrameTime;
 
   Ogre::Root* OgreRoot;
+
   Ogre::SceneManager* SceneManager;
 
   Ogre::RaySceneQuery* RaySceneQuery;
@@ -57,6 +60,8 @@ class RenderSystem {
   ViewPortController* DefaultViewPort;
 
   ViewPortUpdateListener* ViewPortListener;
+
+  GlobeInterface* GlobeInt;
 
   Ogre::RenderWindowDescription RenderWindowSettings;
 
@@ -96,6 +101,9 @@ class RenderSystem {
 
   void EntityRangeCheck(RevalEntityRangeEvent Event);
 
+  void ChangeCameraOrbit(ChangeCameraOrbitAngleEvent Event);
+
+  void ChangeCameraDepth(ChangeCameraOrbitDepthEvent Event);
 
   void DestroyNode(DestroyNodeEvent Event);
   void DestroyEntity(DestroyEntityEvent Event);

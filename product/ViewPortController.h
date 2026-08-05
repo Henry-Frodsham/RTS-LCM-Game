@@ -14,6 +14,11 @@ class ViewPortController {
   Ogre::Viewport* ViewPort;
   InputDevice* ControllingDevice;
 
+  Ogre::Real mOrbitYawRad = 0.f;
+  Ogre::Real mOrbitPitchRad = 0.f;
+  Ogre::Real mOrbitDistance = 0.f;
+  Ogre::Real mMinOrbitDistance = 0.f;
+  Ogre::Real mMaxOrbitDistance = 0.f;
  public:
   bool ToggleAutomaticRendering(bool Val);
 
@@ -43,11 +48,12 @@ class ViewPortController {
   // depth
   void MoveCameraOrbitingPoint2DMotion(Ogre::Vector2f RelativeMotion,
                                        Ogre::Vector3f OrbitPoint);
+  void MoveCameraDepth(int ScrollWheelY, Ogre::Vector3f OrbitPoint);
   void RegisterControllingDevice(InputDevice* Device);
 
   bool IsControllerByDevice(InputDevice* Device);
 
-  EndRayTraceResultEvent TraceRay(StartRayTraceEvent Event);
+  Ogre::Ray GetWorldRayForDevice(StartRayTraceEvent Event);
   // Copy constructor - required for vector storage
   ViewPortController(const ViewPortController&) = default;
   // Move constructor
@@ -59,4 +65,8 @@ class ViewPortController {
   std::vector<float> GetCameraAngle();
   std::vector<float> GetViewPortDimensions();
   std::vector<int> GetActualDimensions();
+
+  void InitOrbitCamera(const Ogre::Vector3& OrbitPoint, Ogre::Real Distance);
+  void SetOrbitDistanceLimits(Ogre::Real MinDistance, Ogre::Real MaxDistance);
+  void ZoomOrbitingPoint(Ogre::Real Delta);
 };

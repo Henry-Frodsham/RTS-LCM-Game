@@ -19,4 +19,9 @@ struct UpstreamOrbitViewport2DEvent {
       : RelativeMotion(RM), InstanceRequesting(IR) {}
 };
 
+struct ChangeOrbitDepthEvent {
+  int MouseWheelY;
+  GameInstance* InstanceRequesting;
+  ChangeOrbitDepthEvent(int WheelY, GameInstance* Instance) : MouseWheelY(WheelY), InstanceRequesting(Instance) {}
+};
 struct RecheckViewPortSizeCommand {};

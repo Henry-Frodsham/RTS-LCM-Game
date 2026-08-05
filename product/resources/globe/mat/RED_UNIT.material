@@ -1,0 +1,36 @@
+// Selection highlight material for units.
+// Structurally identical to WHITE.material (programmable pass, no scene_blend),
+// so it stays in the solid render queue collection and depth-tests correctly.
+// Program names are unique to avoid clashing with UnitVP / UnitFP in WHITE.material.
+
+vertex_program UnitSelectedVP glsl
+{
+    source unit_vp.glsl
+}
+
+fragment_program UnitSelectedFP glsl
+{
+    source unit_selected_fp.glsl
+}
+
+material RED_UNIT
+{
+    technique
+    {
+        pass
+        {
+            depth_check on
+            depth_write on
+
+            fragment_program_ref UnitSelectedFP
+            {
+            shared_params_ref ViewerParams
+            param_named_auto ownerID custom 0
+    	    }
+
+            fragment_program_ref UnitSelectedFP
+            {
+            }
+        }
+    }
+}

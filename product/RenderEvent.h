@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <entt/entt.hpp>
 
 #include "CommonGameObjectComponents.h"
 
@@ -24,8 +25,11 @@ struct CreateOgreEntityEvent {
   std::reference_wrapper<Ogre::Entity*> Entity;
   std::string EntityName;
   std::string MeshName;
-  CreateOgreEntityEvent(Ogre::Entity*& Ent, std::string EN, std::string MN)
-      : Entity(Ent), EntityName(EN), MeshName(MN) {}
+  entt::entity OwningEntity;
+  Ogre::uint32 QueryFlags;
+  CreateOgreEntityEvent(Ogre::Entity*& Ent, std::string EN, std::string MN,
+                        entt::entity Entt, Ogre::uint32 Flags)
+      : Entity(Ent), EntityName(EN), MeshName(MN), OwningEntity(Entt), QueryFlags(Flags) {}
 };
 
 struct SetNodePositionEvent {
@@ -57,9 +61,9 @@ struct SetEntPositionEvent {
 
 struct RotateEntToSurfaceNormalEvent {
   Ogre::Entity* Entity;
-  Ogre::Vector3f RelativeRotCentre;
-  RotateEntToSurfaceNormalEvent(Ogre::Entity* Ent, Ogre::Vector3f RRC)
-      : Entity(Ent), RelativeRotCentre(RRC) {}
+  Ogre::Vector3f SurfaceNormal;  // was RelativeRotCentre
+  RotateEntToSurfaceNormalEvent(Ogre::Entity* Ent, Ogre::Vector3f Normal)
+      : Entity(Ent), SurfaceNormal(Normal) {}
 };
 
 struct ChangeEntMaterialEvent {
@@ -92,4 +96,18 @@ struct RevalEntityRangeEvent {
   float GeneralRange;
   RevalEntityRangeEvent(Ogre::Entity* Ent, EventQueue* CBQ, float GR)
       : EntToCheck(Ent), CallBackQueue(CBQ), GeneralRange(GR) {}
+};
+
+struct ChangeCameraOrbitAngleEvent {
+  ViewPortController* ViewportToControl;
+  Ogre::Vector2f RelativeMotion;
+  ChangeCameraOrbitAngleEvent(Ogre::Vector2f RelMotion, ViewPortController* VPC)
+      : RelativeMotion(RelMotion), ViewportToControl(VPC) {}
+};
+
+struct ChangeCameraOrbitDepthEvent {
+  ViewPortController* ViewportToControl;
+  int MouseWheelY;
+  ChangeCameraOrbitDepthEvent(int WheelY, ViewPortController* VPC)
+      : MouseWheelY(WheelY), ViewportToControl(VPC) {}
 };

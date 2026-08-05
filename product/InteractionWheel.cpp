@@ -13,19 +13,21 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
   RenderSystem& RS = RenderSystem::GetInstance();
   ForeignNotifBus = new EventBus();
   ForeignNotifQueue = new EventQueue(ForeignNotifBus);
-  SelectedEntity = nullptr;
+  SelectedEntity = entt::null;
   GamePlayer = Play;
-  LatLonR = Ogre::Vector2f();
   Position = Ogre::Vector3f();
+  SurfaceNormal = Ogre::Vector3f();
   Device->ActionBus->Subscribe<ContextActionCommand>(std::bind(
       &InteractionWheel::OnContextActionCommand, this, std::placeholders::_1));
-  ForeignNotifBus->Subscribe<NotifySelectedEntity>(
+  ForeignNotifBus->Subscribe<NotifyEntityResult>(
       std::bind(&InteractionWheel::ShareInfoSelectedEntReceive, this,
                 std::placeholders::_1));
-  ForeignNotifBus->Subscribe<NotifyPosEvent>(std::bind(
-      &InteractionWheel::ShareInfoHitPosReceive, this, std::placeholders::_1));
-  ForeignNotifBus->Subscribe<NotifyLatLonEvent>(std::bind(
-      &InteractionWheel::ShareInfoLatLonReceive, this, std::placeholders::_1));
+  ForeignNotifBus->Subscribe<NotifyRayResult>(std::bind(
+      &InteractionWheel::ReceiveRayResult, this, std::placeholders::_1));
+  ForeignNotifBus->Subscribe<SelectEntitySuccessEvent>(std::bind(
+      &InteractionWheel::SucessfulEntitySelection, this, std::placeholders::_1));
+
+
   ForeignNotifBus->Subscribe<CallBackACommand>(std::bind(
       &InteractionWheel::CallBackButtonA, this, std::placeholders::_1));
   ForeignNotifBus->Subscribe<CallBackBCommand>(std::bind(
@@ -113,16 +115,29 @@ void InteractionWheel::UpdateAndWarmupContext() {
   ForeignNotifQueue->Dispatch();
 }
 
-void InteractionWheel::ShareInfoSelectedEntReceive(NotifySelectedEntity Event) {
+void InteractionWheel::ShareInfoSelectedEntReceive(NotifyEntityResult Event) {
+  Factory->FactoryQueue->Enqueue(TrySelectEntityEvent(
+      Event.Entity, GamePlayer,
+      [Queue = ForeignNotifQueue](entt::entity Ent) {
+        Queue->Enqueue(SelectEntitySuccessEvent(Ent));
+      }));
+
+}
+void InteractionWheel::SucessfulEntitySelection(
+    SelectEntitySuccessEvent Event) {
+  if (SelectedEntity != entt::null && SelectedEntity != Event.Entity) {
+    Factory->FactoryQueue->Enqueue(TryUnselectEntityEvent(SelectedEntity));
+  }
   SelectedEntity = Event.Entity;
 }
-void InteractionWheel::ShareInfoLatLonReceive(NotifyLatLonEvent Event) {
-  LatLonR = Event.LatLon;
-}
-void InteractionWheel::ShareInfoHitPosReceive(NotifyPosEvent Event) {
+
+void InteractionWheel::ReceiveRayResult(NotifyRayResult Event) {
   Position = Event.Pos;
+  SurfaceNormal = Event.SurfaceNormal;
+  SelectedBiome = Event.Biome;
 }
-void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
+void InteractionWheel::
+    OnContextActionCommand(ContextActionCommand Cmd) {
   ActionContext Context = Cmd.Context;
 
   std::vector<float> Dimensions = DeviceState->GetViewPortDimensions();
@@ -206,6 +221,10 @@ void InteractionWheel::OnPressActionCommand(PressActionCommand Cmd) {
 void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
   // place
   if (!Position.isNaN()) {
+    if (SelectedBiome == BiomeType::Ocean ||
+        SelectedBiome == BiomeType::Mountain) {
+      return;
+    }
     if (GamePlayer->AvailableCities >= 1) {
       CityConstructionInfo Info = GamePlayer->PreCityPlace();
 
@@ -213,6 +232,7 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
           EntityTemplates::CreateUnitProducingGameObject(
               Factory, CreateUnitProducingGameObjectEvent(
                            Info.NodeName, "city.mesh", Info.EntName, Position,
+                           SurfaceNormal,
                            GamePlayer, 30, ThreadID));
       GamePlayer->AvailableCities -= 1;
     }
@@ -221,39 +241,33 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
 }
 void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
   // destroy
-  if (SelectedEntity != nullptr) {
-    RenderSystem& RS = RenderSystem::GetInstance();
-    RS.RenderQueue->Enqueue(DestroyEntityEvent(SelectedEntity));
-    SelectedEntity = nullptr; 
-    Factory->FactoryQueue->Enqueue(
-        NotifyConsequentialEntityStateChange(SelectedEntity));
+  if (SelectedEntity != entt::null) {
+    Factory->FactoryQueue->Enqueue(TryDestroyEntityEvent(
+        SelectedEntity));
   }
 
 
 }
 void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
   // move
-  if (SelectedEntity != nullptr &&
-      SelectedEntity->getParentSceneNode() != nullptr) {
-    RenderSystem& RS = RenderSystem::GetInstance();
-    RS.RenderQueue->Enqueue(SetEntPositionEvent(SelectedEntity, Position));
-    RS.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
-        SelectedEntity, Ogre::Vector3(0.5f, 0.f, -5.f)));
-
+  if (SelectedEntity != entt::null) {
     Factory->FactoryQueue->Enqueue(
-        NotifyConsequentialEntityStateChange(SelectedEntity));
-    
+        TryMoveEntityEvent(SelectedEntity, Position, SurfaceNormal, SelectedBiome, GamePlayer));
   }
 }
 void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
   // unit
   if (!Position.isNaN()) {
+    if (SelectedBiome == BiomeType::Ocean ||
+        SelectedBiome == BiomeType::Mountain) {
+      return;
+    }
     if (GamePlayer->AvailableUnits >= 1) {
       UnitConstructionInfo Info = GamePlayer->PreUnitPlace();
       std::shared_ptr<entt::entity> Ent =
           EntityTemplates::CreateAttackingGameObject(
               Factory, CreateAttackingEntityEvent(
-                           Info.NodeName, "unit.mesh", Info.EntName, Position,
+                           Info.NodeName, "unit.mesh", Info.EntName, Position, SurfaceNormal,
                            GamePlayer, 100.f, 10.f, 0.3f, ThreadID));
       GamePlayer->AvailableUnits -= 1;
     }

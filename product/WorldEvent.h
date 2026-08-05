@@ -1,6 +1,7 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <OGRE/Ogre.h>
+#include "Biome.h"
 
 #include <entt/entt.hpp>
 #include <string>  // NOLINT(build/include_order)
@@ -42,30 +43,36 @@ struct CreateMeshWorldEntityEvent {
 struct CreateGameObjectEvent {
   std::string NodeName;
   Ogre::Vector3 InitialPosition;
+  Ogre::Vector3f SurfaceNormal;
   std::string MeshName;
   std::string EntityName;
   Player* GamePlayer;
   int PlayerId;
   CreateGameObjectEvent(std::string NodeN, std::string MeshN, std::string EntN,
-                        Ogre::Vector3 InitP, Player* P, int Id)
+                        Ogre::Vector3 InitP, Ogre::Vector3f Sn, Player* P,
+                        int Id)
       : NodeName(NodeN),
         MeshName(MeshN),
         EntityName(EntN),
         InitialPosition(InitP),
         GamePlayer(P),
-        PlayerId(Id) {}
+        PlayerId(Id),
+        SurfaceNormal(Sn) {}
 };
 
 struct CreateUnitProducingGameObjectEvent {
   std::string NodeName;
   Ogre::Vector3 InitialPosition;
+  Ogre::Vector3f SurfaceNormal;
   std::string MeshName;
   std::string EntityName;
   Player* GamePlayer;
+
   int UnitProdPerM;
   int PlayerId;
   CreateUnitProducingGameObjectEvent(std::string NodeN, std::string MeshN,
                                      std::string EntN, Ogre::Vector3 InitP,
+                                     Ogre::Vector3f Sn,
                                      Player* P, int UPM, int Id)
       : NodeName(NodeN),
         MeshName(MeshN),
@@ -73,11 +80,13 @@ struct CreateUnitProducingGameObjectEvent {
         InitialPosition(InitP),
         GamePlayer(P),
         UnitProdPerM(UPM),
-        PlayerId(Id) {}
+        PlayerId(Id),
+        SurfaceNormal(Sn) {}
 };
 struct CreateAttackingEntityEvent {
   std::string NodeName;
   Ogre::Vector3 InitialPosition;
+  Ogre::Vector3f SurfaceNormal;
   std::string MeshName;
   std::string EntityName;
   Player* GamePlayer;
@@ -86,7 +95,8 @@ struct CreateAttackingEntityEvent {
   float Power;
   int PlayerId;
   CreateAttackingEntityEvent(std::string NodeN, std::string MeshN,
-                             std::string EntN, Ogre::Vector3 InitP, Player* P,
+                             std::string EntN, Ogre::Vector3 InitP,
+                             Ogre::Vector3f Sn, Player* P,
                              float H, float R, float Pwr, int Id)
       : NodeName(NodeN),
         MeshName(MeshN),
@@ -96,12 +106,10 @@ struct CreateAttackingEntityEvent {
         Health(H),
         Radius(R),
         Power(Pwr),
-        PlayerId(Id) {}
+        PlayerId(Id),
+        SurfaceNormal(Sn) {}
 };
-struct ChangeGlobeVisibilityEvent {
-  bool Visible;
-  explicit ChangeGlobeVisibilityEvent(bool Vis) : Visible(Vis) {}
-};
+
 
 struct EntitiesInRangeUpdateEvent {
   Ogre::SceneNode* OriginalNode;

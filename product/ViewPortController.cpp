@@ -61,16 +61,12 @@ std::vector<float> ViewPortController::GetCameraAngle() {
   return Angles;
 }
 
-EndRayTraceResultEvent ViewPortController::TraceRay(StartRayTraceEvent Event) {
+// builds the world-space ray from the viewport's camera - no scene query
+// involved, the caller (RenderSystem) now tests this ray against the globe
+// mesh directly via GlobeInterface::CastRayFromWorld
+Ogre::Ray ViewPortController::GetWorldRayForDevice(StartRayTraceEvent Event) {
   Ogre::Camera* RayC = ViewPort->getCamera();
-
-  Ogre::Ray MouseRay =
-      RayC->getCameraToViewportRay(Event.Point[0], Event.Point[1]);
-
-  Event.RaySceneQuery->setRay(MouseRay);
-  Ogre::RaySceneQueryResult& Result = Event.RaySceneQuery->execute();
-
-  return (EndRayTraceResultEvent(Result, MouseRay));
+  return RayC->getCameraToViewportRay(Event.Point[0], Event.Point[1]);
 }
 
 // get the dimensions of a specific split screen instance
@@ -82,19 +78,65 @@ std::vector<int> ViewPortController::GetActualDimensions() {
   return std::vector<int>{ViewPort->getActualWidth(),
                             ViewPort->getActualHeight()};
 }
+
+void ViewPortController::SetOrbitDistanceLimits(Ogre::Real MinDistance,
+                                                Ogre::Real MaxDistance) {
+  mMinOrbitDistance = MinDistance;
+  mMaxOrbitDistance = MaxDistance;
+}
+
+void ViewPortController::InitOrbitCamera(const Ogre::Vector3& OrbitPoint,
+                                         Ogre::Real Distance) {
+  mOrbitYawRad = 0.f;
+  mOrbitPitchRad = 0.f;
+  mOrbitDistance =
+      Ogre::Math::Clamp(Distance, mMinOrbitDistance, mMaxOrbitDistance);
+
+  Ogre::SceneNode* CamNode = ViewPort->getCamera()->getParentSceneNode();
+  CamNode->setOrientation(Ogre::Quaternion::IDENTITY);
+  CamNode->setPosition(OrbitPoint + Ogre::Vector3(0, 0, mOrbitDistance));
+}
+
+void ViewPortController::ZoomOrbitingPoint(Ogre::Real Delta) {
+  mOrbitDistance = Ogre::Math::Clamp(mOrbitDistance + Delta, mMinOrbitDistance,
+                                     mMaxOrbitDistance);
+}
+
 void ViewPortController::MoveCameraOrbitingPoint2DMotion(
     Ogre::Vector2f RelativeMotion, Ogre::Vector3f OrbitPoint) {
+  constexpr Ogre::Real kPitchLimitRad = 1.53589f;  // ~88 degrees
+
+  mOrbitYawRad -= RelativeMotion.x;
+  mOrbitPitchRad -= RelativeMotion.y;
+  mOrbitPitchRad =
+      Ogre::Math::Clamp(mOrbitPitchRad, -kPitchLimitRad, kPitchLimitRad);
+
   Ogre::Camera* Camera = ViewPort->getCamera();
+  Ogre::SceneNode* CamNode = Camera->getParentSceneNode();
 
-  Ogre::Real Distance =
-      (Camera->getParentSceneNode()->getPosition() - OrbitPoint).length();
+  const Ogre::Quaternion YawRot(Ogre::Radian(mOrbitYawRad),
+                                Ogre::Vector3::UNIT_Y);
+  const Ogre::Quaternion PitchRot(Ogre::Radian(mOrbitPitchRad),
+                                  Ogre::Vector3::UNIT_X);
+  const Ogre::Quaternion Orientation = YawRot * PitchRot;
 
-  Camera->getParentSceneNode()->setPosition(OrbitPoint);
+  CamNode->setOrientation(Orientation);
+  CamNode->setPosition(OrbitPoint +
+                       Orientation * Ogre::Vector3(0, 0, mOrbitDistance));
+}
+void ViewPortController::MoveCameraDepth(int ScrollWheelY,
+                                         Ogre::Vector3f OrbitPoint) {
+  constexpr Ogre::Real kTempZoomSensitivity =
+      0.1f;  // TODO: expose as configurable setting
 
-  Camera->getParentSceneNode()->yaw(Ogre::Radian(RelativeMotion.x));
+  Ogre::Real Delta =
+      -static_cast<Ogre::Real>(ScrollWheelY) * kTempZoomSensitivity;
+  ZoomOrbitingPoint(Delta);
 
-  Camera->getParentSceneNode()->pitch(Ogre::Radian(RelativeMotion.y));
+  Ogre::Camera* Camera = ViewPort->getCamera();
+  Ogre::SceneNode* CamNode = Camera->getParentSceneNode();
 
-  Camera->getParentSceneNode()->translate(Ogre::Vector3(0, 0, Distance),
-                                          Ogre::Node::TS_LOCAL);
+  const Ogre::Quaternion Orientation = CamNode->getOrientation();
+  CamNode->setPosition(OrbitPoint +
+                       Orientation * Ogre::Vector3(0, 0, mOrbitDistance));
 }

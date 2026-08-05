@@ -14,6 +14,8 @@ InstanceOverseer::InstanceOverseer(InputListener* ParentListener,  //NOLINT [whi
       &InstanceOverseer::RegisterNewInstance, this, std::placeholders::_1));
   InstanceBus->Subscribe<UpstreamOrbitViewport2DEvent>(std::bind(
       &InstanceOverseer::MoveViewport2DOrbit, this, std::placeholders::_1));
+  InstanceBus->Subscribe<ChangeOrbitDepthEvent>(std::bind(
+      &InstanceOverseer::ChangeOrbitDepth, this, std::placeholders::_1));
   InstanceBus->Subscribe<RecheckViewPortSizeCommand>(
       std::bind(&InstanceOverseer::RecalculateViewPortSizes, this,
                 std::placeholders::_1));
@@ -101,6 +103,7 @@ void InstanceOverseer::ReviseAndUpdate(float DeltaTime) {
 }
 
 void InstanceOverseer::MoveViewport2DOrbit(UpstreamOrbitViewport2DEvent Event) {
+  RenderSystem& RS = RenderSystem::GetInstance();
   ViewPortController* ViewPortToMove = nullptr;
   try {
     ViewPortToMove = InstanceViewports.at(Event.InstanceRequesting);
@@ -111,8 +114,24 @@ void InstanceOverseer::MoveViewport2DOrbit(UpstreamOrbitViewport2DEvent Event) {
                     "be controlled")));
     return;
   }
-  // temporary demonstration using a fixed orbit point
-  // in future this will be set in the event
-  ViewPortToMove->MoveCameraOrbitingPoint2DMotion(
-      Event.RelativeMotion, Ogre::Vector3f(0.5f, 0.f, -5.f));
+
+  RS.RenderQueue->Enqueue(
+      ChangeCameraOrbitAngleEvent(Event.RelativeMotion, ViewPortToMove));
+}
+
+void InstanceOverseer::ChangeOrbitDepth(ChangeOrbitDepthEvent Event) {
+  RenderSystem& RS = RenderSystem::GetInstance();
+  ViewPortController* ViewPortToMove = nullptr;
+  try {
+    ViewPortToMove = InstanceViewports.at(Event.InstanceRequesting);
+  } catch (std::exception e) {
+    InstanceReporter->EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::BAD_VIEWPORT_CONTROL_REQUEST,
+        fmt::format("a game instance was not associated with any viewport to "
+                    "be controlled")));
+    return;
+  }
+
+  RS.RenderQueue->Enqueue(
+      ChangeCameraOrbitDepthEvent(Event.MouseWheelY, ViewPortToMove));
 }

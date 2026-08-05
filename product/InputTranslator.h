@@ -39,6 +39,7 @@ class InputTranslator {
 
   bool HasRelativeMotion();
   bool HoldingRMBorLT();
+  int GetMouseWheelY();
   void Update(float DeltaTime);
 
   void ResizeViewPortDimensions(ResizedViewPortEvent Event);
@@ -75,14 +76,18 @@ class InputTranslator {
 
   std::vector<float> JoyStickStates;
 
+  int ScrollWheelY = 0;
+
   void TranslateRawKB(RawKBEvent Event);
   void TranslateRawButton(RawButtonEvent Event);
   void TranslateRawCursor(RawCursorEvent Event);
   void TranslateRawAxis(RawAxisEvent Event);
   void TranslateRawMouseButton(RawMouseButtonEvent Event);
   void TranslateRawTriggerEvent(RawTriggerEvent Event);
+  void TranslasteRawMouseWheelEvent(RawMouseWheelEvent Event);
   void HandleReconnectPrompt(ReconnectControllerPromptEvent Event);
   void HideReconnectPrompt(ReconnectControllerSuccessEvent Event);
+
   float ApplyDeadzone(float Value, float Deadzone);
 
   std::vector<bool> MouseButtonStates = std::vector<bool>{false, false, false};

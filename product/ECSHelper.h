@@ -9,7 +9,9 @@
 #include "ECSFactoryEvent.h"
 #include "EventBus.h"
 #include "EventQueue.h"
+#include "RenderQueryFlags.h"
 #include "RenderSystem.h"
+#include "TraversalComponents.h"
 #include "UnitComponents.h"
 
 // creates ECS entities
@@ -32,6 +34,7 @@ class ECSHelper {
   void MoveEntityAlongSpherical(MoveEntityAlongSphericalEvent Event);
 
   void UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event);
+
  private:
   EventBus* FactoryBus;
 
@@ -55,9 +58,22 @@ class ECSHelper {
 
   void CreateAndAddRangeComponent(AddRangeComponentEvent Event);
 
+  void CreateAndAddExistableComponent(AddExistableComponentEvent Event);
+
+  void CreateAndAddMovableComponent(AddMovableComponentEvent Event);
+
   void IssueRangeRevalEvent(NotifyConsequentialEntityStateChange Notif);
 
   void OrientateAndAdditionalSetup(OrientateEntityEvent Event);
+
+  void ValidateEntitySelection(TrySelectEntityEvent Event);
+
+  void ValidateEntityMovement(TryMoveEntityEvent Event);
+
+  void TryUnselectEntity(TryUnselectEntityEvent Event);
+
+  void TryDestroyEntity(TryDestroyEntityEvent Event);
+
 
   OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
 

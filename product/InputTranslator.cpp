@@ -33,6 +33,10 @@ InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
       &InputTranslator::HandleReconnectPrompt, this, std::placeholders::_1));
   InputEvents->Subscribe<ReconnectControllerSuccessEvent>(std::bind(
       &InputTranslator::HideReconnectPrompt, this, std::placeholders::_1));
+  InputEvents->Subscribe<RawMouseWheelEvent>(
+      std::bind(&InputTranslator::TranslasteRawMouseWheelEvent, this,
+                std::placeholders::_1));
+
   CursorSensitivity = 1500.f;
   JoystickDeadzone = 0.1f;
 
@@ -348,6 +352,12 @@ void InputTranslator::TranslateRawAxis(RawAxisEvent Event) {
                                               ThreadNumber, ManagedDevice));
 }
 
+void InputTranslator::TranslasteRawMouseWheelEvent(RawMouseWheelEvent Event) {
+  ScrollWheelY = (Event.WheelEvent.direction == SDL_MOUSEWHEEL_FLIPPED)
+                     ? -Event.WheelEvent.preciseY
+                     : Event.WheelEvent.preciseY;
+}
+
 int InputTranslator::GetNumPressedKeys() {
   if (ManagedDevice->InputType == InputDeviceType::KBM) {
     return KeyStates.size();
@@ -400,6 +410,7 @@ void InputTranslator::Update(float DeltaTime) {
   // reset relative motion before events are processed, so if theres a tick
   // without motion then its cleared
   RelativeMotion = Ogre::Vector2f(0.f, 0.f);
+  ScrollWheelY = 0;
   WaitingEvents->Dispatch();
   ActionQueue->Dispatch();
   if (ManagedDevice->InputType == InputDeviceType::CONTROLLER) {
@@ -417,7 +428,7 @@ void InputTranslator::Update(float DeltaTime) {
   }
   CursorPos[0] = std::clamp(CursorPos[0], 0.f, ViewPortWidth);
   CursorPos[1] = std::clamp(CursorPos[1], 0.f, ViewPortHeight);
-
+  
   TranslationErrorReporter->Dispatch();
 }
 
@@ -431,6 +442,7 @@ bool InputTranslator::HasRelativeMotion() {
 bool InputTranslator::HoldingRMBorLT() {
   return MouseButtonStates[1] || TriggerStates[0];
 }
+int InputTranslator::GetMouseWheelY() { return ScrollWheelY; }
 
 std::vector<float> InputTranslator::GetViewPortDimensions() {
   return std::vector<float>{ViewPortWidth, ViewPortHeight};

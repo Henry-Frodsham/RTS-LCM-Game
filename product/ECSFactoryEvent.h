@@ -1,10 +1,13 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <Ogre/Ogre.h>
-
+#include <entt/entity/fwd.hpp>  
+#include <functional>           
+#include <utility>              
 #include <entt/entt.hpp>
 #include <memory>  // NOLINT(build/include_order)
 #include <string>  // NOLINT(build/include_order)
+#include "Biome.h"
 
 #include "Player.h"
 // an event solely used to create a new registry entry
@@ -105,9 +108,11 @@ struct MoveEntityAlongSphericalEvent {
 // orientate an entity to surface normal event, so it sits flat
 struct OrientateEntityEvent {
   std::shared_ptr<entt::entity> Entity;
+  Ogre::Vector3f SurfaceNormal;
   explicit OrientateEntityEvent(
-      std::shared_ptr<entt::entity> Ent)  // NOLINT(whitespace/line_length)
-      : Entity(Ent) {}
+      std::shared_ptr<entt::entity> Ent,
+      Ogre::Vector3f Sn)  // NOLINT(whitespace/line_length)
+      : Entity(Ent), SurfaceNormal(Sn) {}
 };
 
 struct AddRangeComponentEvent {
@@ -116,7 +121,62 @@ struct AddRangeComponentEvent {
       : Entity(Ent) {}
 };
 
+struct AddExistableComponentEvent {
+  std::shared_ptr<entt::entity> Entity;
+  std::vector<BiomeType> ExistableBiomes;
+  AddExistableComponentEvent(std::shared_ptr<entt::entity> Ent,
+                             std::vector<BiomeType> Biomes)
+      : Entity(Ent), ExistableBiomes(Biomes) {}
+};
+
+struct AddMovableComponentEvent {
+  std::shared_ptr<entt::entity> Entity;
+  std::vector<BiomeType> MovableBiomes;
+  AddMovableComponentEvent(std::shared_ptr<entt::entity> Ent,
+                             std::vector<BiomeType> Biomes)
+      : Entity(Ent), MovableBiomes(Biomes) {}
+};
+
 struct NotifyConsequentialEntityStateChange {
   Ogre::Entity* Entity;
   NotifyConsequentialEntityStateChange(Ogre::Entity* Ent) : Entity(Ent) {}
+};
+
+struct TryMoveEntityEvent {
+  entt::entity Entity;
+  Ogre::Vector3f Position;
+  Ogre::Vector3f SurfaceNormal;
+  BiomeType SelectedBiome;
+  Player* TryingPlayer;
+  TryMoveEntityEvent(entt::entity Ent, Ogre::Vector3f Pos, Ogre::Vector3f SN, BiomeType BT,Player* TPlayer)
+      : Entity(Ent),
+        Position(Pos),
+        SurfaceNormal(SN),
+        SelectedBiome(BT),
+        TryingPlayer(TPlayer) {}
+};
+
+struct TrySelectEntityEvent {
+  using CallbackFn = std::function<void(entt::entity)>;
+
+  entt::entity Entity;
+  Player* TryingPlayer;
+  CallbackFn Callback;
+
+  TrySelectEntityEvent(entt::entity Ent, Player* Plr, CallbackFn Cb)
+      : Entity(Ent), TryingPlayer(Plr), Callback(std::move(Cb)) {}
+
+  void Respond() const {
+    if (Callback) Callback(Entity);
+  }
+};
+
+struct TryUnselectEntityEvent {
+  entt::entity Entity;
+  TryUnselectEntityEvent(entt::entity Ent) : Entity(Ent) {}
+};
+
+struct TryDestroyEntityEvent {
+  entt::entity Entity;
+  TryDestroyEntityEvent(entt::entity Ent) : Entity(Ent) {}
 };

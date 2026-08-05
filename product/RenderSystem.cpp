@@ -7,6 +7,32 @@
 #include <utility>
 #include <vector>
 
+// anonymous namespace for entity selection
+namespace {
+bool RefineHit(const Ogre::Ray& WorldRay, Ogre::Entity* Ent,
+               float* OutWorldDistance) {
+  Ogre::SceneNode* Node = Ent->getParentSceneNode();
+  if (!Node || !Node->isInSceneGraph()) return false;
+
+  const auto World = Node->_getFullTransform();
+  const auto Inverse = World.inverse();
+
+  const Ogre::Vector3 LocalOrigin = Inverse * WorldRay.getOrigin();
+  const Ogre::Vector3 LocalAhead =
+      Inverse * (WorldRay.getOrigin() + WorldRay.getDirection());
+  const Ogre::Ray LocalRay(LocalOrigin,
+                           (LocalAhead - LocalOrigin).normalisedCopy());
+
+  const std::pair<bool, Ogre::Real> Test =
+      Ogre::Math::intersects(LocalRay, Ent->getBoundingBox());
+  if (!Test.first) return false;
+
+  const Ogre::Vector3 WorldHit = World * LocalRay.getPoint(Test.second);
+  *OutWorldDistance = (WorldHit - WorldRay.getOrigin()).length();
+  return true;
+}
+}  // namespace
+
 RenderSystem::RenderSystem()
     : OgreRoot(nullptr),
       SceneManager(nullptr),
@@ -16,6 +42,7 @@ RenderSystem::RenderSystem()
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
       ViewPortListener(nullptr),
+      GlobeInt(nullptr),
       RaySceneQuery(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
@@ -51,6 +78,8 @@ void RenderSystem::RenderFrame() {
   if (PrimaryWindow && !PrimaryWindow->isClosed()) {
     Ogre::WindowEventUtilities::messagePump();
     RenderQueue->Dispatch();
+    GlobeInt->Update();
+
     OgreRoot->renderOneFrame();
   } else {
     // window closed, shutdown app
@@ -123,6 +152,7 @@ void RenderSystem::Init() {
   SDL_SetRelativeMouseMode(SDL_FALSE);
   SDL_SetWindowGrab(SDLWindow, SDL_FALSE);
   SceneManager = OgreRoot->createSceneManager();
+  Ogre::MovableObject::setDefaultQueryFlags(0);
   SceneManager->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
 
   OverlaySystem = new Ogre::OverlaySystem();
@@ -130,9 +160,12 @@ void RenderSystem::Init() {
 
   InitBasicResourceGroups();
 
-  OverlayControl = new OverlayController();
+  GlobeInt = new GlobeInterface();
 
-  InitRenderResponsibility();
+  GlobeInt->Initialise();
+  GlobeInt->GenerateGlobe(GlobeCreationConfiguration(50, 34645764576));
+
+  OverlayControl = new OverlayController();
 
   DefaultViewPort = CreateViewPort();
 
@@ -141,6 +174,7 @@ void RenderSystem::Init() {
   RaySceneQuery = SceneManager->createRayQuery(Ogre::Ray());
   RaySceneQuery->setSortByDistance(true);
 
+  InitRenderResponsibility();
   IsInit = true;
 }
 
@@ -167,6 +201,13 @@ ViewPortController* RenderSystem::CreateViewPort() {
       Camera, CameraList.size());  // temporary Z order
 
   ViewPortController* newController = new ViewPortController(AddedViewPort);
+  const float SurfaceRadius =
+      GlobeInt->GetGlobeRadius() * 1.05f;  // matches kHeightScale headroom
+  newController->SetOrbitDistanceLimits(
+      SurfaceRadius * 2.f,    // never clip terrain
+      SurfaceRadius * 6.0f);  // arbitrary max zoom-out
+  newController->InitOrbitCamera(GlobeInt->GetGlobeCentre(),
+                                 SurfaceRadius * 1.12f);  // low orbit
 
   ViewPorts.push_back(newController);
 
@@ -193,6 +234,7 @@ void RenderSystem::ScaleViewPorts() {
 // delegates render responsibility to other classes
 // think of e.g OverlayController as an arm and RenderSystem as the body
 void RenderSystem::InitRenderResponsibility() {
+  // overlay controller
   RenderBus->Subscribe<OverlayAddBoxEvent>(std::bind(
       &OverlayController::AddBox, OverlayControl, std::placeholders::_1));
   RenderBus->Subscribe<OverlayAddTextEvent>(std::bind(
@@ -247,10 +289,18 @@ void RenderSystem::InitRenderResponsibility() {
       std::bind(&RenderSystem::DestroyEntity, this, std::placeholders::_1));
   RenderBus->Subscribe<RevalEntityRangeEvent>(
       std::bind(&RenderSystem::EntityRangeCheck, this, std::placeholders::_1));
+  RenderBus->Subscribe<ChangeCameraOrbitAngleEvent>(
+      std::bind(&RenderSystem::ChangeCameraOrbit, this, std::placeholders::_1));
+  RenderBus->Subscribe<ChangeCameraOrbitDepthEvent>(
+      std::bind(&RenderSystem::ChangeCameraDepth, this, std::placeholders::_1));
+
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
       std::bind(&ViewPortUpdateListener::AssignOverlayToViewport,
                 ViewPortListener, std::placeholders::_1));
+  // globe events
+  RenderBus->Subscribe<ChangeGlobeVisibilityEvent>(std::bind(
+      &GlobeInterface::ChangeGlobeVisibility, GlobeInt, std::placeholders::_1));
 }
 
 // initialise the basic resources (not game textures and mats etc)
@@ -331,8 +381,16 @@ void RenderSystem::CreateSceneNodeFromEvent(CreateSceneNodeEvent Event) {
   }
 }
 void RenderSystem::CreateEntityFromEvent(CreateOgreEntityEvent Event) {
-  Event.Entity.get() =
+  Ogre::Entity* Ent =
       SceneManager->createEntity(Event.EntityName, Event.MeshName);
+
+  Ent->setQueryFlags(Event.QueryFlags);
+
+  Ent->getUserObjectBindings().setUserAny(
+      "EnttHandle",
+      Ogre::Any(static_cast<uint32_t>(entt::to_integral(Event.OwningEntity))));
+
+  Event.Entity.get() = Ent;
 }
 void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
   Event.NodeToChange.get()->setPosition(Event.NewPosition);
@@ -340,14 +398,12 @@ void RenderSystem::SetNodePositionFromEvent(SetNodePositionEvent Event) {
 void RenderSystem::RotateEntityToSurfaceNormal(
     RotateEntToSurfaceNormalEvent Event) {
   Ogre::SceneNode* UnitSN = Event.Entity->getParentSceneNode();
-  Ogre::Vector3 HitPoint = UnitSN->getPosition();
-  Ogre::Vector3 SphereCenter = Event.RelativeRotCentre;
 
-  Ogre::Vector3 SurfaceNormal = (HitPoint - SphereCenter).normalisedCopy();
-
+  // Event.SurfaceNormal now comes straight from GlobeRayHit::SurfaceNormal,
+  // i.e. the actual face normal of the triangle that was hit - this already
+  // accounts for per-tile elevation, unlike the old sphere-radial normal.
   Ogre::Quaternion Rotation =
-      Ogre::Vector3::UNIT_Y.getRotationTo(SurfaceNormal);
-
+      Ogre::Vector3::UNIT_Y.getRotationTo(Event.SurfaceNormal);
   UnitSN->setOrientation(Rotation);
 }
 void RenderSystem::SetEntPosFromEvent(SetEntPositionEvent Event) {
@@ -420,22 +476,53 @@ void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
     }
 
     SceneManager->destroyQuery(Query);
-  }
-  catch (std::exception& e) {
+  } catch (std::exception& e) {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::RANGE_CHECK_FAILED));
   }
   Event.CallBackQueue->Enqueue(
       EntitiesInRangeUpdateEvent(Node, EntitiesInRange));
-
 }
 
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
   ViewPortController* RayVPC = FindViewPortFromDevice(Event.Device);
-  // populate here because i dont want a tonne of ogre singleton ptrs around
-  Event.RaySceneQuery = RaySceneQuery;
-  EndRayTraceResultEvent ResultEvent = RayVPC->TraceRay(Event);
-  Event.Callback(Event.CallQueue, ResultEvent);
+  Ogre::Ray WorldRay = RayVPC->GetWorldRayForDevice(Event);
+
+  GlobeRayHit Hit = GlobeInt->CastRayFromWorld(WorldRay);
+
+  RayPickResult Pick;
+  Pick.Terrain = Hit;
+
+  RaySceneQuery->setRay(WorldRay);
+  RaySceneQuery->setQueryMask(RenderQueryFlags::kSelectableUnit);
+  Ogre::RaySceneQueryResult& Results = RaySceneQuery->execute();
+
+  float BestDistance = std::numeric_limits<float>::max();
+  for (const Ogre::RaySceneQueryResultEntry& Entry : Results) {
+    Ogre::Entity* Candidate = dynamic_cast<Ogre::Entity*>(Entry.movable);
+    if (!Candidate) continue;
+
+    float Distance = 0.f;
+    if (!RefineHit(WorldRay, Candidate, &Distance)) continue;
+    if (Distance >= BestDistance) continue;
+
+    const Ogre::Any& Stored =
+        Candidate->getUserObjectBindings().getUserAny("EnttHandle");
+    if (!Stored.has_value()) continue;
+
+    BestDistance = Distance;
+    Pick.HitEntity =
+        static_cast<entt::entity>(Ogre::any_cast<uint32_t>(Stored));
+    Pick.EntityDistance = Distance;
+  }
+
+  // a unit only wins if it is in front of the terrain it stands on
+  if (Pick.HitEntity != entt::null && Hit.DidHit &&
+      Pick.EntityDistance > Hit.Distance) {
+    Pick.HitEntity = entt::null;
+  }
+
+  Event.Callback(Event.CallQueue, RayPickResult(Pick));
 }
 
 ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {
@@ -470,6 +557,15 @@ void RenderSystem::AddOwnerShipToEnt(AddOwnerShipToEntEvent Event) {
           0, Ogre::Vector4(Event.OwnershipId, 0.0f, 0.0f, 0.0f));
     }
   }
+}
+
+void RenderSystem::ChangeCameraOrbit(ChangeCameraOrbitAngleEvent Event) {
+  Event.ViewportToControl->MoveCameraOrbitingPoint2DMotion(
+      Event.RelativeMotion, GlobeInt->GetGlobeCentre());
+}
+void RenderSystem::ChangeCameraDepth(ChangeCameraOrbitDepthEvent Event) {
+  Event.ViewportToControl->MoveCameraDepth(Event.MouseWheelY,
+                                           GlobeInt->GetGlobeCentre());
 }
 // singleton access to prevent 2 Ogre roots being made
 RenderSystem& RenderSystem::GetInstance() {

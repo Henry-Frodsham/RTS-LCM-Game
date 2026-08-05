@@ -45,6 +45,8 @@ class InstanceOverseer {
   // non thread safe requests that must be handled here
   void MoveViewport2DOrbit(UpstreamOrbitViewport2DEvent Event);
 
+  void ChangeOrbitDepth(ChangeOrbitDepthEvent Event);
+
   // a new instance is made solely based on a new device being connected
   InputListener* DeviceListener;
 };

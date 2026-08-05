@@ -7,7 +7,7 @@
 
 TEST_CASE("ECS - constructor") { CHECK_NOTHROW(ErrorReporter Obj()); }
 TEST_CASE("ECS - basic entity creation") {
-  WorldManager* WM = new WorldManager(false);
+  WorldManager* WM = new WorldManager();
   RenderSystem& RS = RenderSystem::GetInstance();
   RS.Init();
   WM->WorldQueue->Enqueue(
@@ -22,7 +22,7 @@ TEST_CASE("ECS - basic entity creation") {
 }
 
 TEST_CASE("ECS - entity with mesh creation") {
-  WorldManager* WM = new WorldManager(false);
+  WorldManager* WM = new WorldManager();
   RenderSystem& RS = RenderSystem::GetInstance();
   RS.Init();
   WM->WorldQueue->Enqueue(CreateMeshWorldEntityEvent(

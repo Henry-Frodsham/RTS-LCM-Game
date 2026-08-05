@@ -11,3 +11,7 @@ struct CameraControlTrigger {
 struct RelativeMotionTrigger {
   RelativeMotionTrigger() {}
 };
+
+struct MouseWheelTrigger {
+  MouseWheelTrigger() {}
+};

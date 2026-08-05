@@ -6,6 +6,8 @@
 #include "RenderSystem.h"
 #include "ShareInfoEvent.h"
 #include "UIEvent.h"
+#include "Biome.h"
+#include <entt/entt.hpp>
 
 // the quick interaction wheel accessible through RT or right click
 class InteractionWheel {
@@ -28,12 +30,15 @@ class InteractionWheel {
   InputTranslator* DeviceState;
 
   EventBus* ForeignNotifBus;
-  Ogre::Entity* SelectedEntity;
-  Ogre::Vector2f LatLonR;
+  entt::entity SelectedEntity;
   Ogre::Vector3f Position;
-  void ShareInfoSelectedEntReceive(NotifySelectedEntity Event);
-  void ShareInfoLatLonReceive(NotifyLatLonEvent Event);
-  void ShareInfoHitPosReceive(NotifyPosEvent Event);
+  Ogre::Vector3f SurfaceNormal;
+
+  BiomeType SelectedBiome;
+
+  void ShareInfoSelectedEntReceive(NotifyEntityResult Event);
+  void SucessfulEntitySelection(SelectEntitySuccessEvent Event);
+  void ReceiveRayResult(NotifyRayResult Event);
   void CallBackButtonA(CallBackACommand Cmd);
   void CallBackButtonB(CallBackBCommand Cmd);
   void CallBackButtonC(CallBackCCommand Cmd);
