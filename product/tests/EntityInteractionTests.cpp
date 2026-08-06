@@ -11,5 +11,5 @@ TEST_CASE("basic matrixable interaction") {
   TestEvaluator.InteractionQueue->Enqueue(
       AttackEvent(TestAttackPower, &TestDefenderHP, 1.f));
   TestEvaluator.InteractionQueue->Dispatch();
-  CHECK(TestDefenderHP == -5); // NOLINT [readability/check]
+  CHECK(TestDefenderHP == 5); // NOLINT [readability/check]
 }

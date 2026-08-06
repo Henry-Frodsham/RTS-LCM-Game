@@ -18,10 +18,6 @@ EntityInteractionEvaluator::EntityInteractionEvaluator() {
 
 // evaluate an attack event using the predefined matrix
 void EntityInteractionEvaluator::ProcessAttackEvent(AttackEvent Event) {
-  Eigen::VectorXf Resource(2);
-  Resource << (Event.AttackPower), (*Event.DefendingEntityHP);
 
-  AttackMatrix->EvaluateAction(Resource, Event.DeltaTime);
-
-  *Event.DefendingEntityHP = Resource(1);
+  *Event.DefendingEntityHP -= Event.AttackPower * Event.DeltaTime;
 }

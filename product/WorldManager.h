@@ -39,7 +39,7 @@ class WorldManager {
   entt::registry Registry;
 
   EntityInteractionEvaluator* Evaluator;
-  void CreateGlobeMesh();
+
 
   void EvaluateTickerComponents(float DT);
 

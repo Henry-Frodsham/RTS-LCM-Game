@@ -258,7 +258,7 @@ void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
               Factory, CreateAttackingEntityEvent(Info.NodeName, "unit.mesh",
                                                   Info.EntName, Position,
                                                   SurfaceNormal, GamePlayer,
-                                                  100.f, 10.f, 0.3f, ThreadID));
+                                                  100.f, 10.f, 25.f, ThreadID));
       GamePlayer->AvailableUnits -= 1;
     }
   }

@@ -190,6 +190,8 @@ void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
     if (EntOgreComp->Entity != nullptr) {
       Rs.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
           EntOgreComp->Entity, Event.SurfaceNormal));
+      FactoryQueue->Enqueue(
+          NotifyConsequentialEntityStateChange(EntOgreComp->Entity));
     } else {
       FactoryQueue->Enqueue(Event);
     }
@@ -239,6 +241,8 @@ void ECSHelper::ValidateEntityMovement(TryMoveEntityEvent Event) {
         SetEntPositionEvent(MeshComp->Entity, Event.Position));
     Rs.RenderQueue->Enqueue(
         RotateEntToSurfaceNormalEvent(MeshComp->Entity, Event.SurfaceNormal));
+    FactoryQueue->Enqueue(
+        NotifyConsequentialEntityStateChange(MeshComp->Entity));
   }
 }
 

@@ -66,9 +66,14 @@ RenderSystem::~RenderSystem() {
 }
 // main render loop, run regardless of state to maintain responsiveness
 void RenderSystem::RenderFrame() {
+  auto FrameStart = std::chrono::high_resolution_clock::now();
+
   std::chrono::steady_clock::time_point CurrentTime =
       std::chrono::high_resolution_clock::now();
-  DeltaTime = std::chrono::duration<float>(CurrentTime - LastFrameTime).count();
+
+  DeltaTime = std::chrono::duration<float>(FrameStart - LastFrameTime).count();
+
+  LastFrameTime = FrameStart;
 
   // dispatch internal queue aswell
   RenderErrorReporter.Dispatch();
@@ -86,7 +91,6 @@ void RenderSystem::RenderFrame() {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::RENDER_WINDOW_CLOSED));
   }
-  LastFrameTime = std::chrono::high_resolution_clock::now();
 }
 
 // creates Ogre3d root and creates primary render window
