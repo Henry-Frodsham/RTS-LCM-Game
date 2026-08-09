@@ -76,6 +76,9 @@
     <ClCompile Include="Tile.cpp">
       <Filter>Source\World</Filter>
     </ClCompile>
+    <ClCompile Include="Pathfinder.cpp">
+      <Filter>Source\World</Filter>
+    </ClCompile>
     <ClCompile Include="GlobeInterface.cpp">
       <Filter>Source\Render</Filter>
     </ClCompile>
@@ -330,6 +333,9 @@
       <Filter>Headers\World</Filter>
     </ClInclude>
     <ClInclude Include="Tile.h">
+      <Filter>Headers\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinder.h">
       <Filter>Headers\World</Filter>
     </ClInclude>
     <ClInclude Include="GlobeInterface.h">

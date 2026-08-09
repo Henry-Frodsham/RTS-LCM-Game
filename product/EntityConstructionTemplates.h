@@ -99,7 +99,8 @@ inline std::shared_ptr<entt::entity> CreateAttackingGameObject(
   Factory->FactoryQueue->Enqueue<AddMovableComponentEvent>(
       AddMovableComponentEvent(
           Entity, {BiomeType::Desert, BiomeType::Forest, BiomeType::Plains,
-                   BiomeType::Tundra}));
+                   BiomeType::Tundra},
+          Event.MoveSpeed));
   return Entity;
 }
 

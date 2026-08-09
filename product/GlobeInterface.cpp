@@ -54,3 +54,21 @@ GlobeRayHit GlobeInterface::CastRayFromWorld(const Ogre::Ray& WorldRay) const {
   }
   return Hit;
 }
+
+uint32_t GlobeInterface::FindTileAtWorldPosition(
+    const Ogre::Vector3& WorldPos) const {
+  // same NodeWorldPos undo as CastRayFromWorld, so a world position resolves
+  // to the same tile a ray-cast hit at that point would
+  const Ogre::Vector3 NodeWorldPos = GlobeSceneNode->_getDerivedPosition();
+  const Ogre::Vector3 LocalDir = WorldPos - NodeWorldPos - CGlobe->GetCenter();
+  return CGlobe->FindTileAt(LocalDir);
+}
+
+Ogre::Vector3f GlobeInterface::GetWorldPositionForTile(uint32_t TileID) const {
+  const Ogre::Vector3 NodeWorldPos = GlobeSceneNode->_getDerivedPosition();
+  return CGlobe->GetTileSurfacePosition(TileID) + NodeWorldPos;
+}
+
+Ogre::Vector3f GlobeInterface::GetWorldNormalForTile(uint32_t TileID) const {
+  return CGlobe->GetTileSurfaceNormal(TileID);
+}

@@ -131,9 +131,10 @@ struct AddExistableComponentEvent {
 struct AddMovableComponentEvent {
   std::shared_ptr<entt::entity> Entity;
   std::vector<BiomeType> MovableBiomes;
+  float MoveSpeed;
   AddMovableComponentEvent(std::shared_ptr<entt::entity> Ent,
-                             std::vector<BiomeType> Biomes)
-      : Entity(Ent), MovableBiomes(Biomes) {}
+                             std::vector<BiomeType> Biomes, float Speed)
+      : Entity(Ent), MovableBiomes(Biomes), MoveSpeed(Speed) {}
 };
 
 struct NotifyConsequentialEntityStateChange {
@@ -178,4 +179,21 @@ struct TryUnselectEntityEvent {
 struct TryDestroyEntityEvent {
   entt::entity Entity;
   TryDestroyEntityEvent(entt::entity Ent) : Entity(Ent) {}
+};
+
+// issued every time a hold-to-preview drag's hovered tile changes
+struct RequestPathPreviewEvent {
+  entt::entity Entity;
+  Ogre::Vector3f Position;
+  BiomeType SelectedBiome;
+  Player* TryingPlayer;
+  RequestPathPreviewEvent(entt::entity Ent, Ogre::Vector3f Pos, BiomeType BT,
+                          Player* TPlayer)
+      : Entity(Ent), Position(Pos), SelectedBiome(BT), TryingPlayer(TPlayer) {}
+};
+
+// issued when the hold-to-preview drag is released, committing whatever was
+// last previewed
+struct CommitPathPreviewEvent {
+  CommitPathPreviewEvent() {}
 };

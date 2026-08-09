@@ -44,6 +44,16 @@ class InputTranslator {
   // the "hold to orbit the camera" modifier, right mouse or left trigger
   bool HoldingRMBorLT() const;
 
+  // current cursor position in normalised 0-1 viewport space, same
+  // convention as ActionContext::MouseX/Y (see MakeContext) - lets a caller
+  // build a StartRayTraceEvent for the current frame without waiting on a
+  // click event
+  std::vector<float> GetNormalizedCursorPosition() const {
+    const float X = (ViewPortWidth > 0.f) ? CursorPos[0] / ViewPortWidth : 0.f;
+    const float Y = (ViewPortHeight > 0.f) ? CursorPos[1] / ViewPortHeight : 0.f;
+    return {X, Y};
+  }
+
   int GetNumPressedKeys();
 
   std::vector<float> GetCurrentAxis();

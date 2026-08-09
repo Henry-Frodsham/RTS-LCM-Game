@@ -46,6 +46,8 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::ValidateEntitySelection, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryMoveEntityEvent>(std::bind(
       &ECSHelper::ValidateEntityMovement, this, std::placeholders::_1));
+  FactoryBus->Subscribe<RequestPathPreviewEvent>(std::bind(
+      &ECSHelper::RequestPathPreview, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryUnselectEntityEvent>(
       std::bind(&ECSHelper::TryUnselectEntity, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryDestroyEntityEvent>(
@@ -178,7 +180,7 @@ void ECSHelper::CreateAndAddExistableComponent(
 
 void ECSHelper::CreateAndAddMovableComponent(AddMovableComponentEvent Event) {
   auto& Component = RegistryToUse->emplace<MovableComponent>(
-      *Event.Entity, Event.MovableBiomes);
+      *Event.Entity, Event.MovableBiomes, Event.MoveSpeed);
 }
 
 void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
@@ -235,15 +237,82 @@ void ECSHelper::ValidateEntityMovement(TryMoveEntityEvent Event) {
     return;
   }
   if (OComp->GamePlayer == Event.TryingPlayer) {
-    // success
-    RenderSystem& Rs = RenderSystem::GetInstance();
-    Rs.RenderQueue->Enqueue(
-        SetEntPositionEvent(MeshComp->Entity, Event.Position));
-    Rs.RenderQueue->Enqueue(
-        RotateEntToSurfaceNormalEvent(MeshComp->Entity, Event.SurfaceNormal));
-    FactoryQueue->Enqueue(
-        NotifyConsequentialEntityStateChange(MeshComp->Entity));
+    // success - resolve the tile-graph endpoints and hand off to the
+    // incremental pathfinder rather than teleporting directly. The actual
+    // walk happens in WorldManager::AdvanceMovingEntities once a path is
+    // found (WorldManager::AdvancePathRequests)
+    const auto Tiles = ResolveMoveTiles(MeshComp, Event.Position);
+    if (!Tiles) {
+      ParentReporter->EnqueueError(
+          ErrorDetail::CreateError(ErrorCode::PATH_INVALID_TILE));
+      return;
+    }
+    const auto [StartTile, GoalTile] = *Tiles;
+
+    // a new move order stops the unit where it is and re-routes, rather
+    // than letting it glide on the old path while the new search resolves.
+    // also drops any in-flight preview so it can't linger once the unit is
+    // actually walking a different path
+    MovComp->Path.clear();
+    MovComp->PreviewPath.clear();
+    RegistryToUse->remove<PathPreviewRequestComponent>(Event.Entity);
+    RenderSystem::GetInstance().RenderQueue->Enqueue(
+        UpdatePathPreviewEvent({}, false));
+
+    RegistryToUse->emplace_or_replace<PathRequestComponent>(
+        Event.Entity, GoalTile,
+        Pathfinder::BeginSearch(*RenderSystem::GetInstance()
+                                     .GetGlobeInterface()
+                                     ->GetGlobe(),
+                                StartTile, GoalTile));
   }
+}
+
+void ECSHelper::RequestPathPreview(RequestPathPreviewEvent Event) {
+  if (!RegistryToUse->valid(Event.Entity) || !Event.TryingPlayer) {
+    return;
+  }
+  OwnershipComponent* OComp =
+      RegistryToUse->try_get<OwnershipComponent>(Event.Entity);
+  MeshComponent* MeshComp = RegistryToUse->try_get<MeshComponent>(Event.Entity);
+  MovableComponent* MovComp =
+      RegistryToUse->try_get<MovableComponent>(Event.Entity);
+  if (!OComp || !MeshComp || !MovComp) {
+    return;
+  }
+  if (!MovComp->MovableBiomes.at(Event.SelectedBiome)) {
+    return;
+  }
+  if (OComp->GamePlayer != Event.TryingPlayer) {
+    return;
+  }
+
+  // unlike a real move order, a preview missing its tiles is a constant,
+  // expected occurrence while dragging over water/mountains - not an error
+  const auto Tiles = ResolveMoveTiles(MeshComp, Event.Position);
+  if (!Tiles) {
+    return;
+  }
+  const auto [StartTile, GoalTile] = *Tiles;
+
+  RegistryToUse->emplace_or_replace<PathPreviewRequestComponent>(
+      Event.Entity, GoalTile,
+      Pathfinder::BeginSearch(
+          *RenderSystem::GetInstance().GetGlobeInterface()->GetGlobe(),
+          StartTile, GoalTile));
+}
+
+std::optional<std::pair<uint32_t, uint32_t>> ECSHelper::ResolveMoveTiles(
+    MeshComponent* MeshComp, Ogre::Vector3f DestinationWorldPos) {
+  GlobeInterface* GInt = RenderSystem::GetInstance().GetGlobeInterface();
+  const uint32_t GoalTile = GInt->FindTileAtWorldPosition(DestinationWorldPos);
+  const uint32_t StartTile = GInt->FindTileAtWorldPosition(
+      MeshComp->Entity->getParentSceneNode()->getPosition());
+
+  if (GoalTile == InvalidTileID || StartTile == InvalidTileID) {
+    return std::nullopt;
+  }
+  return std::make_pair(StartTile, GoalTile);
 }
 
 void ECSHelper::TryUnselectEntity(TryUnselectEntityEvent Event) {

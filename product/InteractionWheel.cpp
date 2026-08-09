@@ -24,6 +24,8 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
                 std::placeholders::_1));
   ForeignNotifBus->Subscribe<NotifyRayResult>(std::bind(
       &InteractionWheel::ReceiveRayResult, this, std::placeholders::_1));
+  ForeignNotifBus->Subscribe<CommitPathPreviewEvent>(std::bind(
+      &InteractionWheel::CommitPathPreview, this, std::placeholders::_1));
   ForeignNotifBus->Subscribe<SelectEntitySuccessEvent>(
       std::bind(&InteractionWheel::SucessfulEntitySelection, this,
                 std::placeholders::_1));
@@ -133,6 +135,40 @@ void InteractionWheel::ReceiveRayResult(NotifyRayResult Event) {
   Position = Event.Pos;
   SurfaceNormal = Event.SurfaceNormal;
   SelectedBiome = Event.Biome;
+
+  if (!PreviewActive || SelectedEntity == entt::null) {
+    return;
+  }
+
+  RenderSystem& RS = RenderSystem::GetInstance();
+  const uint32_t HoveredTile =
+      RS.GetGlobeInterface()->FindTileAtWorldPosition(Event.Pos);
+  if (HoveredTile == LastPreviewedTile) {
+    return;
+  }
+  LastPreviewedTile = HoveredTile;
+
+  Factory->FactoryQueue->Enqueue(RequestPathPreviewEvent(
+      SelectedEntity, Position, SelectedBiome, GamePlayer));
+}
+
+void InteractionWheel::SetPreviewActive(bool Active) {
+  if (PreviewActive == Active) {
+    return;
+  }
+  PreviewActive = Active;
+  if (!Active) {
+    LastPreviewedTile = InvalidTileID;
+    RenderSystem::GetInstance().RenderQueue->Enqueue(
+        UpdatePathPreviewEvent({}, false));
+  }
+}
+
+void InteractionWheel::CommitPathPreview(CommitPathPreviewEvent Event) {
+  if (SelectedEntity != entt::null) {
+    Factory->FactoryQueue->Enqueue(TryMoveEntityEvent(
+        SelectedEntity, Position, SurfaceNormal, SelectedBiome, GamePlayer));
+  }
 }
 void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   ActionContext Context = Cmd.Context;
@@ -238,11 +274,8 @@ void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
   }
 }
 void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
-  // move
-  if (SelectedEntity != entt::null) {
-    Factory->FactoryQueue->Enqueue(TryMoveEntityEvent(
-        SelectedEntity, Position, SurfaceNormal, SelectedBiome, GamePlayer));
-  }
+  // move - same commit path the hold-to-preview gesture uses
+  CommitPathPreview(CommitPathPreviewEvent());
 }
 void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
   // unit
@@ -258,7 +291,8 @@ void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
               Factory, CreateAttackingEntityEvent(Info.NodeName, "unit.mesh",
                                                   Info.EntName, Position,
                                                   SurfaceNormal, GamePlayer,
-                                                  100.f, 10.f, 25.f, ThreadID));
+                                                  100.f, 10.f, 25.f, ThreadID,
+                                                  0.3f));
       GamePlayer->AvailableUnits -= 1;
     }
   }

@@ -43,6 +43,20 @@ class WorldManager {
 
   void EvaluateTickerComponents(float DT);
 
+  // advances any in-progress pathfinding searches by a bounded number of
+  // node expansions per entity per tick (see Pathfinder::kMaxExpansionsPerTick)
+  void AdvancePathRequests();
+
+  // same budget-limited stepping as AdvancePathRequests, but for hold-to-
+  // preview drags (MovableComponent::PreviewPath) - stays silent on
+  // PathStatus::Failed since a preview missing its tiles is a constant,
+  // expected occurrence rather than a reportable error
+  void AdvancePathPreviewRequests();
+
+  // steps entities with an active MovableComponent path towards their next
+  // waypoint by Speed * DT, popping waypoints as they're reached
+  void AdvanceMovingEntities(float DT);
+
   std::unordered_map<Ogre::SceneNode*, std::unordered_set<Ogre::SceneNode*>>
       CachedRangeEntities;
 

@@ -63,6 +63,12 @@ class RenderSystem {
 
   GlobeInterface* GlobeInt;
 
+  // hold-to-preview path line, lazily created on first use. single shared
+  // object rather than one per player - there's no per-viewport visibility
+  // masking in this engine yet (see ViewPortController::setVisibilityMask),
+  // and the existing selection highlight is likewise global/unmasked
+  Ogre::ManualObject* PathPreviewLine;
+
   Ogre::RenderWindowDescription RenderWindowSettings;
 
   EventBus* RenderBus;
@@ -108,6 +114,8 @@ class RenderSystem {
   void DestroyNode(DestroyNodeEvent Event);
   void DestroyEntity(DestroyEntityEvent Event);
 
+  void UpdatePathPreview(UpdatePathPreviewEvent Event);
+
  public:
   static RenderSystem& GetInstance();
   // RenderSystem(const RenderSystem&) = delete;
@@ -134,6 +142,8 @@ class RenderSystem {
   Ogre::Entity* CreateEntity(std::string Name, std::string MeshName);
 
   ViewPortController* GetPrimaryViewport();
+
+  GlobeInterface* GetGlobeInterface() const { return GlobeInt; }
 
   float GetDeltaTime();
 

@@ -43,6 +43,7 @@ RenderSystem::RenderSystem()
       SDLWindow(nullptr),
       ViewPortListener(nullptr),
       GlobeInt(nullptr),
+      PathPreviewLine(nullptr),
       RaySceneQuery(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
@@ -297,6 +298,8 @@ void RenderSystem::InitRenderResponsibility() {
       std::bind(&RenderSystem::ChangeCameraOrbit, this, std::placeholders::_1));
   RenderBus->Subscribe<ChangeCameraOrbitDepthEvent>(
       std::bind(&RenderSystem::ChangeCameraDepth, this, std::placeholders::_1));
+  RenderBus->Subscribe<UpdatePathPreviewEvent>(
+      std::bind(&RenderSystem::UpdatePathPreview, this, std::placeholders::_1));
 
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
@@ -562,6 +565,26 @@ void RenderSystem::AddOwnerShipToEnt(AddOwnerShipToEntEvent Event) {
           0, Ogre::Vector4(Event.OwnershipId, 0.0f, 0.0f, 0.0f));
     }
   }
+}
+
+void RenderSystem::UpdatePathPreview(UpdatePathPreviewEvent Event) {
+  if (!PathPreviewLine) {
+    PathPreviewLine = SceneManager->createManualObject("PathPreviewLine");
+    SceneManager->getRootSceneNode()->attachObject(PathPreviewLine);
+  }
+
+  if (!Event.Visible || Event.Points.size() < 2) {
+    PathPreviewLine->setVisible(false);
+    return;
+  }
+
+  PathPreviewLine->clear();
+  PathPreviewLine->begin("YELLOW", Ogre::RenderOperation::OT_LINE_STRIP);
+  for (const Ogre::Vector3f& Point : Event.Points) {
+    PathPreviewLine->position(Point);
+  }
+  PathPreviewLine->end();
+  PathPreviewLine->setVisible(true);
 }
 
 void RenderSystem::ChangeCameraOrbit(ChangeCameraOrbitAngleEvent Event) {

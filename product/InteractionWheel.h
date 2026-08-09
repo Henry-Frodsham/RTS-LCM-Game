@@ -5,6 +5,7 @@
 #include "InteractionWheelCallbackCommands.h"
 #include "RenderSystem.h"
 #include "ShareInfoEvent.h"
+#include "Tile.h"
 #include "UIEvent.h"
 #include "Biome.h"
 #include <entt/entt.hpp>
@@ -21,6 +22,14 @@ class InteractionWheel {
 
   void OnPressActionCommand(PressActionCommand Cmd);
 
+  bool HasSelection() const { return SelectedEntity != entt::null; }
+
+  // called every frame by PlayerGeneralControl - true while the hold-to-
+  // preview gesture (right click / left trigger + a selected unit) is
+  // active. going false hides the preview line and forgets the last
+  // hovered tile, whether that's from a release or a deselection
+  void SetPreviewActive(bool Active);
+
   EventQueue* ForeignNotifQueue;
   ECSHelper* Factory;
 
@@ -36,9 +45,13 @@ class InteractionWheel {
 
   BiomeType SelectedBiome;
 
+  bool PreviewActive = false;
+  uint32_t LastPreviewedTile = InvalidTileID;
+
   void ShareInfoSelectedEntReceive(NotifyEntityResult Event);
   void SucessfulEntitySelection(SelectEntitySuccessEvent Event);
   void ReceiveRayResult(NotifyRayResult Event);
+  void CommitPathPreview(CommitPathPreviewEvent Event);
   void CallBackButtonA(CallBackACommand Cmd);
   void CallBackButtonB(CallBackBCommand Cmd);
   void CallBackButtonC(CallBackCCommand Cmd);

@@ -94,10 +94,12 @@ struct CreateAttackingEntityEvent {
   float Radius;
   float Power;
   int PlayerId;
+  float MoveSpeed;
   CreateAttackingEntityEvent(std::string NodeN, std::string MeshN,
                              std::string EntN, Ogre::Vector3 InitP,
                              Ogre::Vector3f Sn, Player* P,
-                             float H, float R, float Pwr, int Id)
+                             float H, float R, float Pwr, int Id,
+                             float MoveS)
       : NodeName(NodeN),
         MeshName(MeshN),
         EntityName(EntN),
@@ -107,7 +109,8 @@ struct CreateAttackingEntityEvent {
         Radius(R),
         Power(Pwr),
         PlayerId(Id),
-        SurfaceNormal(Sn) {}
+        SurfaceNormal(Sn),
+        MoveSpeed(MoveS) {}
 };
 
 

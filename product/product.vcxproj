@@ -257,6 +257,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerGeneralControl.cpp" />
     <ClCompile Include="PlayerUI.cpp" />
+    <ClCompile Include="Pathfinder.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TransformationMatrix.cpp" />
@@ -307,6 +308,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="PlayerEvent.h" />
     <ClInclude Include="PlayerGeneralControl.h" />
     <ClInclude Include="PlayerUI.h" />
+    <ClInclude Include="Pathfinder.h" />
     <ClInclude Include="RayTraceEvent.h" />
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderQueryFlags.h" />

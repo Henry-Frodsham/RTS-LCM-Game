@@ -29,4 +29,10 @@ class PlayerGeneralControl {
   EventQueue* TriggerQueue;
 
   Ogre::Entity* SelectedEntity;
+
+  // issues a fresh raytrace at the current cursor position, used every
+  // frame while hold-to-preview is active (OnPress only fires once, on click)
+  void TriggerPreviewRayTrace();
+
+  bool WasPreviewing = false;
 };

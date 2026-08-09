@@ -1,7 +1,9 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <entt/entt.hpp>
+#include <optional>  // NOLINT(build/include_order)
 #include <string>  // NOLINT(build/include_order)
+#include <utility>  // NOLINT(build/include_order)
 
 #include "BaseComponents.h"
 #include "CityComponents.h"
@@ -69,6 +71,15 @@ class ECSHelper {
   void ValidateEntitySelection(TrySelectEntityEvent Event);
 
   void ValidateEntityMovement(TryMoveEntityEvent Event);
+
+  void RequestPathPreview(RequestPathPreviewEvent Event);
+
+  // resolves the tile-graph start/goal for a move (real or preview) given a
+  // destination world position and the entity's current MeshComponent
+  // position - shared by ValidateEntityMovement and RequestPathPreview since
+  // both need the identical GlobeInterface round-trip
+  std::optional<std::pair<uint32_t, uint32_t>> ResolveMoveTiles(
+      MeshComponent* MeshComp, Ogre::Vector3f DestinationWorldPos);
 
   void TryUnselectEntity(TryUnselectEntityEvent Event);
 

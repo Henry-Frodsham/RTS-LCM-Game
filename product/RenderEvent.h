@@ -111,3 +111,12 @@ struct ChangeCameraOrbitDepthEvent {
   ChangeCameraOrbitDepthEvent(float WheelY, ViewPortController* VPC)
       : WheelDelta(WheelY), ViewportToControl(VPC) {}
 };
+
+// draws (or hides) the hold-to-preview path line. Points are world-space,
+// in walk order starting from the previewing unit's current position
+struct UpdatePathPreviewEvent {
+  std::vector<Ogre::Vector3f> Points;
+  bool Visible;
+  UpdatePathPreviewEvent(std::vector<Ogre::Vector3f> Pts, bool Vis)
+      : Points(std::move(Pts)), Visible(Vis) {}
+};
