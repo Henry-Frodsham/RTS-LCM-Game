@@ -118,6 +118,17 @@ void InteractionWheel::UpdateAndWarmupContext() {
 }
 
 void InteractionWheel::ShareInfoSelectedEntReceive(NotifyEntityResult Event) {
+  // the friendly check ECSHelper::ValidateEntitySelection would otherwise do
+  // is done here first, synchronously, so a click on an enemy (or ownerless)
+  // entity can fall through to a deselect - ValidateEntitySelection has no
+  // failure path back to us, only a success one
+  OwnershipComponent* OComp =
+      Factory->TryGetComponent<OwnershipComponent>(Event.Entity);
+  if (!OComp || OComp->GamePlayer != GamePlayer) {
+    DeselectCurrent();
+    return;
+  }
+
   Factory->FactoryQueue->Enqueue(TrySelectEntityEvent(
       Event.Entity, GamePlayer, [Queue = ForeignNotifQueue](entt::entity Ent) {
         Queue->Enqueue(SelectEntitySuccessEvent(Ent));
@@ -131,12 +142,28 @@ void InteractionWheel::SucessfulEntitySelection(
   SelectedEntity = Event.Entity;
 }
 
+void InteractionWheel::DeselectCurrent() {
+  if (SelectedEntity == entt::null) {
+    return;
+  }
+  Factory->FactoryQueue->Enqueue(TryUnselectEntityEvent(SelectedEntity));
+  SelectedEntity = entt::null;
+}
+
 void InteractionWheel::ReceiveRayResult(NotifyRayResult Event) {
   Position = Event.Pos;
   SurfaceNormal = Event.SurfaceNormal;
   SelectedBiome = Event.Biome;
 
-  if (!PreviewActive || SelectedEntity == entt::null) {
+  if (!PreviewActive) {
+    // not mid hold-to-preview drag, so this is a genuine click (LMB / right
+    // trigger) landing on empty ground rather than a drag-hover tick -
+    // same "didn't click a friendly unit" case as ShareInfoSelectedEntReceive
+    DeselectCurrent();
+    return;
+  }
+
+  if (SelectedEntity == entt::null) {
     return;
   }
 

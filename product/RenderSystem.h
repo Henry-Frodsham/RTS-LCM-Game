@@ -64,9 +64,10 @@ class RenderSystem {
   GlobeInterface* GlobeInt;
 
   // hold-to-preview path line, lazily created on first use. single shared
-  // object rather than one per player - there's no per-viewport visibility
-  // masking in this engine yet (see ViewPortController::setVisibilityMask),
-  // and the existing selection highlight is likewise global/unmasked
+  // object rather than one per player - PATH_PREVIEW.material discards the
+  // fragment per-viewport based on ownerID vs viewingPlayerID, the same
+  // mechanism RED_UNIT/WHITE use for the selection highlight (see
+  // AddOwnerShipToEnt), so one ManualObject is enough
   Ogre::ManualObject* PathPreviewLine;
 
   Ogre::RenderWindowDescription RenderWindowSettings;

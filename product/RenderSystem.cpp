@@ -31,6 +31,49 @@ bool RefineHit(const Ogre::Ray& WorldRay, Ogre::Entity* Ent,
   *OutWorldDistance = (WorldHit - WorldRay.getOrigin()).length();
   return true;
 }
+
+// half-width of the path preview ribbon, as a fraction of the globe radius -
+// relative rather than a fixed world unit so it stays proportionate if the
+// globe is ever resized
+constexpr float kPathPreviewHalfWidthFraction = 0.01f;
+
+// Ogre's manual-object line strips have no width control and render as a
+// single-pixel hairline, which isn't visible enough for a move preview. this
+// builds a flat ribbon (a triangle strip of quads lying on the surface)
+// along the centreline instead, offsetting each point perpendicular to the
+// path using the local "up" (radial direction from the globe centre) as an
+// approximate surface normal
+void AppendPathPreviewRibbon(Ogre::ManualObject* Obj,
+                             const std::vector<Ogre::Vector3f>& Points,
+                             const Ogre::Vector3f& GlobeCentre,
+                             float HalfWidth) {
+  const size_t Count = Points.size();
+  for (size_t i = 0; i < Count; ++i) {
+    Ogre::Vector3f Tangent;
+    if (i == 0) {
+      Tangent = Points[i + 1] - Points[i];
+    } else if (i == Count - 1) {
+      Tangent = Points[i] - Points[i - 1];
+    } else {
+      Tangent = Points[i + 1] - Points[i - 1];
+    }
+    if (Tangent.squaredLength() < 1e-12f) {
+      Tangent = Ogre::Vector3f::UNIT_X;
+    }
+    Tangent.normalise();
+
+    const Ogre::Vector3f Up = (Points[i] - GlobeCentre).normalisedCopy();
+    Ogre::Vector3f Side = Tangent.crossProduct(Up);
+    if (Side.squaredLength() < 1e-12f) {
+      Side = Tangent.perpendicular();
+    }
+    Side.normalise();
+    Side *= HalfWidth;
+
+    Obj->position(Points[i] - Side);
+    Obj->position(Points[i] + Side);
+  }
+}
 }  // namespace
 
 RenderSystem::RenderSystem()
@@ -578,12 +621,21 @@ void RenderSystem::UpdatePathPreview(UpdatePathPreviewEvent Event) {
     return;
   }
 
+  const float HalfWidth =
+      GlobeInt->GetGlobeRadius() * kPathPreviewHalfWidthFraction;
+
   PathPreviewLine->clear();
-  PathPreviewLine->begin("YELLOW", Ogre::RenderOperation::OT_LINE_STRIP);
-  for (const Ogre::Vector3f& Point : Event.Points) {
-    PathPreviewLine->position(Point);
-  }
+  PathPreviewLine->begin("PATH_PREVIEW", Ogre::RenderOperation::OT_TRIANGLE_STRIP);
+  AppendPathPreviewRibbon(PathPreviewLine, Event.Points,
+                          GlobeInt->GetGlobeCentre(), HalfWidth);
   PathPreviewLine->end();
+
+  // same per-section custom param unit materials read off SubEntity (see
+  // AddOwnerShipToEnt) - lets PATH_PREVIEW.material discard the line on
+  // every viewport except the previewing player's
+  PathPreviewLine->getSection(0)->setCustomParameter(
+      0, Ogre::Vector4(static_cast<float>(Event.OwnerID), 0.0f, 0.0f, 0.0f));
+
   PathPreviewLine->setVisible(true);
 }
 

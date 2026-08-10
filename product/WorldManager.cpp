@@ -85,10 +85,10 @@ void WorldManager::AdvancePathPreviewRequests() {
   const Globe* WorldGlobe = GInt->GetGlobe();
 
   auto View = Registry.view<PathPreviewRequestComponent, MovableComponent,
-                            MeshComponent>();
+                            MeshComponent, OwnershipComponent>();
   std::vector<entt::entity> Resolved;
 
-  for (auto [Entity, Request, Mover, MeshComp] : View.each()) {
+  for (auto [Entity, Request, Mover, MeshComp, Ownership] : View.each()) {
     const PathStatus Status =
         Pathfinder::Step(Request.Search, *WorldGlobe, Mover.MovableBiomes,
                          Pathfinder::kMaxExpansionsPerTick);
@@ -105,7 +105,7 @@ void WorldManager::AdvancePathPreviewRequests() {
       }
 
       RenderSystem::GetInstance().RenderQueue->Enqueue(
-          UpdatePathPreviewEvent(Points, true));
+          UpdatePathPreviewEvent(Points, true, Ownership.PlayerID));
     } else if (Status == PathStatus::Failed) {
       // unlike a real move, a preview that can't find a route is expected
       // and constant while dragging over water/mountains - no error report

@@ -51,6 +51,10 @@ class InteractionWheel {
   void ShareInfoSelectedEntReceive(NotifyEntityResult Event);
   void SucessfulEntitySelection(SelectEntitySuccessEvent Event);
   void ReceiveRayResult(NotifyRayResult Event);
+  // deselects whatever's currently selected, if anything - used when a
+  // click (LMB / right trigger) lands on something that isn't a friendly
+  // unit: an enemy entity, or empty ground
+  void DeselectCurrent();
   void CommitPathPreview(CommitPathPreviewEvent Event);
   void CallBackButtonA(CallBackACommand Cmd);
   void CallBackButtonB(CallBackBCommand Cmd);

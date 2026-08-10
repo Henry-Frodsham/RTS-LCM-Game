@@ -1,0 +1,31 @@
+// Hold-to-preview path line material. Same ViewerParams/ownerID plumbing as
+// RED_UNIT/WHITE (see RenderSystem::AddOwnerShipToEnt), but discards
+// outright instead of colour-matching a fallback - there's no "correct"
+// unselected look for a line that just shouldn't be drawn at all on other
+// players' viewports.
+
+fragment_program PathPreviewFP glsl
+{
+    source path_preview_fp.glsl
+}
+
+material PATH_PREVIEW
+{
+    technique
+    {
+        pass
+        {
+            lighting off
+            depth_check off
+            depth_write off
+            scene_blend alpha_blend
+            cull_hardware none
+
+            fragment_program_ref PathPreviewFP
+            {
+                shared_params_ref ViewerParams
+                param_named_auto ownerID custom 0
+            }
+        }
+    }
+}

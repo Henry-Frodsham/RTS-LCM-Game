@@ -113,10 +113,16 @@ struct ChangeCameraOrbitDepthEvent {
 };
 
 // draws (or hides) the hold-to-preview path line. Points are world-space,
-// in walk order starting from the previewing unit's current position
+// in walk order starting from the previewing unit's current position.
+// OwnerID is the previewing player's id - PATH_PREVIEW.material reads it
+// against viewingPlayerID to discard the line on every other viewport, same
+// mechanism as RED_UNIT/WHITE (see RenderSystem::AddOwnerShipToEnt).
+// unused when Visible is false, so hide calls can omit it
 struct UpdatePathPreviewEvent {
   std::vector<Ogre::Vector3f> Points;
   bool Visible;
-  UpdatePathPreviewEvent(std::vector<Ogre::Vector3f> Pts, bool Vis)
-      : Points(std::move(Pts)), Visible(Vis) {}
+  int OwnerID;
+  UpdatePathPreviewEvent(std::vector<Ogre::Vector3f> Pts, bool Vis,
+                         int Owner = -1)
+      : Points(std::move(Pts)), Visible(Vis), OwnerID(Owner) {}
 };
