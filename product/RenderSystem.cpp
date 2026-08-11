@@ -32,6 +32,26 @@ bool RefineHit(const Ogre::Ray& WorldRay, Ogre::Entity* Ent,
   return true;
 }
 
+// destroys every MovableObject attached anywhere in Node's subtree before
+// the node itself is torn down. SceneManager::destroySceneNode only frees
+// the SceneNode objects, not whatever's attached to them or to their
+// children - previously fine since units were a flat node+entity pair with
+// no child nodes, but child-node-attached objects (e.g. a unit's health bar
+// billboard set) would otherwise leak in the SceneManager
+void DestroyAttachedMovablesRecursive(Ogre::SceneManager* SceneMngr,
+                                      Ogre::SceneNode* Node) {
+  for (Ogre::Node* Child : Node->getChildren()) {
+    DestroyAttachedMovablesRecursive(SceneMngr,
+                                     static_cast<Ogre::SceneNode*>(Child));
+  }
+
+  std::vector<Ogre::MovableObject*> Attached;
+  for (size_t i = 0; i < Node->numAttachedObjects(); ++i)
+    Attached.push_back(Node->getAttachedObject(i));
+  Node->detachAllObjects();
+  for (Ogre::MovableObject* Obj : Attached) SceneMngr->destroyMovableObject(Obj);
+}
+
 // half-width of the path preview ribbon, as a fraction of the globe radius -
 // relative rather than a fixed world unit so it stays proportionate if the
 // globe is ever resized
@@ -82,6 +102,8 @@ RenderSystem::RenderSystem()
       PrimaryWindow(nullptr),
       OverlaySystem(nullptr),
       OverlayControl(nullptr),
+      BillboardControl(nullptr),
+      HealthBarControl(nullptr),
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
       ViewPortListener(nullptr),
@@ -215,6 +237,10 @@ void RenderSystem::Init() {
 
   OverlayControl = new OverlayController();
 
+  BillboardControl = new BillboardController(SceneManager);
+
+  HealthBarControl = new HealthBarController(BillboardControl, GlobeInt);
+
   DefaultViewPort = CreateViewPort();
 
   DefaultViewPort->setOverlaysEnabled(true);
@@ -308,6 +334,31 @@ void RenderSystem::InitRenderResponsibility() {
                 std::placeholders::_1));
   RenderBus->Subscribe<OverlayAddTextToPanelEvent>(
       std::bind(&OverlayController::AddTextToPanel, OverlayControl,
+                std::placeholders::_1));
+
+  // billboard controller - generic, reusable world-space billboards
+  RenderBus->Subscribe<CreateBillboardSetEvent>(
+      std::bind(&BillboardController::CreateBillboardSet, BillboardControl,
+                std::placeholders::_1));
+  RenderBus->Subscribe<AddBillboardEvent>(std::bind(
+      &BillboardController::AddBillboard, BillboardControl,
+      std::placeholders::_1));
+  RenderBus->Subscribe<EditBillboardDimensionsEvent>(
+      std::bind(&BillboardController::EditBillboardDimensions,
+                BillboardControl, std::placeholders::_1));
+  RenderBus->Subscribe<EditBillboardColourEvent>(
+      std::bind(&BillboardController::EditBillboardColour, BillboardControl,
+                std::placeholders::_1));
+  RenderBus->Subscribe<ChangeBillboardSetVisibilityEvent>(
+      std::bind(&BillboardController::ChangeBillboardSetVisibility,
+                BillboardControl, std::placeholders::_1));
+
+  // health bar controller - built on top of BillboardController
+  RenderBus->Subscribe<CreateHealthBarEvent>(
+      std::bind(&HealthBarController::CreateHealthBar, HealthBarControl,
+                std::placeholders::_1));
+  RenderBus->Subscribe<UpdateHealthBarEvent>(
+      std::bind(&HealthBarController::UpdateHealthBar, HealthBarControl,
                 std::placeholders::_1));
 
   // core Ogre interactions
@@ -473,15 +524,7 @@ void RenderSystem::ScaleEntityFromEvent(ScaleEntityEvent Event) {
 void RenderSystem::DestroyNode(DestroyNodeEvent Event) {
   if (!Event.NodeToDestroy) return;
 
-  Event.NodeToDestroy->detachAllObjects();
-
-  std::vector<Ogre::MovableObject*> Attached;
-  for (size_t i = 0; i < Event.NodeToDestroy->numAttachedObjects(); ++i)
-    Attached.push_back(Event.NodeToDestroy->getAttachedObject(i));
-
-  Event.NodeToDestroy->detachAllObjects();
-  for (Ogre::MovableObject* Obj : Attached)
-    SceneManager->destroyMovableObject(Obj);
+  DestroyAttachedMovablesRecursive(SceneManager, Event.NodeToDestroy);
 
   Event.NodeToDestroy->removeAndDestroyAllChildren();
 
@@ -492,15 +535,8 @@ void RenderSystem::DestroyEntity(DestroyEntityEvent Event) {
 
   Ogre::SceneNode* NodeToDestroy = Event.EntityToDestroy->getParentSceneNode();
   if (!NodeToDestroy) return;
-  NodeToDestroy->detachAllObjects();
 
-  std::vector<Ogre::MovableObject*> Attached;
-  for (size_t i = 0; i < NodeToDestroy->numAttachedObjects(); ++i)
-    Attached.push_back(NodeToDestroy->getAttachedObject(i));
-
-  NodeToDestroy->detachAllObjects();
-  for (Ogre::MovableObject* Obj : Attached)
-    SceneManager->destroyMovableObject(Obj);
+  DestroyAttachedMovablesRecursive(SceneManager, NodeToDestroy);
 
   NodeToDestroy->removeAndDestroyAllChildren();
 

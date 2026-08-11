@@ -10,6 +10,12 @@
 
 #include "CommonGameObjectComponents.h"
 
+// only used here as a pointer type - previously relied on whichever
+// translation unit happened to #include "ViewPortController.h" before this
+// file (e.g. via OverlayEvent.h), which broke as soon as a header pulling
+// in RenderEvent.h first was added ahead of that in RenderSystem.h
+class ViewPortController;
+
 // common events issued to render system
 // self explanatory
 // e.g ScaleEntityEvent - Scales an entity
@@ -78,6 +84,33 @@ struct AddOwnerShipToEntEvent {
   int OwnershipId;
   AddOwnerShipToEntEvent(Ogre::SceneNode* N, int Id)
       : Node(N), OwnershipId(Id) {}
+};
+
+// creates a unit's health bar (background + fill billboard), parented to
+// its scene node so it inherits position/orientation for free. handled by
+// HealthBarController, which builds it out of BillboardController's
+// generic billboard primitives. OutSet/OutFill mirror the
+// reference_wrapper out-param convention used by CreateSceneNodeEvent etc.
+// UnitEntity is the unit's own mesh - HealthBarController measures its
+// bounding box to anchor the bar above the model instead of guessing at an
+// offset (see HealthBarController::CreateHealthBar for why)
+struct CreateHealthBarEvent {
+  std::reference_wrapper<Ogre::BillboardSet*> OutSet;
+  std::reference_wrapper<Ogre::Billboard*> OutFill;
+  Ogre::SceneNode* ParentNode;
+  Ogre::Entity* UnitEntity;
+  CreateHealthBarEvent(Ogre::BillboardSet*& OutS, Ogre::Billboard*& OutF,
+                       Ogre::SceneNode* Parent, Ogre::Entity* UnitEnt)
+      : OutSet(OutS), OutFill(OutF), ParentNode(Parent), UnitEntity(UnitEnt) {}
+};
+
+// resizes a unit's health bar fill billboard to Ratio (0-1) of max health.
+// pushed from WorldManager's combat loop, throttled to ~1/10th-of-max-health
+// steps rather than every damage tick - see HealthBarComponent
+struct UpdateHealthBarEvent {
+  Ogre::Billboard* Fill;
+  float Ratio;
+  UpdateHealthBarEvent(Ogre::Billboard* F, float R) : Fill(F), Ratio(R) {}
 };
 
 struct DestroyNodeEvent {

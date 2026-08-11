@@ -30,6 +30,8 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
                 std::placeholders::_1));
   FactoryBus->Subscribe<AddHealthEvent>(std::bind(
       &ECSHelper::CreateandAddHealthComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddHealthBarComponentEvent>(std::bind(
+      &ECSHelper::CreateAndAddHealthBarComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddMeleeAttackEvent>(std::bind(
       &ECSHelper::CreateandAddAttackComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddRangeComponentEvent>(std::bind(
@@ -46,8 +48,8 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::ValidateEntitySelection, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryMoveEntityEvent>(std::bind(
       &ECSHelper::ValidateEntityMovement, this, std::placeholders::_1));
-  FactoryBus->Subscribe<RequestPathPreviewEvent>(std::bind(
-      &ECSHelper::RequestPathPreview, this, std::placeholders::_1));
+  FactoryBus->Subscribe<RequestPathPreviewEvent>(
+      std::bind(&ECSHelper::RequestPathPreview, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryUnselectEntityEvent>(
       std::bind(&ECSHelper::TryUnselectEntity, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryDestroyEntityEvent>(
@@ -102,12 +104,37 @@ void ECSHelper::CreateandAddUnitProductionComponent(
       *Event.Entity, Event.ProdPerM);
 }
 void ECSHelper::CreateandAddHealthComponent(AddHealthEvent Event) {
-  auto& Component =
-      RegistryToUse->emplace<HealthComponent>(*Event.Entity, Event.Health);
+  auto& Component = RegistryToUse->emplace<HealthComponent>(
+      *Event.Entity, Event.Health, Event.Health);
+}
+void ECSHelper::CreateAndAddHealthBarComponent(
+    AddHealthBarComponentEvent Event) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  try {
+    OgreComponent& EntOgreComp =
+        RegistryToUse->get<OgreComponent>(*Event.Entity);
+    MeshComponent& EntMeshComp =
+        RegistryToUse->get<MeshComponent>(*Event.Entity);
+
+    // same ordering issue as CreateAndAddOwnerShipComponent - the scene
+    // node this bar parents to, and the mesh entity it measures itself
+    // against, may not exist yet on the first run, so retry until both do
+    if (EntOgreComp.EntityNode != nullptr && EntMeshComp.Entity != nullptr) {
+      auto& Component = RegistryToUse->emplace<HealthBarComponent>(
+          *Event.Entity, nullptr, nullptr, 10);
+
+      Rs.RenderQueue->Enqueue(CreateHealthBarEvent(
+          std::ref(Component.BarSet), std::ref(Component.Fill),
+          EntOgreComp.EntityNode, EntMeshComp.Entity));
+    } else {
+      FactoryQueue->Enqueue(Event);
+    }
+  } catch (std::exception e) {
+  }
 }
 void ECSHelper::CreateandAddAttackComponent(AddMeleeAttackEvent Event) {
-  auto& Component = RegistryToUse->emplace<MeleeAttackComponent>(
-      *Event.Entity, Event.Damage);
+  auto& Component =
+      RegistryToUse->emplace<MeleeAttackComponent>(*Event.Entity, Event.Damage);
 }
 void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
@@ -167,10 +194,8 @@ void ECSHelper::CreateAndAddOwnerShipComponent(
 void ECSHelper::CreateAndAddRangeComponent(AddRangeComponentEvent Event) {
   std::set<entt::entity> EmptyRangeContainer;
   auto& Component = RegistryToUse->emplace<RangeCacheComponent>(
-      *Event.Entity, EmptyRangeContainer);
+      *Event.Entity, EmptyRangeContainer, Event.Range);
 }
-
-
 
 void ECSHelper::CreateAndAddExistableComponent(
     AddExistableComponentEvent Event) {
@@ -261,10 +286,9 @@ void ECSHelper::ValidateEntityMovement(TryMoveEntityEvent Event) {
 
     RegistryToUse->emplace_or_replace<PathRequestComponent>(
         Event.Entity, GoalTile,
-        Pathfinder::BeginSearch(*RenderSystem::GetInstance()
-                                     .GetGlobeInterface()
-                                     ->GetGlobe(),
-                                StartTile, GoalTile));
+        Pathfinder::BeginSearch(
+            *RenderSystem::GetInstance().GetGlobeInterface()->GetGlobe(),
+            StartTile, GoalTile));
   }
 }
 
@@ -340,9 +364,8 @@ void ECSHelper::TryDestroyEntity(TryDestroyEntityEvent Event) {
 }
 
 void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
-  auto RangeView =
-      RegistryToUse->view<HealthComponent, OwnershipComponent,
-                          OgreComponent, RangeCacheComponent>();
+  auto RangeView = RegistryToUse->view<HealthComponent, OwnershipComponent,
+                                       OgreComponent, RangeCacheComponent>();
 
   std::vector<entt::entity> RelevantEntities;
   entt::entity EntityOfInterest = FindEntityFromSceneNode(Event.OriginalNode);
@@ -366,9 +389,6 @@ void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
 
     if (Ownership.PlayerID != EntityOfInterestOwnership->PlayerID) {
       RelevantEntities.push_back(Entity);
-      // allow the entity in range to also attack this entity, since the other
-      // entity may not have updated
-      Range.EntitiesInRange.insert(EntityOfInterest);
     }
   }
   RangeCompToUpdate->EntitiesInRange =
@@ -378,8 +398,38 @@ void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
 void ECSHelper::IssueRangeRevalEvent(
     NotifyConsequentialEntityStateChange Notif) {
   RenderSystem& Rs = RenderSystem::GetInstance();
-  Rs.RenderQueue->Enqueue(
-      RevalEntityRangeEvent(Notif.Entity, FactoryQueue, 10.f));
+  entt::entity EnttEnt = FindEntityFromOgreEntity(Notif.Entity);
+
+  if (EnttEnt == entt::null) {
+    return;
+  }
+
+  RangeCacheComponent* RangeComp =
+      RegistryToUse->try_get<RangeCacheComponent>(EnttEnt);
+
+  // also force entities currently in this entities cache to re evaluate
+  // dont simply add/remove based on whether this entity can see it (since they
+  // may have varying ranges)
+  if (RangeComp) {
+    for (auto Entity : RangeComp->EntitiesInRange) {
+      if (!RegistryToUse->valid(Entity)) {
+        continue;
+      }
+      RangeCacheComponent* EntInRangeComp =
+          RegistryToUse->try_get<RangeCacheComponent>(Entity);
+      MeshComponent* EntInMeshComp =
+          RegistryToUse->try_get<MeshComponent>(Entity);
+
+      // if these are invalid, then let WorldManager throw them out
+      if (!EntInRangeComp || !EntInMeshComp) {
+        continue;
+      }
+      Rs.RenderQueue->Enqueue(RevalEntityRangeEvent(
+          EntInMeshComp->Entity, FactoryQueue, EntInRangeComp->Range));
+    }
+    Rs.RenderQueue->Enqueue(
+        RevalEntityRangeEvent(Notif.Entity, FactoryQueue, RangeComp->Range));
+  }
 }
 
 OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
@@ -400,6 +450,18 @@ entt::entity ECSHelper::FindEntityFromSceneNode(Ogre::SceneNode* Node) {
     OgreComponent EntComp = View.get<OgreComponent>(Entity);
 
     if (EntComp.EntityNode == Node) {
+      return Entity;
+    }
+  }
+  return entt::null;
+}
+
+entt::entity ECSHelper::FindEntityFromOgreEntity(Ogre::Entity* Ent) {
+  auto View = RegistryToUse->view<MeshComponent>();
+  for (auto Entity : View) {
+    MeshComponent EntComp = View.get<MeshComponent>(Entity);
+
+    if (EntComp.Entity == Ent) {
       return Entity;
     }
   }

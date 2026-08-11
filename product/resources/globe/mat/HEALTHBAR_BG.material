@@ -1,0 +1,19 @@
+// depth_check off so the bar is never occluded by the unit's own mesh (a
+// camera-facing billboard anchored just above a curved/animated model can
+// still dip behind its silhouette at grazing angles even when correctly
+// positioned) - same rationale as PATH_PREVIEW.material's depth_check off
+material HEALTHBAR_BG
+{
+    technique
+    {
+        pass
+        {
+            lighting off
+            depth_check off
+            depth_write off
+            scene_blend alpha_blend
+            diffuse 0.05 0.05 0.05 0.85
+            ambient 0.05 0.05 0.05 0.85
+        }
+    }
+}

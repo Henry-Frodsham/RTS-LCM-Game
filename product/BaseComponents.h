@@ -31,3 +31,17 @@ struct MeshComponent {
   MeshComponent(Ogre::Entity* Ent, std::string MeshN, std::string EntN)
       : Entity(Ent), MeshName(MeshN), EntityName(EntN) {}
 };
+
+// render handle for a unit's health bar billboard, plus render-sync
+// throttle bookkeeping. HealthComponent::Health/MaxHealth stay the single
+// source of truth - LastSyncedDecile just tracks the last health/maxHealth
+// tenth the render side was told about, so combat doesn't enqueue a render
+// event every tick
+struct HealthBarComponent {
+  Ogre::BillboardSet* BarSet;
+  Ogre::Billboard* Fill;
+  int LastSyncedDecile;
+
+  HealthBarComponent(Ogre::BillboardSet* Set, Ogre::Billboard* F, int Decile)
+      : BarSet(Set), Fill(F), LastSyncedDecile(Decile) {}
+};

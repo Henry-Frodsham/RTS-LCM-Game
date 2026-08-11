@@ -5,7 +5,8 @@
 // float health for units
 struct HealthComponent {
   float Health;
-  explicit HealthComponent(float HP) : Health(HP) {}
+  float MaxHealth;
+  HealthComponent(float HP, float MaxHP) : Health(HP), MaxHealth(MaxHP) {}
 };
 
 // attacker unit behaviour definer
@@ -17,6 +18,7 @@ struct MeleeAttackComponent {
 // entities in range
 struct RangeCacheComponent {
   std::set<entt::entity> EntitiesInRange;
-  RangeCacheComponent(std::set<entt::entity> Entities)
-      : EntitiesInRange(Entities) {}
+  float Range;
+  RangeCacheComponent(std::set<entt::entity> Entities, float R)
+      : EntitiesInRange(Entities), Range(R) {}
 };

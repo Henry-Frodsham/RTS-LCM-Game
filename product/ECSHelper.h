@@ -58,6 +58,8 @@ class ECSHelper {
 
   void CreateandAddHealthComponent(AddHealthEvent Event);
 
+  void CreateAndAddHealthBarComponent(AddHealthBarComponentEvent Event);
+
   void CreateAndAddRangeComponent(AddRangeComponentEvent Event);
 
   void CreateAndAddExistableComponent(AddExistableComponentEvent Event);
@@ -89,4 +91,6 @@ class ECSHelper {
   OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
 
   entt::entity FindEntityFromSceneNode(Ogre::SceneNode* Node);
+
+  entt::entity FindEntityFromOgreEntity(Ogre::Entity* Ent);
 };

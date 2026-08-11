@@ -237,6 +237,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BillboardController.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="ECSHelper.cpp" />
@@ -248,6 +249,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="GenericButton.cpp" />
     <ClCompile Include="Globe.cpp" />
     <ClCompile Include="GlobeInterface.cpp" />
+    <ClCompile Include="HealthBarController.cpp" />
     <ClCompile Include="InputAnalyser.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
@@ -268,6 +270,8 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
   <ItemGroup>
     <ClInclude Include="ActionCommand.h" />
     <ClInclude Include="BaseComponents.h" />
+    <ClInclude Include="BillboardController.h" />
+    <ClInclude Include="BillboardEvent.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="CameraEvent.h" />
     <ClInclude Include="CityComponents.h" />
@@ -288,6 +292,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="Globe.h" />
     <ClInclude Include="GlobeEvent.h" />
     <ClInclude Include="GlobeInterface.h" />
+    <ClInclude Include="HealthBarController.h" />
     <ClInclude Include="InputAnalyser.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="InputEvent.h" />

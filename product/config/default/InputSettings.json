@@ -4,7 +4,7 @@
   "TriggerThreshold": 0.1,
   "RelativeMotionScale": 100.0,
   "RightDragThresholdPixels": 4.0,
-  "RightClickOpensContextWheel": true,
+  "RightClickOpensContextWheel": false,
   "ShoulderZoomNotchesPerSecond": 25,
   "ControllerOrbitSensitivity": 5,
 

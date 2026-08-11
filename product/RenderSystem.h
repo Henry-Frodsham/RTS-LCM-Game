@@ -12,11 +12,13 @@
 #include <string>
 #include <vector>
 
+#include "BillboardController.h"
 #include "ConfigManager.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "GlobeInterface.h"
+#include "HealthBarController.h"
 #include "OverlayController.h"
 #include "OverlayEvent.h"
 #include "RayTraceEvent.h"
@@ -52,6 +54,10 @@ class RenderSystem {
   Ogre::OverlaySystem* OverlaySystem;
 
   OverlayController* OverlayControl;
+
+  BillboardController* BillboardControl;
+
+  HealthBarController* HealthBarControl;
 
   Ogre::RenderWindow* PrimaryWindow;
 

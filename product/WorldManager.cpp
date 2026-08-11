@@ -162,10 +162,8 @@ void WorldManager::AdvanceMovingEntities(float DT) {
 
     Rs.RenderQueue->Enqueue(SetEntPositionEvent(MeshComp.Entity, CurrentPos));
 
-    if (Mover.Path.empty()) {
-      CompFactory->FactoryQueue->Enqueue(
-          NotifyConsequentialEntityStateChange(MeshComp.Entity));
-    }
+    CompFactory->FactoryQueue->Enqueue(
+        NotifyConsequentialEntityStateChange(MeshComp.Entity));
   }
 }
 
@@ -230,6 +228,19 @@ void WorldManager::EvaluateTickerComponents(float DT) {
           Rs.RenderQueue->Enqueue(DestroyNodeEvent(EntOgre.EntityNode));
 
           Registry.destroy(EntInRange);
+        } else if (HealthBarComponent* EntHealthBar =
+                       Registry.try_get<HealthBarComponent>(EntInRange)) {
+          // Fill may still be null for a frame or two while the render
+          // thread catches up to a just-spawned unit's CreateHealthBarEvent
+          if (EntHealthBar->Fill != nullptr) {
+            const int CurrentDecile = static_cast<int>(std::round(
+                (EntHealth.Health / EntHealth.MaxHealth) * 10.f));
+            if (CurrentDecile != EntHealthBar->LastSyncedDecile) {
+              EntHealthBar->LastSyncedDecile = CurrentDecile;
+              Rs.RenderQueue->Enqueue(UpdateHealthBarEvent(
+                  EntHealthBar->Fill, CurrentDecile / 10.f));
+            }
+          }
         }
       }
 
