@@ -1,0 +1,19 @@
+{
+  "CursorSensitivity": 1500.0,
+  "JoystickDeadzone": 0.1,
+  "TriggerThreshold": 0.1,
+  "RelativeMotionScale": 100.0,
+  "RightDragThresholdPixels": 4.0,
+  "RightClickOpensContextWheel": false,
+  "ShoulderZoomNotchesPerSecond": 25,
+  "ControllerOrbitSensitivity": 5,
+
+  "KeyBindUse": "E",
+  "KeyBindBack": "Q",
+  "KeyBindContext": "R",
+
+  "PromptPosition": [0.2, 0.3],
+  "PromptDimensions": [0.24, 0.03],
+  "PromptBorderMaterial": "RED",
+  "PromptTextMaterial": "WHITE"
+}

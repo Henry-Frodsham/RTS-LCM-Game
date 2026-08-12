@@ -1,0 +1,16 @@
+// depth_check on - see HEALTHBAR_BG.material
+material HEALTHBAR_FILL
+{
+    technique
+    {
+        pass
+        {
+            lighting off
+            depth_check on
+            depth_write off
+            scene_blend alpha_blend
+            diffuse 0.15 0.85 0.15 1
+            ambient 0.15 0.85 0.15 1
+        }
+    }
+}

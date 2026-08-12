@@ -48,7 +48,7 @@ class ViewPortController {
   // depth
   void MoveCameraOrbitingPoint2DMotion(Ogre::Vector2f RelativeMotion,
                                        Ogre::Vector3f OrbitPoint);
-  void MoveCameraDepth(int ScrollWheelY, Ogre::Vector3f OrbitPoint);
+  void MoveCameraDepth(float WheelDelta, Ogre::Vector3f OrbitPoint);
   void RegisterControllingDevice(InputDevice* Device);
 
   bool IsControllerByDevice(InputDevice* Device);

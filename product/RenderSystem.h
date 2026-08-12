@@ -12,11 +12,13 @@
 #include <string>
 #include <vector>
 
+#include "BillboardController.h"
 #include "ConfigManager.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "GlobeInterface.h"
+#include "HealthBarController.h"
 #include "OverlayController.h"
 #include "OverlayEvent.h"
 #include "RayTraceEvent.h"
@@ -53,6 +55,10 @@ class RenderSystem {
 
   OverlayController* OverlayControl;
 
+  BillboardController* BillboardControl;
+
+  HealthBarController* HealthBarControl;
+
   Ogre::RenderWindow* PrimaryWindow;
 
   ErrorReporter RenderErrorReporter;
@@ -62,6 +68,13 @@ class RenderSystem {
   ViewPortUpdateListener* ViewPortListener;
 
   GlobeInterface* GlobeInt;
+
+  // hold-to-preview path line, lazily created on first use. single shared
+  // object rather than one per player - PATH_PREVIEW.material discards the
+  // fragment per-viewport based on ownerID vs viewingPlayerID, the same
+  // mechanism RED_UNIT/WHITE use for the selection highlight (see
+  // AddOwnerShipToEnt), so one ManualObject is enough
+  Ogre::ManualObject* PathPreviewLine;
 
   Ogre::RenderWindowDescription RenderWindowSettings;
 
@@ -101,12 +114,20 @@ class RenderSystem {
 
   void EntityRangeCheck(RevalEntityRangeEvent Event);
 
+  void CreateFacingArrow(CreateFacingArrowEvent Event);
+
+  void UpdateFacingArrowOrientation(UpdateFacingArrowOrientationEvent Event);
+
+  void ChangeFacingArrowVisibility(ChangeFacingArrowVisibilityEvent Event);
+
   void ChangeCameraOrbit(ChangeCameraOrbitAngleEvent Event);
 
   void ChangeCameraDepth(ChangeCameraOrbitDepthEvent Event);
 
   void DestroyNode(DestroyNodeEvent Event);
   void DestroyEntity(DestroyEntityEvent Event);
+
+  void UpdatePathPreview(UpdatePathPreviewEvent Event);
 
  public:
   static RenderSystem& GetInstance();
@@ -134,6 +155,8 @@ class RenderSystem {
   Ogre::Entity* CreateEntity(std::string Name, std::string MeshName);
 
   ViewPortController* GetPrimaryViewport();
+
+  GlobeInterface* GetGlobeInterface() const { return GlobeInt; }
 
   float GetDeltaTime();
 

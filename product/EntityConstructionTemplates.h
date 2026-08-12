@@ -70,9 +70,7 @@ inline std::shared_ptr<entt::entity> CreateUnitProducingGameObject(
   Factory->FactoryQueue->Enqueue<AddUnitProductionEvent>(
       AddUnitProductionEvent(Entity, Event.UnitProdPerM));
   Factory->FactoryQueue->Enqueue<AddExistableComponentEvent>(
-      AddExistableComponentEvent(
-          Entity, {BiomeType::Desert, BiomeType::Forest, BiomeType::Plains,
-                   BiomeType::Tundra}));
+      AddExistableComponentEvent(Entity, Event.AllowedBiomes));
 
   return Entity;
 }
@@ -87,19 +85,21 @@ inline std::shared_ptr<entt::entity> CreateAttackingGameObject(
                             Event.GamePlayer, Event.PlayerId));
   Factory->FactoryQueue->Enqueue<AddHealthEvent>(
       AddHealthEvent(Entity, Event.Health));
-  Factory->FactoryQueue->Enqueue<AddAttackEvent>(
-      AddAttackEvent(Entity, Event.Radius, Event.Power));
+  Factory->FactoryQueue->Enqueue<AddHealthBarComponentEvent>(
+      AddHealthBarComponentEvent(Entity));
+  Factory->FactoryQueue->Enqueue<AddFacingComponentEvent>(
+      AddFacingComponentEvent(Entity, Event.SurfaceNormal));
+  Factory->FactoryQueue->Enqueue<AddFacingArrowComponentEvent>(
+      AddFacingArrowComponentEvent(Entity));
+  Factory->FactoryQueue->Enqueue<AddMeleeAttackEvent>(
+      AddMeleeAttackEvent(Entity, Event.Power));
   Factory->FactoryQueue->Enqueue<AddRangeComponentEvent>(
-      AddRangeComponentEvent(Entity));
+      AddRangeComponentEvent(Entity, Event.Radius));
   Factory->FactoryQueue->Enqueue<AddExistableComponentEvent>(
-      AddExistableComponentEvent(
-          Entity, {BiomeType::Desert, BiomeType::Forest, BiomeType::Plains,
-                   BiomeType::Tundra}));
+      AddExistableComponentEvent(Entity, Event.AllowedBiomes));
 
   Factory->FactoryQueue->Enqueue<AddMovableComponentEvent>(
-      AddMovableComponentEvent(
-          Entity, {BiomeType::Desert, BiomeType::Forest, BiomeType::Plains,
-                   BiomeType::Tundra}));
+      AddMovableComponentEvent(Entity, Event.AllowedBiomes, Event.MoveSpeed));
   return Entity;
 }
 

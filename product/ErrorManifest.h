@@ -59,6 +59,8 @@ enum ErrorCode : uint32_t {
   RANGE_CHECK_FAILED = 4022,
   ATTACK_LOGIC_EARLY = 4023,
   ATTACK_LOGIC_FAILED = 4024,
+  PATH_INVALID_TILE = 4025,
+  PATH_DESTINATION_UNREACHABLE = 4026,
   // fatal
   OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
   SDL_FAILED_INIT = 5002,
@@ -236,6 +238,15 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
     {ErrorCode::CALLBACK_FAILED,
      {ErrorCode::CALLBACK_FAILED, ErrorLevel::ERR,
       "An Overlay's interaction callback failed", "OverlayController"}},
+    {ErrorCode::PATH_INVALID_TILE,
+     {ErrorCode::PATH_INVALID_TILE, ErrorLevel::ERR,
+      "Could not resolve a valid tile for the start or destination of a "
+      "move order",
+      "Pathfinding"}},
+    {ErrorCode::PATH_DESTINATION_UNREACHABLE,
+     {ErrorCode::PATH_DESTINATION_UNREACHABLE, ErrorLevel::ERR,
+      "Exhausted the search without finding a path to the destination",
+      "Pathfinding"}},
     // fatal
     {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
      {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

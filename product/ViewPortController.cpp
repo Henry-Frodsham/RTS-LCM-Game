@@ -124,13 +124,13 @@ void ViewPortController::MoveCameraOrbitingPoint2DMotion(
   CamNode->setPosition(OrbitPoint +
                        Orientation * Ogre::Vector3(0, 0, mOrbitDistance));
 }
-void ViewPortController::MoveCameraDepth(int ScrollWheelY,
+void ViewPortController::MoveCameraDepth(float WheelDelta,
                                          Ogre::Vector3f OrbitPoint) {
   constexpr Ogre::Real kTempZoomSensitivity =
       0.1f;  // TODO: expose as configurable setting
 
   Ogre::Real Delta =
-      -static_cast<Ogre::Real>(ScrollWheelY) * kTempZoomSensitivity;
+      -static_cast<Ogre::Real>(WheelDelta) * kTempZoomSensitivity;
   ZoomOrbitingPoint(Delta);
 
   Ogre::Camera* Camera = ViewPort->getCamera();

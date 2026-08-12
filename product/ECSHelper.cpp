@@ -30,7 +30,14 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
                 std::placeholders::_1));
   FactoryBus->Subscribe<AddHealthEvent>(std::bind(
       &ECSHelper::CreateandAddHealthComponent, this, std::placeholders::_1));
-  FactoryBus->Subscribe<AddAttackEvent>(std::bind(
+  FactoryBus->Subscribe<AddHealthBarComponentEvent>(std::bind(
+      &ECSHelper::CreateAndAddHealthBarComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddFacingComponentEvent>(std::bind(
+      &ECSHelper::CreateAndAddFacingComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddFacingArrowComponentEvent>(
+      std::bind(&ECSHelper::CreateAndAddFacingArrowComponent, this,
+                std::placeholders::_1));
+  FactoryBus->Subscribe<AddMeleeAttackEvent>(std::bind(
       &ECSHelper::CreateandAddAttackComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddRangeComponentEvent>(std::bind(
       &ECSHelper::CreateAndAddRangeComponent, this, std::placeholders::_1));
@@ -46,6 +53,8 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::ValidateEntitySelection, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryMoveEntityEvent>(std::bind(
       &ECSHelper::ValidateEntityMovement, this, std::placeholders::_1));
+  FactoryBus->Subscribe<RequestPathPreviewEvent>(
+      std::bind(&ECSHelper::RequestPathPreview, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryUnselectEntityEvent>(
       std::bind(&ECSHelper::TryUnselectEntity, this, std::placeholders::_1));
   FactoryBus->Subscribe<TryDestroyEntityEvent>(
@@ -100,12 +109,75 @@ void ECSHelper::CreateandAddUnitProductionComponent(
       *Event.Entity, Event.ProdPerM);
 }
 void ECSHelper::CreateandAddHealthComponent(AddHealthEvent Event) {
-  auto& Component =
-      RegistryToUse->emplace<HealthComponent>(*Event.Entity, Event.Health);
+  auto& Component = RegistryToUse->emplace<HealthComponent>(
+      *Event.Entity, Event.Health, Event.Health);
 }
-void ECSHelper::CreateandAddAttackComponent(AddAttackEvent Event) {
-  auto& Component = RegistryToUse->emplace<AttackComponent>(
-      *Event.Entity, Event.Radius, Event.Damage);
+void ECSHelper::CreateAndAddHealthBarComponent(
+    AddHealthBarComponentEvent Event) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  try {
+    OgreComponent& EntOgreComp =
+        RegistryToUse->get<OgreComponent>(*Event.Entity);
+    MeshComponent& EntMeshComp =
+        RegistryToUse->get<MeshComponent>(*Event.Entity);
+
+    // same ordering issue as CreateAndAddOwnerShipComponent - the scene
+    // node this bar parents to, and the mesh entity it measures itself
+    // against, may not exist yet on the first run, so retry until both do
+    if (EntOgreComp.EntityNode != nullptr && EntMeshComp.Entity != nullptr) {
+      auto& Component = RegistryToUse->emplace<HealthBarComponent>(
+          *Event.Entity, nullptr, nullptr, 10);
+
+      Rs.RenderQueue->Enqueue(CreateHealthBarEvent(
+          std::ref(Component.BarSet), std::ref(Component.Fill),
+          EntOgreComp.EntityNode, EntMeshComp.Entity));
+    } else {
+      FactoryQueue->Enqueue(Event);
+    }
+  } catch (std::exception e) {
+  }
+}
+void ECSHelper::CreateAndAddFacingComponent(AddFacingComponentEvent Event) {
+  RegistryToUse->emplace<FacingComponent>(
+      *Event.Entity, Event.SurfaceNormal.perpendicular().normalisedCopy());
+}
+void ECSHelper::CreateAndAddFacingArrowComponent(
+    AddFacingArrowComponentEvent Event) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  try {
+    OgreComponent& EntOgreComp =
+        RegistryToUse->get<OgreComponent>(*Event.Entity);
+    MeshComponent& EntMeshComp =
+        RegistryToUse->get<MeshComponent>(*Event.Entity);
+
+    // same ordering issue as CreateAndAddHealthBarComponent - retry until
+    // both the scene node and mesh entity this arrow parents/anchors to
+    // exist
+    if (EntOgreComp.EntityNode != nullptr && EntMeshComp.Entity != nullptr) {
+      OwnershipComponent& EntOwnership =
+          RegistryToUse->get<OwnershipComponent>(*Event.Entity);
+      FacingComponent& Facing =
+          RegistryToUse->get<FacingComponent>(*Event.Entity);
+
+      auto& Component = RegistryToUse->emplace<FacingArrowComponent>(
+          *Event.Entity, nullptr, nullptr);
+
+      const Ogre::Vector3f WorldUp =
+          EntOgreComp.EntityNode->getOrientation() * Ogre::Vector3::UNIT_Y;
+
+      Rs.RenderQueue->Enqueue(CreateFacingArrowEvent(
+          std::ref(Component.ArrowNode), std::ref(Component.ArrowObject),
+          EntOgreComp.EntityNode, EntMeshComp.Entity, EntOwnership.PlayerID,
+          Facing.Forward, WorldUp));
+    } else {
+      FactoryQueue->Enqueue(Event);
+    }
+  } catch (std::exception e) {
+  }
+}
+void ECSHelper::CreateandAddAttackComponent(AddMeleeAttackEvent Event) {
+  auto& Component =
+      RegistryToUse->emplace<MeleeAttackComponent>(*Event.Entity, Event.Damage);
 }
 void ECSHelper::ChangeEntityVisibility(ChangeEntityVisibilityEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
@@ -165,10 +237,8 @@ void ECSHelper::CreateAndAddOwnerShipComponent(
 void ECSHelper::CreateAndAddRangeComponent(AddRangeComponentEvent Event) {
   std::set<entt::entity> EmptyRangeContainer;
   auto& Component = RegistryToUse->emplace<RangeCacheComponent>(
-      *Event.Entity, EmptyRangeContainer);
+      *Event.Entity, EmptyRangeContainer, Event.Range);
 }
-
-
 
 void ECSHelper::CreateAndAddExistableComponent(
     AddExistableComponentEvent Event) {
@@ -178,7 +248,7 @@ void ECSHelper::CreateAndAddExistableComponent(
 
 void ECSHelper::CreateAndAddMovableComponent(AddMovableComponentEvent Event) {
   auto& Component = RegistryToUse->emplace<MovableComponent>(
-      *Event.Entity, Event.MovableBiomes);
+      *Event.Entity, Event.MovableBiomes, Event.MoveSpeed);
 }
 
 void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
@@ -190,6 +260,8 @@ void ECSHelper::OrientateAndAdditionalSetup(OrientateEntityEvent Event) {
     if (EntOgreComp->Entity != nullptr) {
       Rs.RenderQueue->Enqueue(RotateEntToSurfaceNormalEvent(
           EntOgreComp->Entity, Event.SurfaceNormal));
+      FactoryQueue->Enqueue(
+          NotifyConsequentialEntityStateChange(EntOgreComp->Entity));
     } else {
       FactoryQueue->Enqueue(Event);
     }
@@ -213,6 +285,12 @@ void ECSHelper::ValidateEntitySelection(TrySelectEntityEvent Event) {
     RenderSystem& Rs = RenderSystem::GetInstance();
     Rs.RenderQueue->Enqueue(
         ChangeEntMaterialEvent(MeshComp->Entity, "RED_UNIT"));
+
+    if (FacingArrowComponent* Arrow =
+            RegistryToUse->try_get<FacingArrowComponent>(Event.Entity)) {
+      Rs.RenderQueue->Enqueue(
+          ChangeFacingArrowVisibilityEvent(Arrow->ArrowNode, true));
+    }
     Event.Respond();
   }
 }
@@ -233,13 +311,81 @@ void ECSHelper::ValidateEntityMovement(TryMoveEntityEvent Event) {
     return;
   }
   if (OComp->GamePlayer == Event.TryingPlayer) {
-    // success
-    RenderSystem& Rs = RenderSystem::GetInstance();
-    Rs.RenderQueue->Enqueue(
-        SetEntPositionEvent(MeshComp->Entity, Event.Position));
-    Rs.RenderQueue->Enqueue(
-        RotateEntToSurfaceNormalEvent(MeshComp->Entity, Event.SurfaceNormal));
+    // success - resolve the tile-graph endpoints and hand off to the
+    // incremental pathfinder rather than teleporting directly. The actual
+    // walk happens in WorldManager::AdvanceMovingEntities once a path is
+    // found (WorldManager::AdvancePathRequests)
+    const auto Tiles = ResolveMoveTiles(MeshComp, Event.Position);
+    if (!Tiles) {
+      ParentReporter->EnqueueError(
+          ErrorDetail::CreateError(ErrorCode::PATH_INVALID_TILE));
+      return;
+    }
+    const auto [StartTile, GoalTile] = *Tiles;
+
+    // a new move order stops the unit where it is and re-routes, rather
+    // than letting it glide on the old path while the new search resolves.
+    // also drops any in-flight preview so it can't linger once the unit is
+    // actually walking a different path
+    MovComp->Path.clear();
+    MovComp->PreviewPath.clear();
+    RegistryToUse->remove<PathPreviewRequestComponent>(Event.Entity);
+    RenderSystem::GetInstance().RenderQueue->Enqueue(
+        UpdatePathPreviewEvent({}, false));
+
+    RegistryToUse->emplace_or_replace<PathRequestComponent>(
+        Event.Entity, GoalTile,
+        Pathfinder::BeginSearch(
+            *RenderSystem::GetInstance().GetGlobeInterface()->GetGlobe(),
+            StartTile, GoalTile));
   }
+}
+
+void ECSHelper::RequestPathPreview(RequestPathPreviewEvent Event) {
+  if (!RegistryToUse->valid(Event.Entity) || !Event.TryingPlayer) {
+    return;
+  }
+  OwnershipComponent* OComp =
+      RegistryToUse->try_get<OwnershipComponent>(Event.Entity);
+  MeshComponent* MeshComp = RegistryToUse->try_get<MeshComponent>(Event.Entity);
+  MovableComponent* MovComp =
+      RegistryToUse->try_get<MovableComponent>(Event.Entity);
+  if (!OComp || !MeshComp || !MovComp) {
+    return;
+  }
+  if (!MovComp->MovableBiomes.at(Event.SelectedBiome)) {
+    return;
+  }
+  if (OComp->GamePlayer != Event.TryingPlayer) {
+    return;
+  }
+
+  // unlike a real move order, a preview missing its tiles is a constant,
+  // expected occurrence while dragging over water/mountains - not an error
+  const auto Tiles = ResolveMoveTiles(MeshComp, Event.Position);
+  if (!Tiles) {
+    return;
+  }
+  const auto [StartTile, GoalTile] = *Tiles;
+
+  RegistryToUse->emplace_or_replace<PathPreviewRequestComponent>(
+      Event.Entity, GoalTile,
+      Pathfinder::BeginSearch(
+          *RenderSystem::GetInstance().GetGlobeInterface()->GetGlobe(),
+          StartTile, GoalTile));
+}
+
+std::optional<std::pair<uint32_t, uint32_t>> ECSHelper::ResolveMoveTiles(
+    MeshComponent* MeshComp, Ogre::Vector3f DestinationWorldPos) {
+  GlobeInterface* GInt = RenderSystem::GetInstance().GetGlobeInterface();
+  const uint32_t GoalTile = GInt->FindTileAtWorldPosition(DestinationWorldPos);
+  const uint32_t StartTile = GInt->FindTileAtWorldPosition(
+      MeshComp->Entity->getParentSceneNode()->getPosition());
+
+  if (GoalTile == InvalidTileID || StartTile == InvalidTileID) {
+    return std::nullopt;
+  }
+  return std::make_pair(StartTile, GoalTile);
 }
 
 void ECSHelper::TryUnselectEntity(TryUnselectEntityEvent Event) {
@@ -252,6 +398,12 @@ void ECSHelper::TryUnselectEntity(TryUnselectEntityEvent Event) {
   }
   RenderSystem& Rs = RenderSystem::GetInstance();
   Rs.RenderQueue->Enqueue(ChangeEntMaterialEvent(MeshComp->Entity, "WHITE"));
+
+  if (FacingArrowComponent* Arrow =
+          RegistryToUse->try_get<FacingArrowComponent>(Event.Entity)) {
+    Rs.RenderQueue->Enqueue(
+        ChangeFacingArrowVisibilityEvent(Arrow->ArrowNode, false));
+  }
 }
 
 void ECSHelper::TryDestroyEntity(TryDestroyEntityEvent Event) {
@@ -267,9 +419,8 @@ void ECSHelper::TryDestroyEntity(TryDestroyEntityEvent Event) {
 }
 
 void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
-  auto RangeView =
-      RegistryToUse->view<HealthComponent, AttackComponent, OwnershipComponent,
-                          OgreComponent, RangeCacheComponent>();
+  auto RangeView = RegistryToUse->view<HealthComponent, OwnershipComponent,
+                                       OgreComponent, RangeCacheComponent>();
 
   std::vector<entt::entity> RelevantEntities;
   entt::entity EntityOfInterest = FindEntityFromSceneNode(Event.OriginalNode);
@@ -283,7 +434,6 @@ void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
   }
   for (auto Entity : RangeView) {
     auto& Health = RangeView.get<HealthComponent>(Entity);
-    auto& Attack = RangeView.get<AttackComponent>(Entity);
     auto& Ownership = RangeView.get<OwnershipComponent>(Entity);
     auto& Ogre = RangeView.get<OgreComponent>(Entity);
     auto& Range = RangeView.get<RangeCacheComponent>(Entity);
@@ -294,9 +444,6 @@ void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
 
     if (Ownership.PlayerID != EntityOfInterestOwnership->PlayerID) {
       RelevantEntities.push_back(Entity);
-      // allow the entity in range to also attack this entity, since the other
-      // entity may not have updated
-      Range.EntitiesInRange.insert(EntityOfInterest);
     }
   }
   RangeCompToUpdate->EntitiesInRange =
@@ -306,8 +453,38 @@ void ECSHelper::UpdateAndColludeEntityRanges(EntitiesInRangeUpdateEvent Event) {
 void ECSHelper::IssueRangeRevalEvent(
     NotifyConsequentialEntityStateChange Notif) {
   RenderSystem& Rs = RenderSystem::GetInstance();
-  Rs.RenderQueue->Enqueue(
-      RevalEntityRangeEvent(Notif.Entity, FactoryQueue, 10.f));
+  entt::entity EnttEnt = FindEntityFromOgreEntity(Notif.Entity);
+
+  if (EnttEnt == entt::null) {
+    return;
+  }
+
+  RangeCacheComponent* RangeComp =
+      RegistryToUse->try_get<RangeCacheComponent>(EnttEnt);
+
+  // also force entities currently in this entities cache to re evaluate
+  // dont simply add/remove based on whether this entity can see it (since they
+  // may have varying ranges)
+  if (RangeComp) {
+    for (auto Entity : RangeComp->EntitiesInRange) {
+      if (!RegistryToUse->valid(Entity)) {
+        continue;
+      }
+      RangeCacheComponent* EntInRangeComp =
+          RegistryToUse->try_get<RangeCacheComponent>(Entity);
+      MeshComponent* EntInMeshComp =
+          RegistryToUse->try_get<MeshComponent>(Entity);
+
+      // if these are invalid, then let WorldManager throw them out
+      if (!EntInRangeComp || !EntInMeshComp) {
+        continue;
+      }
+      Rs.RenderQueue->Enqueue(RevalEntityRangeEvent(
+          EntInMeshComp->Entity, FactoryQueue, EntInRangeComp->Range));
+    }
+    Rs.RenderQueue->Enqueue(
+        RevalEntityRangeEvent(Notif.Entity, FactoryQueue, RangeComp->Range));
+  }
 }
 
 OgreComponent ECSHelper::FindEntityFromSceneNodeName(std::string NodeName) {
@@ -328,6 +505,18 @@ entt::entity ECSHelper::FindEntityFromSceneNode(Ogre::SceneNode* Node) {
     OgreComponent EntComp = View.get<OgreComponent>(Entity);
 
     if (EntComp.EntityNode == Node) {
+      return Entity;
+    }
+  }
+  return entt::null;
+}
+
+entt::entity ECSHelper::FindEntityFromOgreEntity(Ogre::Entity* Ent) {
+  auto View = RegistryToUse->view<MeshComponent>();
+  for (auto Entity : View) {
+    MeshComponent EntComp = View.get<MeshComponent>(Entity);
+
+    if (EntComp.Entity == Ent) {
       return Entity;
     }
   }

@@ -32,6 +32,9 @@
     <ClCompile Include="GlobeGenerationTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="PathfinderTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

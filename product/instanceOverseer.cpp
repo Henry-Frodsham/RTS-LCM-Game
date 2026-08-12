@@ -133,5 +133,5 @@ void InstanceOverseer::ChangeOrbitDepth(ChangeOrbitDepthEvent Event) {
   }
 
   RS.RenderQueue->Enqueue(
-      ChangeCameraOrbitDepthEvent(Event.MouseWheelY, ViewPortToMove));
+      ChangeCameraOrbitDepthEvent(Event.WheelDelta, ViewPortToMove));
 }

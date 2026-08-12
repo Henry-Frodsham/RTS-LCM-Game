@@ -66,19 +66,24 @@ struct CreateUnitProducingGameObjectEvent {
   Ogre::Vector3f SurfaceNormal;
   std::string MeshName;
   std::string EntityName;
+
   Player* GamePlayer;
+
+  std::vector<BiomeType> AllowedBiomes;
 
   int UnitProdPerM;
   int PlayerId;
   CreateUnitProducingGameObjectEvent(std::string NodeN, std::string MeshN,
                                      std::string EntN, Ogre::Vector3 InitP,
-                                     Ogre::Vector3f Sn,
-                                     Player* P, int UPM, int Id)
+                                     Ogre::Vector3f Sn, Player* P,
+                                     std::vector<BiomeType> Biomes,
+                                     int UPM, int Id)
       : NodeName(NodeN),
         MeshName(MeshN),
         EntityName(EntN),
         InitialPosition(InitP),
         GamePlayer(P),
+        AllowedBiomes(Biomes),
         UnitProdPerM(UPM),
         PlayerId(Id),
         SurfaceNormal(Sn) {}
@@ -89,25 +94,32 @@ struct CreateAttackingEntityEvent {
   Ogre::Vector3f SurfaceNormal;
   std::string MeshName;
   std::string EntityName;
+  
   Player* GamePlayer;
+  std::vector<BiomeType> AllowedBiomes;
   float Health;
   float Radius;
   float Power;
   int PlayerId;
+  float MoveSpeed;
   CreateAttackingEntityEvent(std::string NodeN, std::string MeshN,
                              std::string EntN, Ogre::Vector3 InitP,
                              Ogre::Vector3f Sn, Player* P,
-                             float H, float R, float Pwr, int Id)
+                             std::vector<BiomeType> Biomes,
+                             float H, float R, float Pwr, int Id,
+                             float MoveS)
       : NodeName(NodeN),
         MeshName(MeshN),
         EntityName(EntN),
         InitialPosition(InitP),
         GamePlayer(P),
+        AllowedBiomes(Biomes),
         Health(H),
         Radius(R),
         Power(Pwr),
         PlayerId(Id),
-        SurfaceNormal(Sn) {}
+        SurfaceNormal(Sn),
+        MoveSpeed(MoveS) {}
 };
 
 

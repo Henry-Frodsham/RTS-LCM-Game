@@ -79,13 +79,38 @@ struct AddHealthEvent {
   AddHealthEvent(std::shared_ptr<entt::entity> Ent, float H)
       : Entity(Ent), Health(H) {}
 };
-// event to add an attack comp to entity
-struct AddAttackEvent {
+// event to add a health bar render component to entity. must run after the
+// entity's OgreComponent scene node exists - see
+// ECSHelper::CreateAndAddHealthBarComponent for the retry pattern
+struct AddHealthBarComponentEvent {
   std::shared_ptr<entt::entity> Entity;
-  float Radius;
+  explicit AddHealthBarComponentEvent(std::shared_ptr<entt::entity> Ent)
+      : Entity(Ent) {}
+};
+// event to add a facing comp to entity. Forward starts as an arbitrary
+// tangent of SurfaceNormal, since a freshly placed unit has no movement
+// history yet to derive a real direction from
+struct AddFacingComponentEvent {
+  std::shared_ptr<entt::entity> Entity;
+  Ogre::Vector3f SurfaceNormal;
+  AddFacingComponentEvent(std::shared_ptr<entt::entity> Ent,
+                          Ogre::Vector3f Sn)
+      : Entity(Ent), SurfaceNormal(Sn) {}
+};
+// event to add a facing-arrow render comp to entity. must run after the
+// entity's OgreComponent/MeshComponent/FacingComponent all exist - see
+// ECSHelper::CreateAndAddFacingArrowComponent for the retry pattern
+struct AddFacingArrowComponentEvent {
+  std::shared_ptr<entt::entity> Entity;
+  explicit AddFacingArrowComponentEvent(std::shared_ptr<entt::entity> Ent)
+      : Entity(Ent) {}
+};
+// event to add an attack comp to entity
+struct AddMeleeAttackEvent {
+  std::shared_ptr<entt::entity> Entity;
   float Damage;
-  AddAttackEvent(std::shared_ptr<entt::entity> Ent, float R, float D)
-      : Entity(Ent), Radius(R), Damage(D) {}
+  AddMeleeAttackEvent(std::shared_ptr<entt::entity> Ent, float D)
+      : Entity(Ent), Damage(D) {}
 };
 // event to change an entities visibility, foreign to render system
 struct ChangeEntityVisibilityEvent {
@@ -117,8 +142,9 @@ struct OrientateEntityEvent {
 
 struct AddRangeComponentEvent {
   std::shared_ptr<entt::entity> Entity;
-  AddRangeComponentEvent(std::shared_ptr<entt::entity> Ent)
-      : Entity(Ent) {}
+  float Range;
+  AddRangeComponentEvent(std::shared_ptr<entt::entity> Ent, float R)
+      : Entity(Ent), Range(R) {}
 };
 
 struct AddExistableComponentEvent {
@@ -132,9 +158,10 @@ struct AddExistableComponentEvent {
 struct AddMovableComponentEvent {
   std::shared_ptr<entt::entity> Entity;
   std::vector<BiomeType> MovableBiomes;
+  float MoveSpeed;
   AddMovableComponentEvent(std::shared_ptr<entt::entity> Ent,
-                             std::vector<BiomeType> Biomes)
-      : Entity(Ent), MovableBiomes(Biomes) {}
+                             std::vector<BiomeType> Biomes, float Speed)
+      : Entity(Ent), MovableBiomes(Biomes), MoveSpeed(Speed) {}
 };
 
 struct NotifyConsequentialEntityStateChange {
@@ -179,4 +206,21 @@ struct TryUnselectEntityEvent {
 struct TryDestroyEntityEvent {
   entt::entity Entity;
   TryDestroyEntityEvent(entt::entity Ent) : Entity(Ent) {}
+};
+
+// issued every time a hold-to-preview drag's hovered tile changes
+struct RequestPathPreviewEvent {
+  entt::entity Entity;
+  Ogre::Vector3f Position;
+  BiomeType SelectedBiome;
+  Player* TryingPlayer;
+  RequestPathPreviewEvent(entt::entity Ent, Ogre::Vector3f Pos, BiomeType BT,
+                          Player* TPlayer)
+      : Entity(Ent), Position(Pos), SelectedBiome(BT), TryingPlayer(TPlayer) {}
+};
+
+// issued when the hold-to-preview drag is released, committing whatever was
+// last previewed
+struct CommitPathPreviewEvent {
+  CommitPathPreviewEvent() {}
 };

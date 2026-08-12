@@ -31,6 +31,103 @@ bool RefineHit(const Ogre::Ray& WorldRay, Ogre::Entity* Ent,
   *OutWorldDistance = (WorldHit - WorldRay.getOrigin()).length();
   return true;
 }
+
+// destroys every MovableObject attached anywhere in Node's subtree before
+// the node itself is torn down. SceneManager::destroySceneNode only frees
+// the SceneNode objects, not whatever's attached to them or to their
+// children - previously fine since units were a flat node+entity pair with
+// no child nodes, but child-node-attached objects (e.g. a unit's health bar
+// billboard set) would otherwise leak in the SceneManager
+void DestroyAttachedMovablesRecursive(Ogre::SceneManager* SceneMngr,
+                                      Ogre::SceneNode* Node) {
+  for (Ogre::Node* Child : Node->getChildren()) {
+    DestroyAttachedMovablesRecursive(SceneMngr,
+                                     static_cast<Ogre::SceneNode*>(Child));
+  }
+
+  std::vector<Ogre::MovableObject*> Attached;
+  for (size_t i = 0; i < Node->numAttachedObjects(); ++i)
+    Attached.push_back(Node->getAttachedObject(i));
+  Node->detachAllObjects();
+  for (Ogre::MovableObject* Obj : Attached) SceneMngr->destroyMovableObject(Obj);
+}
+
+// half-width of the path preview ribbon, as a fraction of the globe radius -
+// relative rather than a fixed world unit so it stays proportionate if the
+// globe is ever resized
+constexpr float kPathPreviewHalfWidthFraction = 0.01f;
+
+// Ogre's manual-object line strips have no width control and render as a
+// single-pixel hairline, which isn't visible enough for a move preview. this
+// builds a flat ribbon (a triangle strip of quads lying on the surface)
+// along the centreline instead, offsetting each point perpendicular to the
+// path using the local "up" (radial direction from the globe centre) as an
+// approximate surface normal
+void AppendPathPreviewRibbon(Ogre::ManualObject* Obj,
+                             const std::vector<Ogre::Vector3f>& Points,
+                             const Ogre::Vector3f& GlobeCentre,
+                             float HalfWidth) {
+  const size_t Count = Points.size();
+  for (size_t i = 0; i < Count; ++i) {
+    Ogre::Vector3f Tangent;
+    if (i == 0) {
+      Tangent = Points[i + 1] - Points[i];
+    } else if (i == Count - 1) {
+      Tangent = Points[i] - Points[i - 1];
+    } else {
+      Tangent = Points[i + 1] - Points[i - 1];
+    }
+    if (Tangent.squaredLength() < 1e-12f) {
+      Tangent = Ogre::Vector3f::UNIT_X;
+    }
+    Tangent.normalise();
+
+    const Ogre::Vector3f Up = (Points[i] - GlobeCentre).normalisedCopy();
+    Ogre::Vector3f Side = Tangent.crossProduct(Up);
+    if (Side.squaredLength() < 1e-12f) {
+      Side = Tangent.perpendicular();
+    }
+    Side.normalise();
+    Side *= HalfWidth;
+
+    Obj->position(Points[i] - Side);
+    Obj->position(Points[i] + Side);
+  }
+}
+
+// facing arrow dimensions, as fractions of globe radius - same convention as
+// kPathPreviewHalfWidthFraction/kHealthBarWidthFraction, so it stays
+// proportionate if the globe is ever resized. visual placeholders - tune
+// once seen in-engine
+constexpr float kFacingArrowLengthFraction = 0.025f;
+constexpr float kFacingArrowHalfWidthFraction = 0.006f;
+// vertical clearance above the unit's own measured mesh height, as a
+// fraction of that height - same anchoring trick as
+// kHealthBarClearanceFraction in HealthBarController.cpp
+constexpr float kFacingArrowClearanceFraction = 0.2f;
+
+// builds the world orientation that points local +Z at Forward while
+// keeping local +Y aligned to Up. used for the facing arrow, which needs an
+// explicit orientation of its own rather than inheriting its parent unit
+// node's - RotateEntityToSurfaceNormal below only performs the minimal
+// rotation from +Y to the surface normal, so the twist it leaves around
+// that resulting axis is arbitrary and unrelated to movement direction
+Ogre::Quaternion ComputeFacingOrientation(Ogre::Vector3f Forward,
+                                          Ogre::Vector3f Up) {
+  Up.normalise();
+  Ogre::Vector3f Fwd = Forward - Up * Forward.dotProduct(Up);
+  if (Fwd.squaredLength() < 1e-8f) {
+    Fwd = Up.perpendicular();
+  }
+  Fwd.normalise();
+  Ogre::Vector3f Right = Fwd.crossProduct(Up);
+  Right.normalise();
+  Up = Right.crossProduct(Fwd);
+
+  Ogre::Quaternion Orientation;
+  Orientation.FromAxes(Right, Up, Fwd);
+  return Orientation;
+}
 }  // namespace
 
 RenderSystem::RenderSystem()
@@ -39,10 +136,13 @@ RenderSystem::RenderSystem()
       PrimaryWindow(nullptr),
       OverlaySystem(nullptr),
       OverlayControl(nullptr),
+      BillboardControl(nullptr),
+      HealthBarControl(nullptr),
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
       ViewPortListener(nullptr),
       GlobeInt(nullptr),
+      PathPreviewLine(nullptr),
       RaySceneQuery(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
@@ -66,9 +166,14 @@ RenderSystem::~RenderSystem() {
 }
 // main render loop, run regardless of state to maintain responsiveness
 void RenderSystem::RenderFrame() {
+  auto FrameStart = std::chrono::high_resolution_clock::now();
+
   std::chrono::steady_clock::time_point CurrentTime =
       std::chrono::high_resolution_clock::now();
-  DeltaTime = std::chrono::duration<float>(CurrentTime - LastFrameTime).count();
+
+  DeltaTime = std::chrono::duration<float>(FrameStart - LastFrameTime).count();
+
+  LastFrameTime = FrameStart;
 
   // dispatch internal queue aswell
   RenderErrorReporter.Dispatch();
@@ -86,7 +191,6 @@ void RenderSystem::RenderFrame() {
     RenderErrorReporter.EnqueueError(
         ErrorDetail::CreateError(ErrorCode::RENDER_WINDOW_CLOSED));
   }
-  LastFrameTime = std::chrono::high_resolution_clock::now();
 }
 
 // creates Ogre3d root and creates primary render window
@@ -166,6 +270,10 @@ void RenderSystem::Init() {
   GlobeInt->GenerateGlobe(GlobeCreationConfiguration(50, 34645764576));
 
   OverlayControl = new OverlayController();
+
+  BillboardControl = new BillboardController(SceneManager);
+
+  HealthBarControl = new HealthBarController(BillboardControl, GlobeInt);
 
   DefaultViewPort = CreateViewPort();
 
@@ -262,6 +370,31 @@ void RenderSystem::InitRenderResponsibility() {
       std::bind(&OverlayController::AddTextToPanel, OverlayControl,
                 std::placeholders::_1));
 
+  // billboard controller - generic, reusable world-space billboards
+  RenderBus->Subscribe<CreateBillboardSetEvent>(
+      std::bind(&BillboardController::CreateBillboardSet, BillboardControl,
+                std::placeholders::_1));
+  RenderBus->Subscribe<AddBillboardEvent>(std::bind(
+      &BillboardController::AddBillboard, BillboardControl,
+      std::placeholders::_1));
+  RenderBus->Subscribe<EditBillboardDimensionsEvent>(
+      std::bind(&BillboardController::EditBillboardDimensions,
+                BillboardControl, std::placeholders::_1));
+  RenderBus->Subscribe<EditBillboardColourEvent>(
+      std::bind(&BillboardController::EditBillboardColour, BillboardControl,
+                std::placeholders::_1));
+  RenderBus->Subscribe<ChangeBillboardSetVisibilityEvent>(
+      std::bind(&BillboardController::ChangeBillboardSetVisibility,
+                BillboardControl, std::placeholders::_1));
+
+  // health bar controller - built on top of BillboardController
+  RenderBus->Subscribe<CreateHealthBarEvent>(
+      std::bind(&HealthBarController::CreateHealthBar, HealthBarControl,
+                std::placeholders::_1));
+  RenderBus->Subscribe<UpdateHealthBarEvent>(
+      std::bind(&HealthBarController::UpdateHealthBar, HealthBarControl,
+                std::placeholders::_1));
+
   // core Ogre interactions
   RenderBus->Subscribe<CreateSceneNodeEvent>(std::bind(
       &RenderSystem::CreateSceneNodeFromEvent, this, std::placeholders::_1));
@@ -289,10 +422,20 @@ void RenderSystem::InitRenderResponsibility() {
       std::bind(&RenderSystem::DestroyEntity, this, std::placeholders::_1));
   RenderBus->Subscribe<RevalEntityRangeEvent>(
       std::bind(&RenderSystem::EntityRangeCheck, this, std::placeholders::_1));
+  RenderBus->Subscribe<CreateFacingArrowEvent>(std::bind(
+      &RenderSystem::CreateFacingArrow, this, std::placeholders::_1));
+  RenderBus->Subscribe<UpdateFacingArrowOrientationEvent>(
+      std::bind(&RenderSystem::UpdateFacingArrowOrientation, this,
+                std::placeholders::_1));
+  RenderBus->Subscribe<ChangeFacingArrowVisibilityEvent>(
+      std::bind(&RenderSystem::ChangeFacingArrowVisibility, this,
+                std::placeholders::_1));
   RenderBus->Subscribe<ChangeCameraOrbitAngleEvent>(
       std::bind(&RenderSystem::ChangeCameraOrbit, this, std::placeholders::_1));
   RenderBus->Subscribe<ChangeCameraOrbitDepthEvent>(
       std::bind(&RenderSystem::ChangeCameraDepth, this, std::placeholders::_1));
+  RenderBus->Subscribe<UpdatePathPreviewEvent>(
+      std::bind(&RenderSystem::UpdatePathPreview, this, std::placeholders::_1));
 
   // view port update events
   RenderBus->Subscribe<RegisterOverlayToViewPortEvent>(
@@ -423,15 +566,7 @@ void RenderSystem::ScaleEntityFromEvent(ScaleEntityEvent Event) {
 void RenderSystem::DestroyNode(DestroyNodeEvent Event) {
   if (!Event.NodeToDestroy) return;
 
-  Event.NodeToDestroy->detachAllObjects();
-
-  std::vector<Ogre::MovableObject*> Attached;
-  for (size_t i = 0; i < Event.NodeToDestroy->numAttachedObjects(); ++i)
-    Attached.push_back(Event.NodeToDestroy->getAttachedObject(i));
-
-  Event.NodeToDestroy->detachAllObjects();
-  for (Ogre::MovableObject* Obj : Attached)
-    SceneManager->destroyMovableObject(Obj);
+  DestroyAttachedMovablesRecursive(SceneManager, Event.NodeToDestroy);
 
   Event.NodeToDestroy->removeAndDestroyAllChildren();
 
@@ -441,15 +576,9 @@ void RenderSystem::DestroyEntity(DestroyEntityEvent Event) {
   if (!Event.EntityToDestroy) return;
 
   Ogre::SceneNode* NodeToDestroy = Event.EntityToDestroy->getParentSceneNode();
-  NodeToDestroy->detachAllObjects();
+  if (!NodeToDestroy) return;
 
-  std::vector<Ogre::MovableObject*> Attached;
-  for (size_t i = 0; i < NodeToDestroy->numAttachedObjects(); ++i)
-    Attached.push_back(NodeToDestroy->getAttachedObject(i));
-
-  NodeToDestroy->detachAllObjects();
-  for (Ogre::MovableObject* Obj : Attached)
-    SceneManager->destroyMovableObject(Obj);
+  DestroyAttachedMovablesRecursive(SceneManager, NodeToDestroy);
 
   NodeToDestroy->removeAndDestroyAllChildren();
 
@@ -482,6 +611,60 @@ void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
   }
   Event.CallBackQueue->Enqueue(
       EntitiesInRangeUpdateEvent(Node, EntitiesInRange));
+}
+
+void RenderSystem::CreateFacingArrow(CreateFacingArrowEvent Event) {
+  const float Radius = GlobeInt->GetGlobeRadius();
+  const float Length = Radius * kFacingArrowLengthFraction;
+  const float HalfWidth = Radius * kFacingArrowHalfWidthFraction;
+
+  // anchor above the unit mesh's own measured bounding box, same reasoning
+  // as HealthBarController::CreateHealthBar - a fixed globe-radius-relative
+  // offset would land inside some unit meshes and floating above others
+  const float UnitTop = Event.UnitEntity->getBoundingBox().getMaximum().y;
+  const Ogre::Vector3 LocalOffset(
+      0.f, UnitTop * (1.f + kFacingArrowClearanceFraction), 0.f);
+
+  Ogre::SceneNode* ArrowNode = Event.ParentNode->createChildSceneNode(LocalOffset);
+  // position still inherits from ParentNode, but orientation is fully our
+  // own - see ComputeFacingOrientation for why
+  ArrowNode->setInheritOrientation(false);
+  ArrowNode->setOrientation(
+      ComputeFacingOrientation(Event.WorldForward, Event.WorldUp));
+
+  Ogre::ManualObject* Arrow = SceneManager->createManualObject();
+  Arrow->begin("FACING_ARROW", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  // a simple triangle pointing along local +Z, flat in the local XZ plane
+  Arrow->position(-HalfWidth, 0.f, 0.f);
+  Arrow->position(HalfWidth, 0.f, 0.f);
+  Arrow->position(0.f, 0.f, Length);
+  Arrow->end();
+
+  // same per-section custom param unit materials read off SubEntity (see
+  // AddOwnerShipToEnt) - lets FACING_ARROW.material discard the arrow on
+  // every viewport except the owning player's, same mechanism as
+  // RED_UNIT/WHITE and PATH_PREVIEW
+  Arrow->getSection(0)->setCustomParameter(
+      0, Ogre::Vector4(static_cast<float>(Event.OwnerID), 0.0f, 0.0f, 0.0f));
+
+  ArrowNode->attachObject(Arrow);
+  ArrowNode->setVisible(false);
+
+  Event.OutNode.get() = ArrowNode;
+  Event.OutObject.get() = Arrow;
+}
+
+void RenderSystem::UpdateFacingArrowOrientation(
+    UpdateFacingArrowOrientationEvent Event) {
+  if (!Event.ArrowNode) return;
+  Event.ArrowNode->setOrientation(
+      ComputeFacingOrientation(Event.WorldForward, Event.WorldUp));
+}
+
+void RenderSystem::ChangeFacingArrowVisibility(
+    ChangeFacingArrowVisibilityEvent Event) {
+  if (!Event.ArrowNode) return;
+  Event.ArrowNode->setVisible(Event.Visible);
 }
 
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
@@ -559,12 +742,41 @@ void RenderSystem::AddOwnerShipToEnt(AddOwnerShipToEntEvent Event) {
   }
 }
 
+void RenderSystem::UpdatePathPreview(UpdatePathPreviewEvent Event) {
+  if (!PathPreviewLine) {
+    PathPreviewLine = SceneManager->createManualObject("PathPreviewLine");
+    SceneManager->getRootSceneNode()->attachObject(PathPreviewLine);
+  }
+
+  if (!Event.Visible || Event.Points.size() < 2) {
+    PathPreviewLine->setVisible(false);
+    return;
+  }
+
+  const float HalfWidth =
+      GlobeInt->GetGlobeRadius() * kPathPreviewHalfWidthFraction;
+
+  PathPreviewLine->clear();
+  PathPreviewLine->begin("PATH_PREVIEW", Ogre::RenderOperation::OT_TRIANGLE_STRIP);
+  AppendPathPreviewRibbon(PathPreviewLine, Event.Points,
+                          GlobeInt->GetGlobeCentre(), HalfWidth);
+  PathPreviewLine->end();
+
+  // same per-section custom param unit materials read off SubEntity (see
+  // AddOwnerShipToEnt) - lets PATH_PREVIEW.material discard the line on
+  // every viewport except the previewing player's
+  PathPreviewLine->getSection(0)->setCustomParameter(
+      0, Ogre::Vector4(static_cast<float>(Event.OwnerID), 0.0f, 0.0f, 0.0f));
+
+  PathPreviewLine->setVisible(true);
+}
+
 void RenderSystem::ChangeCameraOrbit(ChangeCameraOrbitAngleEvent Event) {
   Event.ViewportToControl->MoveCameraOrbitingPoint2DMotion(
       Event.RelativeMotion, GlobeInt->GetGlobeCentre());
 }
 void RenderSystem::ChangeCameraDepth(ChangeCameraOrbitDepthEvent Event) {
-  Event.ViewportToControl->MoveCameraDepth(Event.MouseWheelY,
+  Event.ViewportToControl->MoveCameraDepth(Event.WheelDelta,
                                            GlobeInt->GetGlobeCentre());
 }
 // singleton access to prevent 2 Ogre roots being made

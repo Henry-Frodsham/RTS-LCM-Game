@@ -1,0 +1,30 @@
+// Unit facing-direction arrow, shown only while a unit is selected. Same
+// ViewerParams/ownerID discard plumbing as PATH_PREVIEW.material - a unit's
+// facing arrow should only ever be visible on the selecting player's own
+// viewport (see RenderSystem::AddOwnerShipToEnt).
+
+fragment_program FacingArrowFP glsl
+{
+    source facing_arrow_fp.glsl
+}
+
+material FACING_ARROW
+{
+    technique
+    {
+        pass
+        {
+            lighting off
+            depth_check off
+            depth_write off
+            scene_blend alpha_blend
+            cull_hardware none
+
+            fragment_program_ref FacingArrowFP
+            {
+                shared_params_ref ViewerParams
+                param_named_auto ownerID custom 0
+            }
+        }
+    }
+}

@@ -1,7 +1,9 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
 #include <entt/entt.hpp>
+#include <optional>  // NOLINT(build/include_order)
 #include <string>  // NOLINT(build/include_order)
+#include <utility>  // NOLINT(build/include_order)
 
 #include "BaseComponents.h"
 #include "CityComponents.h"
@@ -52,9 +54,15 @@ class ECSHelper {
 
   void CreateandAddUnitProductionComponent(AddUnitProductionEvent Event);
 
-  void CreateandAddAttackComponent(AddAttackEvent Event);
+  void CreateandAddAttackComponent(AddMeleeAttackEvent Event);
 
   void CreateandAddHealthComponent(AddHealthEvent Event);
+
+  void CreateAndAddHealthBarComponent(AddHealthBarComponentEvent Event);
+
+  void CreateAndAddFacingComponent(AddFacingComponentEvent Event);
+
+  void CreateAndAddFacingArrowComponent(AddFacingArrowComponentEvent Event);
 
   void CreateAndAddRangeComponent(AddRangeComponentEvent Event);
 
@@ -70,6 +78,15 @@ class ECSHelper {
 
   void ValidateEntityMovement(TryMoveEntityEvent Event);
 
+  void RequestPathPreview(RequestPathPreviewEvent Event);
+
+  // resolves the tile-graph start/goal for a move (real or preview) given a
+  // destination world position and the entity's current MeshComponent
+  // position - shared by ValidateEntityMovement and RequestPathPreview since
+  // both need the identical GlobeInterface round-trip
+  std::optional<std::pair<uint32_t, uint32_t>> ResolveMoveTiles(
+      MeshComponent* MeshComp, Ogre::Vector3f DestinationWorldPos);
+
   void TryUnselectEntity(TryUnselectEntityEvent Event);
 
   void TryDestroyEntity(TryDestroyEntityEvent Event);
@@ -78,4 +95,6 @@ class ECSHelper {
   OgreComponent FindEntityFromSceneNodeName(std::string NodeName);
 
   entt::entity FindEntityFromSceneNode(Ogre::SceneNode* Node);
+
+  entt::entity FindEntityFromOgreEntity(Ogre::Entity* Ent);
 };

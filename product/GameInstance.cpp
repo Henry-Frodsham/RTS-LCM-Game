@@ -53,7 +53,7 @@ void GameInstance::SetUpResponsibility() {
   PlayerControl->TriggerBus->Subscribe<MouseWheelTrigger>(
       [this](MouseWheelTrigger trigger) {
         UpstreamQueue->Enqueue(ChangeOrbitDepthEvent(
-            InstanceTranslator->GetMouseWheelY(), this));
+            InstanceTranslator->GetPreciseMouseWheelY(), this));
       });
   PlayerControl->TriggerBus->Subscribe<RelativeMotionTrigger>(
       std::bind(&Cursor::Update, InstanceCursor));

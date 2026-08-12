@@ -65,6 +65,16 @@ class Globe {
 
   uint32_t FindTileAt(const Ogre::Vector3& directionFromCenter) const;
 
+  // globe-local surface position/normal for a tile, elevation-displaced the
+  // same way the visual mesh and CastRay's hit results are - used by
+  // Pathfinder for edge costs and by GlobeInterface to place path waypoints
+  Ogre::Vector3 GetTileSurfacePosition(uint32_t TileID) const {
+    return GetDisplacedVertexPosition(TileID);
+  }
+  Ogre::Vector3 GetTileSurfaceNormal(uint32_t TileID) const {
+    return ComputeApproximateNormal(TileID);
+  }
+
   const Ogre::Vector3& GetCenter() const { return Center; }
   float GetRadius() const { return Radius; }
 

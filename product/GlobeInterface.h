@@ -27,6 +27,15 @@ class GlobeInterface {
 
   GlobeRayHit CastRayFromWorld(const Ogre::Ray& WorldRay) const;
 
+  const Globe* GetGlobe() const { return CGlobe; }
+
+  // world<->tile helpers for pathfinding/movement, mirroring the same
+  // GlobeSceneNode-relative transform CastRayFromWorld already uses so a
+  // path waypoint lands exactly where a click on that tile would
+  uint32_t FindTileAtWorldPosition(const Ogre::Vector3& WorldPos) const;
+  Ogre::Vector3f GetWorldPositionForTile(uint32_t TileID) const;
+  Ogre::Vector3f GetWorldNormalForTile(uint32_t TileID) const;
+
  private:
   Globe* CGlobe;
 

@@ -23,14 +23,31 @@ PlayerGeneralControl::PlayerGeneralControl(InputTranslator* Translator,
 }
 
 void PlayerGeneralControl::Update(float Dt) {
-  if (PlayerTranslator->HasRelativeMotion() &&
-      PlayerTranslator->HoldingRMBorLT()) {
+  // while a unit is selected, holding the orbit modifier (right mouse or
+  // left trigger) drives the hold-to-preview move gesture instead of
+  // orbiting the camera - orbiting only applies with nothing selected
+  const bool Selected = InteractionWheelToNotify->HasSelection();
+  const bool Holding = PlayerTranslator->HoldingRMBorLT();
+  const bool Previewing = Selected && Holding;
+
+  if (Previewing) {
+    TriggerPreviewRayTrace();
+  } else if (PlayerTranslator->HasRelativeMotion() && Holding) {
     TriggerQueue->Enqueue(CameraControlTrigger());
   }
+
+  if (WasPreviewing && !Previewing) {
+    // modifier released after a preview - commit whatever was last shown
+    InteractionWheelToNotify->ForeignNotifQueue->Enqueue(
+        CommitPathPreviewEvent());
+  }
+  InteractionWheelToNotify->SetPreviewActive(Previewing);
+  WasPreviewing = Previewing;
+
   if (PlayerTranslator->HasRelativeMotion()) {
     TriggerQueue->Enqueue(RelativeMotionTrigger());
   }
-  if (PlayerTranslator->GetMouseWheelY() != 0) {
+  if (PlayerTranslator->GetPreciseMouseWheelY() != 0.f) {
     TriggerQueue->Enqueue(MouseWheelTrigger());
   }
   TriggerQueue->Dispatch();
@@ -42,6 +59,15 @@ void PlayerGeneralControl::OnPress(PressActionCommand Cmd) {
       std::vector<float>{Cmd.Context.MouseX, Cmd.Context.MouseY};
   RS.RenderQueue->Enqueue(StartRayTraceEvent(
       Position, PlayerTranslator->ManagedDevice,
+      [](EventQueue* queue, RayPickResult Event) { queue->Enqueue(Event); },
+      TriggerQueue));
+}
+
+void PlayerGeneralControl::TriggerPreviewRayTrace() {
+  RenderSystem& RS = RenderSystem::GetInstance();
+  RS.RenderQueue->Enqueue(StartRayTraceEvent(
+      PlayerTranslator->GetNormalizedCursorPosition(),
+      PlayerTranslator->ManagedDevice,
       [](EventQueue* queue, RayPickResult Event) { queue->Enqueue(Event); },
       TriggerQueue));
 }
