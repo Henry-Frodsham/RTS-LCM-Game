@@ -75,7 +75,7 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
   RS.RenderQueue->Enqueue(OverlayAddTextToPanelEvent{
       "interaction_wheel_C" + std::to_string(ThreadID),
       "interaction_wheel_C_text_" + std::to_string(ThreadID),
-      "MOV",
+      "BOAT",
       "WHITE",
       {0.f, 0.f},
       {1.f, 1.f}});
@@ -289,7 +289,10 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
           EntityTemplates::CreateUnitProducingGameObject(
               Factory, CreateUnitProducingGameObjectEvent(
                            Info.NodeName, "city.mesh", Info.EntName, Position,
-                           SurfaceNormal, GamePlayer, 30, ThreadID));
+                           SurfaceNormal, GamePlayer,
+                           {BiomeType::Desert, BiomeType::Forest,
+                            BiomeType::Plains, BiomeType::Tundra},
+                           30, ThreadID));
       GamePlayer->AvailableCities -= 1;
     }
   }
@@ -301,8 +304,23 @@ void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
   }
 }
 void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
-  // move - same commit path the hold-to-preview gesture uses
-  CommitPathPreview(CommitPathPreviewEvent());
+  // boat
+  if (!Position.isNaN()) {
+    if (SelectedBiome != BiomeType::Ocean) {
+      return;
+    }
+    if (GamePlayer->AvailableUnits >= 1) {
+      UnitConstructionInfo Info = GamePlayer->PreUnitPlace();
+      std::shared_ptr<entt::entity> Ent =
+          EntityTemplates::CreateAttackingGameObject(
+              Factory, CreateAttackingEntityEvent(
+                           Info.NodeName, "unit.mesh", Info.EntName, Position,
+                           SurfaceNormal, GamePlayer,
+                           {BiomeType::Ocean},
+                           100.f, 0.1f, 25.f, ThreadID, 0.3f));
+      GamePlayer->AvailableUnits -= 1;
+    }
+  }
 }
 void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
   // unit
@@ -315,11 +333,12 @@ void InteractionWheel::CallBackButtonD(CallBackDCommand Cmd) {
       UnitConstructionInfo Info = GamePlayer->PreUnitPlace();
       std::shared_ptr<entt::entity> Ent =
           EntityTemplates::CreateAttackingGameObject(
-              Factory, CreateAttackingEntityEvent(Info.NodeName, "unit.mesh",
-                                                  Info.EntName, Position,
-                                                  SurfaceNormal, GamePlayer,
-                                                  100.f, 0.1f, 25.f, ThreadID,
-                                                  0.3f));
+              Factory, CreateAttackingEntityEvent(
+                           Info.NodeName, "unit.mesh", Info.EntName, Position,
+                           SurfaceNormal, GamePlayer,
+                           {BiomeType::Desert, BiomeType::Forest,
+                            BiomeType::Plains, BiomeType::Tundra},
+                           100.f, 0.1f, 25.f, ThreadID, 0.3f));
       GamePlayer->AvailableUnits -= 1;
     }
   }

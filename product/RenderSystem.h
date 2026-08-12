@@ -114,6 +114,12 @@ class RenderSystem {
 
   void EntityRangeCheck(RevalEntityRangeEvent Event);
 
+  void CreateFacingArrow(CreateFacingArrowEvent Event);
+
+  void UpdateFacingArrowOrientation(UpdateFacingArrowOrientationEvent Event);
+
+  void ChangeFacingArrowVisibility(ChangeFacingArrowVisibilityEvent Event);
+
   void ChangeCameraOrbit(ChangeCameraOrbitAngleEvent Event);
 
   void ChangeCameraDepth(ChangeCameraOrbitDepthEvent Event);

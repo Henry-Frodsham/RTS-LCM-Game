@@ -8,6 +8,29 @@
 #include "Player.h"
 #include "Pathfinder.h"
 
+namespace {
+// cosine of the half-angle of the frontal arc an attacker must face a
+// target within for an attack to land. 0.f = a 90 degree half-angle either
+// side of Forward, i.e. the whole front hemisphere counts - tune (or turn
+// into a damage curve instead of an all-or-nothing gate) once "units attack
+// most effectively at the front" gets real balancing
+constexpr float kFrontArcCosHalfAngle = 0.f;
+
+// secondary check performed only at attack time, alongside (not instead of)
+// RangeCacheComponent's sphere-based membership check - a target can be a
+// valid, in-range enemy without being in front of the attacker
+bool IsTargetWithinFrontArc(const Ogre::Vector3f& Forward,
+                            const Ogre::Vector3& AttackerPos,
+                            const Ogre::Vector3& TargetPos) {
+  Ogre::Vector3 ToTarget = TargetPos - AttackerPos;
+  if (ToTarget.squaredLength() < 1e-8f) {
+    return true;
+  }
+  ToTarget.normalise();
+  return Forward.dotProduct(ToTarget) >= kFrontArcCosHalfAngle;
+}
+}  // namespace
+
 WorldManager::WorldManager() {
   WorldBus = new EventBus();
   WorldQueue = new EventQueue(WorldBus);
@@ -139,6 +162,9 @@ void WorldManager::AdvanceMovingEntities(float DT) {
       continue;
     }
 
+    FacingComponent* Facing = Registry.try_get<FacingComponent>(Entity);
+    FacingArrowComponent* Arrow = Registry.try_get<FacingArrowComponent>(Entity);
+
     Ogre::Vector3 CurrentPos = SN->getPosition();
     float Budget = Mover.Speed * DT;
 
@@ -147,6 +173,24 @@ void WorldManager::AdvanceMovingEntities(float DT) {
       const Ogre::Vector3 TargetPos = GInt->GetWorldPositionForTile(NextTile);
       const Ogre::Vector3 Delta = TargetPos - CurrentPos;
       const float DistSq = Delta.squaredLength();
+
+      if (Facing && DistSq > kArrivalEpsilonSq) {
+        // project onto the tangent plane of the unit's current surface
+        // normal (local +Y post-RotateEntityToSurfaceNormal) so Forward
+        // stays a unit-length tangent vector usable for the front-arc
+        // attack check, not just a raw chord direction
+        const Ogre::Vector3 CurrentNormal =
+            SN->getOrientation() * Ogre::Vector3::UNIT_Y;
+        const Ogre::Vector3 Tangential =
+            Delta - CurrentNormal * Delta.dotProduct(CurrentNormal);
+        if (Tangential.squaredLength() > kArrivalEpsilonSq) {
+          Facing->Forward = Tangential.normalisedCopy();
+          if (Arrow) {
+            Rs.RenderQueue->Enqueue(UpdateFacingArrowOrientationEvent(
+                Arrow->ArrowNode, Facing->Forward, CurrentNormal));
+          }
+        }
+      }
 
       if (DistSq <= kArrivalEpsilonSq || std::sqrt(DistSq) <= Budget) {
         CurrentPos = TargetPos;
@@ -199,6 +243,7 @@ void WorldManager::EvaluateTickerComponents(float DT) {
     auto& Attack = AttackView.get<MeleeAttackComponent>(Entity);
     auto& Health = AttackView.get<HealthComponent>(Entity);
     auto& Ogre = AttackView.get<OgreComponent>(Entity);
+    FacingComponent* Facing = Registry.try_get<FacingComponent>(Entity);
 
     if (!Ogre.EntityNode) {
       ECSReporter->EnqueueError(
@@ -218,6 +263,19 @@ void WorldManager::EvaluateTickerComponents(float DT) {
       if (!EntOgre.EntityNode) {
         ECSReporter->EnqueueError(
             ErrorDetail::CreateError(ErrorCode::ATTACK_LOGIC_EARLY));
+      }
+
+      // secondary front-arc check - RangeCacheComponent above still governs
+      // what counts as "in range" for targeting; this additionally requires
+      // the attacker to be facing roughly towards the target before any
+      // damage lands. falls back to always-allow if either node is missing
+      // or the attacker has no FacingComponent, so this can never newly
+      // block an attack that would previously have landed unconditionally
+      if (Facing && Ogre.EntityNode && EntOgre.EntityNode &&
+          !IsTargetWithinFrontArc(Facing->Forward,
+                                  Ogre.EntityNode->_getDerivedPosition(),
+                                  EntOgre.EntityNode->_getDerivedPosition())) {
+        continue;
       }
 
       try {

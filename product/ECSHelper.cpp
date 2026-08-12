@@ -32,6 +32,11 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
       &ECSHelper::CreateandAddHealthComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddHealthBarComponentEvent>(std::bind(
       &ECSHelper::CreateAndAddHealthBarComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddFacingComponentEvent>(std::bind(
+      &ECSHelper::CreateAndAddFacingComponent, this, std::placeholders::_1));
+  FactoryBus->Subscribe<AddFacingArrowComponentEvent>(
+      std::bind(&ECSHelper::CreateAndAddFacingArrowComponent, this,
+                std::placeholders::_1));
   FactoryBus->Subscribe<AddMeleeAttackEvent>(std::bind(
       &ECSHelper::CreateandAddAttackComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddRangeComponentEvent>(std::bind(
@@ -126,6 +131,44 @@ void ECSHelper::CreateAndAddHealthBarComponent(
       Rs.RenderQueue->Enqueue(CreateHealthBarEvent(
           std::ref(Component.BarSet), std::ref(Component.Fill),
           EntOgreComp.EntityNode, EntMeshComp.Entity));
+    } else {
+      FactoryQueue->Enqueue(Event);
+    }
+  } catch (std::exception e) {
+  }
+}
+void ECSHelper::CreateAndAddFacingComponent(AddFacingComponentEvent Event) {
+  RegistryToUse->emplace<FacingComponent>(
+      *Event.Entity, Event.SurfaceNormal.perpendicular().normalisedCopy());
+}
+void ECSHelper::CreateAndAddFacingArrowComponent(
+    AddFacingArrowComponentEvent Event) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+  try {
+    OgreComponent& EntOgreComp =
+        RegistryToUse->get<OgreComponent>(*Event.Entity);
+    MeshComponent& EntMeshComp =
+        RegistryToUse->get<MeshComponent>(*Event.Entity);
+
+    // same ordering issue as CreateAndAddHealthBarComponent - retry until
+    // both the scene node and mesh entity this arrow parents/anchors to
+    // exist
+    if (EntOgreComp.EntityNode != nullptr && EntMeshComp.Entity != nullptr) {
+      OwnershipComponent& EntOwnership =
+          RegistryToUse->get<OwnershipComponent>(*Event.Entity);
+      FacingComponent& Facing =
+          RegistryToUse->get<FacingComponent>(*Event.Entity);
+
+      auto& Component = RegistryToUse->emplace<FacingArrowComponent>(
+          *Event.Entity, nullptr, nullptr);
+
+      const Ogre::Vector3f WorldUp =
+          EntOgreComp.EntityNode->getOrientation() * Ogre::Vector3::UNIT_Y;
+
+      Rs.RenderQueue->Enqueue(CreateFacingArrowEvent(
+          std::ref(Component.ArrowNode), std::ref(Component.ArrowObject),
+          EntOgreComp.EntityNode, EntMeshComp.Entity, EntOwnership.PlayerID,
+          Facing.Forward, WorldUp));
     } else {
       FactoryQueue->Enqueue(Event);
     }
@@ -242,6 +285,12 @@ void ECSHelper::ValidateEntitySelection(TrySelectEntityEvent Event) {
     RenderSystem& Rs = RenderSystem::GetInstance();
     Rs.RenderQueue->Enqueue(
         ChangeEntMaterialEvent(MeshComp->Entity, "RED_UNIT"));
+
+    if (FacingArrowComponent* Arrow =
+            RegistryToUse->try_get<FacingArrowComponent>(Event.Entity)) {
+      Rs.RenderQueue->Enqueue(
+          ChangeFacingArrowVisibilityEvent(Arrow->ArrowNode, true));
+    }
     Event.Respond();
   }
 }
@@ -349,6 +398,12 @@ void ECSHelper::TryUnselectEntity(TryUnselectEntityEvent Event) {
   }
   RenderSystem& Rs = RenderSystem::GetInstance();
   Rs.RenderQueue->Enqueue(ChangeEntMaterialEvent(MeshComp->Entity, "WHITE"));
+
+  if (FacingArrowComponent* Arrow =
+          RegistryToUse->try_get<FacingArrowComponent>(Event.Entity)) {
+    Rs.RenderQueue->Enqueue(
+        ChangeFacingArrowVisibilityEvent(Arrow->ArrowNode, false));
+  }
 }
 
 void ECSHelper::TryDestroyEntity(TryDestroyEntityEvent Event) {

@@ -113,6 +113,55 @@ struct UpdateHealthBarEvent {
   UpdateHealthBarEvent(Ogre::Billboard* F, float R) : Fill(F), Ratio(R) {}
 };
 
+// creates a unit's facing-direction arrow: a small flat triangle, built once
+// in the arrow node's own local space (tip along local +Z) and parented to
+// the unit's node so it inherits position for free. Handled directly by
+// RenderSystem, same as the path preview ribbon, since like that ribbon it's
+// a ManualObject rather than a billboard. WorldForward/WorldUp give the
+// arrow's initial world orientation - see RenderSystem::ComputeFacingOrientation
+// for why this can't just inherit the parent node's orientation. Starts
+// hidden - only shown while the unit is selected (see
+// ChangeFacingArrowVisibilityEvent)
+struct CreateFacingArrowEvent {
+  std::reference_wrapper<Ogre::SceneNode*> OutNode;
+  std::reference_wrapper<Ogre::ManualObject*> OutObject;
+  Ogre::SceneNode* ParentNode;
+  Ogre::Entity* UnitEntity;
+  int OwnerID;
+  Ogre::Vector3f WorldForward;
+  Ogre::Vector3f WorldUp;
+  CreateFacingArrowEvent(Ogre::SceneNode*& OutN, Ogre::ManualObject*& OutO,
+                         Ogre::SceneNode* Parent, Ogre::Entity* UnitEnt,
+                         int Owner, Ogre::Vector3f Forward, Ogre::Vector3f Up)
+      : OutNode(OutN),
+        OutObject(OutO),
+        ParentNode(Parent),
+        UnitEntity(UnitEnt),
+        OwnerID(Owner),
+        WorldForward(Forward),
+        WorldUp(Up) {}
+};
+
+// re-orients a unit's facing arrow to point along WorldForward, staying
+// flush against the tangent plane of WorldUp (the surface normal). doesn't
+// touch geometry - only the node's orientation, which is all that ever needs
+// to change as a unit turns
+struct UpdateFacingArrowOrientationEvent {
+  Ogre::SceneNode* ArrowNode;
+  Ogre::Vector3f WorldForward;
+  Ogre::Vector3f WorldUp;
+  UpdateFacingArrowOrientationEvent(Ogre::SceneNode* Node,
+                                    Ogre::Vector3f Forward, Ogre::Vector3f Up)
+      : ArrowNode(Node), WorldForward(Forward), WorldUp(Up) {}
+};
+
+struct ChangeFacingArrowVisibilityEvent {
+  Ogre::SceneNode* ArrowNode;
+  bool Visible;
+  ChangeFacingArrowVisibilityEvent(Ogre::SceneNode* Node, bool Vis)
+      : ArrowNode(Node), Visible(Vis) {}
+};
+
 struct DestroyNodeEvent {
   Ogre::SceneNode* NodeToDestroy;
   explicit DestroyNodeEvent(Ogre::SceneNode* Node) : NodeToDestroy(Node) {}

@@ -60,6 +60,10 @@ class ECSHelper {
 
   void CreateAndAddHealthBarComponent(AddHealthBarComponentEvent Event);
 
+  void CreateAndAddFacingComponent(AddFacingComponentEvent Event);
+
+  void CreateAndAddFacingArrowComponent(AddFacingArrowComponentEvent Event);
+
   void CreateAndAddRangeComponent(AddRangeComponentEvent Event);
 
   void CreateAndAddExistableComponent(AddExistableComponentEvent Event);

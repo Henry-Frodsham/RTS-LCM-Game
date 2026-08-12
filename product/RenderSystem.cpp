@@ -94,6 +94,40 @@ void AppendPathPreviewRibbon(Ogre::ManualObject* Obj,
     Obj->position(Points[i] + Side);
   }
 }
+
+// facing arrow dimensions, as fractions of globe radius - same convention as
+// kPathPreviewHalfWidthFraction/kHealthBarWidthFraction, so it stays
+// proportionate if the globe is ever resized. visual placeholders - tune
+// once seen in-engine
+constexpr float kFacingArrowLengthFraction = 0.025f;
+constexpr float kFacingArrowHalfWidthFraction = 0.006f;
+// vertical clearance above the unit's own measured mesh height, as a
+// fraction of that height - same anchoring trick as
+// kHealthBarClearanceFraction in HealthBarController.cpp
+constexpr float kFacingArrowClearanceFraction = 0.2f;
+
+// builds the world orientation that points local +Z at Forward while
+// keeping local +Y aligned to Up. used for the facing arrow, which needs an
+// explicit orientation of its own rather than inheriting its parent unit
+// node's - RotateEntityToSurfaceNormal below only performs the minimal
+// rotation from +Y to the surface normal, so the twist it leaves around
+// that resulting axis is arbitrary and unrelated to movement direction
+Ogre::Quaternion ComputeFacingOrientation(Ogre::Vector3f Forward,
+                                          Ogre::Vector3f Up) {
+  Up.normalise();
+  Ogre::Vector3f Fwd = Forward - Up * Forward.dotProduct(Up);
+  if (Fwd.squaredLength() < 1e-8f) {
+    Fwd = Up.perpendicular();
+  }
+  Fwd.normalise();
+  Ogre::Vector3f Right = Fwd.crossProduct(Up);
+  Right.normalise();
+  Up = Right.crossProduct(Fwd);
+
+  Ogre::Quaternion Orientation;
+  Orientation.FromAxes(Right, Up, Fwd);
+  return Orientation;
+}
 }  // namespace
 
 RenderSystem::RenderSystem()
@@ -388,6 +422,14 @@ void RenderSystem::InitRenderResponsibility() {
       std::bind(&RenderSystem::DestroyEntity, this, std::placeholders::_1));
   RenderBus->Subscribe<RevalEntityRangeEvent>(
       std::bind(&RenderSystem::EntityRangeCheck, this, std::placeholders::_1));
+  RenderBus->Subscribe<CreateFacingArrowEvent>(std::bind(
+      &RenderSystem::CreateFacingArrow, this, std::placeholders::_1));
+  RenderBus->Subscribe<UpdateFacingArrowOrientationEvent>(
+      std::bind(&RenderSystem::UpdateFacingArrowOrientation, this,
+                std::placeholders::_1));
+  RenderBus->Subscribe<ChangeFacingArrowVisibilityEvent>(
+      std::bind(&RenderSystem::ChangeFacingArrowVisibility, this,
+                std::placeholders::_1));
   RenderBus->Subscribe<ChangeCameraOrbitAngleEvent>(
       std::bind(&RenderSystem::ChangeCameraOrbit, this, std::placeholders::_1));
   RenderBus->Subscribe<ChangeCameraOrbitDepthEvent>(
@@ -569,6 +611,60 @@ void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
   }
   Event.CallBackQueue->Enqueue(
       EntitiesInRangeUpdateEvent(Node, EntitiesInRange));
+}
+
+void RenderSystem::CreateFacingArrow(CreateFacingArrowEvent Event) {
+  const float Radius = GlobeInt->GetGlobeRadius();
+  const float Length = Radius * kFacingArrowLengthFraction;
+  const float HalfWidth = Radius * kFacingArrowHalfWidthFraction;
+
+  // anchor above the unit mesh's own measured bounding box, same reasoning
+  // as HealthBarController::CreateHealthBar - a fixed globe-radius-relative
+  // offset would land inside some unit meshes and floating above others
+  const float UnitTop = Event.UnitEntity->getBoundingBox().getMaximum().y;
+  const Ogre::Vector3 LocalOffset(
+      0.f, UnitTop * (1.f + kFacingArrowClearanceFraction), 0.f);
+
+  Ogre::SceneNode* ArrowNode = Event.ParentNode->createChildSceneNode(LocalOffset);
+  // position still inherits from ParentNode, but orientation is fully our
+  // own - see ComputeFacingOrientation for why
+  ArrowNode->setInheritOrientation(false);
+  ArrowNode->setOrientation(
+      ComputeFacingOrientation(Event.WorldForward, Event.WorldUp));
+
+  Ogre::ManualObject* Arrow = SceneManager->createManualObject();
+  Arrow->begin("FACING_ARROW", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  // a simple triangle pointing along local +Z, flat in the local XZ plane
+  Arrow->position(-HalfWidth, 0.f, 0.f);
+  Arrow->position(HalfWidth, 0.f, 0.f);
+  Arrow->position(0.f, 0.f, Length);
+  Arrow->end();
+
+  // same per-section custom param unit materials read off SubEntity (see
+  // AddOwnerShipToEnt) - lets FACING_ARROW.material discard the arrow on
+  // every viewport except the owning player's, same mechanism as
+  // RED_UNIT/WHITE and PATH_PREVIEW
+  Arrow->getSection(0)->setCustomParameter(
+      0, Ogre::Vector4(static_cast<float>(Event.OwnerID), 0.0f, 0.0f, 0.0f));
+
+  ArrowNode->attachObject(Arrow);
+  ArrowNode->setVisible(false);
+
+  Event.OutNode.get() = ArrowNode;
+  Event.OutObject.get() = Arrow;
+}
+
+void RenderSystem::UpdateFacingArrowOrientation(
+    UpdateFacingArrowOrientationEvent Event) {
+  if (!Event.ArrowNode) return;
+  Event.ArrowNode->setOrientation(
+      ComputeFacingOrientation(Event.WorldForward, Event.WorldUp));
+}
+
+void RenderSystem::ChangeFacingArrowVisibility(
+    ChangeFacingArrowVisibilityEvent Event) {
+  if (!Event.ArrowNode) return;
+  Event.ArrowNode->setVisible(Event.Visible);
 }
 
 void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {

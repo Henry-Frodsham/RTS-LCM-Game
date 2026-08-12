@@ -1,5 +1,7 @@
 // Copyright (c) 2026 Henry Frodsham
 #pragma once
+#include <OGRE/Ogre.h>
+
 #include <cstdint>
 #include <deque>
 #include <unordered_map>
@@ -35,6 +37,18 @@ struct MovableComponent {
   }
 
   bool IsMoving() const { return !Path.empty(); }
+};
+
+// current facing direction, a unit-length vector tangent to the globe
+// surface at the entity's position. seeded from an arbitrary tangent of the
+// spawn surface normal (a fresh unit has no movement history to derive a
+// direction from) and updated from the movement delta each step of
+// WorldManager::AdvanceMovingEntities - stays fixed while stationary so a
+// unit keeps facing the way it last walked
+struct FacingComponent {
+  Ogre::Vector3f Forward;
+  explicit FacingComponent(Ogre::Vector3f InitialForward)
+      : Forward(InitialForward) {}
 };
 
 // transient - attached only while a path is being solved, removed once the

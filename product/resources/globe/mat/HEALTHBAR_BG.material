@@ -1,7 +1,6 @@
-// depth_check off so the bar is never occluded by the unit's own mesh (a
-// camera-facing billboard anchored just above a curved/animated model can
-// still dip behind its silhouette at grazing angles even when correctly
-// positioned) - same rationale as PATH_PREVIEW.material's depth_check off
+// depth_check on so the bar is correctly occluded by terrain/the globe (it
+// should never draw through scenery) - depth_write stays off since it's
+// alpha-blended and shouldn't block the fill layer drawn just above it
 material HEALTHBAR_BG
 {
     technique
@@ -9,7 +8,7 @@ material HEALTHBAR_BG
         pass
         {
             lighting off
-            depth_check off
+            depth_check on
             depth_write off
             scene_blend alpha_blend
             diffuse 0.05 0.05 0.05 0.85

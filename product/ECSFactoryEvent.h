@@ -87,6 +87,24 @@ struct AddHealthBarComponentEvent {
   explicit AddHealthBarComponentEvent(std::shared_ptr<entt::entity> Ent)
       : Entity(Ent) {}
 };
+// event to add a facing comp to entity. Forward starts as an arbitrary
+// tangent of SurfaceNormal, since a freshly placed unit has no movement
+// history yet to derive a real direction from
+struct AddFacingComponentEvent {
+  std::shared_ptr<entt::entity> Entity;
+  Ogre::Vector3f SurfaceNormal;
+  AddFacingComponentEvent(std::shared_ptr<entt::entity> Ent,
+                          Ogre::Vector3f Sn)
+      : Entity(Ent), SurfaceNormal(Sn) {}
+};
+// event to add a facing-arrow render comp to entity. must run after the
+// entity's OgreComponent/MeshComponent/FacingComponent all exist - see
+// ECSHelper::CreateAndAddFacingArrowComponent for the retry pattern
+struct AddFacingArrowComponentEvent {
+  std::shared_ptr<entt::entity> Entity;
+  explicit AddFacingArrowComponentEvent(std::shared_ptr<entt::entity> Ent)
+      : Entity(Ent) {}
+};
 // event to add an attack comp to entity
 struct AddMeleeAttackEvent {
   std::shared_ptr<entt::entity> Entity;

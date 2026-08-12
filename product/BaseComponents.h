@@ -45,3 +45,17 @@ struct HealthBarComponent {
   HealthBarComponent(Ogre::BillboardSet* Set, Ogre::Billboard* F, int Decile)
       : BarSet(Set), Fill(F), LastSyncedDecile(Decile) {}
 };
+
+// render handle for a unit's facing-direction arrow. ArrowNode is a child of
+// the unit's own SceneNode with inherited position but NOT inherited
+// orientation (see RenderSystem::CreateFacingArrow) - it needs its own
+// explicit world orientation, decoupled from the arbitrary twist
+// RotateEntToSurfaceNormalEvent leaves around the unit's local up axis.
+// Hidden by default, only shown while the unit is selected
+struct FacingArrowComponent {
+  Ogre::SceneNode* ArrowNode;
+  Ogre::ManualObject* ArrowObject;
+
+  FacingArrowComponent(Ogre::SceneNode* Node, Ogre::ManualObject* Obj)
+      : ArrowNode(Node), ArrowObject(Obj) {}
+};
