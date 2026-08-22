@@ -46,7 +46,8 @@ void OverlayController::AddBox(OverlayAddBoxEvent Event) {
     return;
   }
   RenderSystem& RS = RenderSystem::GetInstance();
-  OverlayInfo* Info = new OverlayInfo(false, false, Event.OverlayToUse);
+  OverlayInfo* Info =
+      new OverlayInfo(false, false, Event.OverlayToUse, Event.MaterialName);
   ViewPortController* VPC = RS.GetPrimaryViewport();
   std::vector<int> VPD = VPC->GetActualDimensions();
   std::vector<float> WD = RS.GetRenderWindowDimensions();
@@ -201,6 +202,75 @@ void OverlayController::AddTextToPanel(OverlayAddTextToPanelEvent Event) {
   OverlayInfo* Info = new OverlayInfo(false, false, ParentInfo->OwnedByOverlay);
   OverlayInfos.emplace(Event.TextName, Info);
 }
+
+// add a plain coloured box as a child of an existing panel - unlike AddBox,
+// this isn't registered as a top-level 2D element of the overlay, so it
+// isn't independently hover/press-checked by OverlayCursorCheck/
+// OverlayPressedCheck (which return early on the first element they find
+// with no registered callback). that keeps things like a slider's fill
+// purely visual while still letting it be resized via EditPanel, since Ogre
+// resolves element names globally regardless of nesting
+void OverlayController::AddBoxToPanel(OverlayAddBoxToPanelEvent Event) {
+  if (!OverlayMngr) {
+    OverlayErrorReporter.EnqueueError(
+        ErrorDetail::CreateError(ErrorCode::OVERLAY_UNITIALISED));
+    return;
+  }
+
+  Ogre::OverlayElement* Found = nullptr;
+  try {
+    Found = OverlayMngr->getOverlayElement(Event.PanelName);
+  } catch (std::exception& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::ELEMENT_NOT_FOUND,
+        fmt::format("panel {} not found for box attachment", Event.PanelName)));
+    return;
+  }
+
+  Ogre::OverlayContainer* Panel = dynamic_cast<Ogre::OverlayContainer*>(Found);
+  if (!Panel) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::ELEMENT_NOT_FOUND,
+        fmt::format("{} exists but is not a container", Event.PanelName)));
+    return;
+  }
+
+  Ogre::OverlayContainer* ChildBox = static_cast<Ogre::OverlayContainer*>(
+      OverlayMngr->createOverlayElement("Panel", Event.BoxName));
+
+  ChildBox->setMetricsMode(Ogre::GMM_RELATIVE);
+  ChildBox->setPosition(Event.Position[0], Event.Position[1]);
+  ChildBox->setDimensions(Event.Dimensions[0], Event.Dimensions[1]);
+
+  try {
+    ChildBox->setMaterialName(Event.MaterialName, "Overlay");
+  } catch (const std::exception& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::MATERIAL_NOT_FOUND,
+        fmt::format("material {} not found in resource group \"Overlay\"",
+                    Event.MaterialName)));
+    return;
+  }
+
+  Panel->addChild(ChildBox);
+
+  // track it using the parent panel's overlay name from OverlayInfos, same
+  // as AddTextToPanel
+  OverlayInfo* ParentInfo = nullptr;
+  try {
+    ParentInfo = OverlayInfos.at(Event.PanelName);
+  } catch (std::exception& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::OVERLAY_MISSING_INFO,
+        fmt::format("no OverlayInfo found for parent panel {}",
+                    Event.PanelName)));
+    return;
+  }
+
+  OverlayInfo* Info = new OverlayInfo(false, false, ParentInfo->OwnedByOverlay);
+  OverlayInfos.emplace(Event.BoxName, Info);
+}
+
 void OverlayController::EditPanel(OverlayEditPanelEvent Event) {
   if (!OverlayMngr) {
     OverlayErrorReporter.EnqueueError(
@@ -359,14 +429,15 @@ void OverlayController::OverlayHovered(Ogre::OverlayElement* Element,
 }
 void OverlayController::OverlayReleased(Ogre::OverlayElement* Element,
                                         OverlayInfo* Info) {
-  Element->setMaterialName("RED", "Overlay");
+  Element->setMaterialName(Info->BaseMaterial, "Overlay");
 }
 void OverlayController::OverlayPressed(Ogre::OverlayElement* Element,
-                                       OverlayInfo* Info) {
+                                       OverlayInfo* Info, float MouseX,
+                                       float MouseY) {
   Element->setMaterialName("PURPLE", "Overlay");
 
   if (Info->PressCallBack != nullptr) {
-    Info->PressCallBack(*Info->CallQueue);
+    Info->PressCallBack(*Info->CallQueue, MouseX, MouseY);
   }
 }
 void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
@@ -425,9 +496,12 @@ void OverlayController::OverlayPressedCheck(PressActionCommand Cmd) {
       return;
     }
 
+    if (!Info->PressCallBack) {
+      return;
+    }
     if (Element->findElementAt(Cntxt.MouseX, Cntxt.MouseY) && !Cmd.Released) {
       Info->Pressed = true;
-      OverlayPressed(Element, Info);
+      OverlayPressed(Element, Info, Cntxt.MouseX, Cntxt.MouseY);
     } else {
       Info->Pressed = false;
       if (Info->Hovered) {

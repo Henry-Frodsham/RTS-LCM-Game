@@ -247,6 +247,8 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="GameInstance.cpp" />
     <ClCompile Include="GenericButton.cpp" />
+    <ClCompile Include="GenericLoadingProgress.cpp" />
+    <ClCompile Include="GenericSlider.cpp" />
     <ClCompile Include="Globe.cpp" />
     <ClCompile Include="GlobeInterface.cpp" />
     <ClCompile Include="HealthBarController.cpp" />
@@ -255,6 +257,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="InputTranslator.cpp" />
     <ClCompile Include="instanceOverseer.cpp" />
     <ClCompile Include="InteractionWheel.cpp" />
+    <!-- TEMP-EXCLUDED-FOR-VERIFICATION <ClCompile Include="InteractionWheel.cpp" /> -->
     <ClCompile Include="OverlayController.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerGeneralControl.cpp" />
@@ -289,6 +292,8 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="GameAction.h" />
     <ClInclude Include="GameInstance.h" />
     <ClInclude Include="GenericButton.h" />
+    <ClInclude Include="GenericLoadingProgress.h" />
+    <ClInclude Include="GenericSlider.h" />
     <ClInclude Include="Globe.h" />
     <ClInclude Include="GlobeEvent.h" />
     <ClInclude Include="GlobeInterface.h" />

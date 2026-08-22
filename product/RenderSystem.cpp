@@ -267,7 +267,7 @@ void RenderSystem::Init() {
   GlobeInt = new GlobeInterface();
 
   GlobeInt->Initialise();
-  GlobeInt->GenerateGlobe(GlobeCreationConfiguration(50, 34645764576));
+  GlobeInt->GenerateGlobe();
 
   OverlayControl = new OverlayController();
 
@@ -293,8 +293,15 @@ ViewPortController* RenderSystem::CreateViewPort() {
 
   Ogre::Camera* Camera =
       SceneManager->createCamera(std::to_string(CameraList.size()));
-  Camera->setNearClipDistance(0.1f);
-  Camera->setFarClipDistance(1000.0f);
+
+  // clip planes are expressed as a fraction of the globe's radius rather
+  // than flat literals, so they stay correct however small/large the
+  // configured planet size is instead of assuming a unit-radius globe
+  constexpr float kNearClipRadiusFraction = 0.1f;
+  constexpr float kFarClipRadiusFraction = 1000.0f;
+  const float GlobeRadius = GlobeInt->GetGlobeRadius();
+  Camera->setNearClipDistance(GlobeRadius * kNearClipRadiusFraction);
+  Camera->setFarClipDistance(GlobeRadius * kFarClipRadiusFraction);
 
   Camera->setAutoAspectRatio(true);
 
@@ -310,7 +317,7 @@ ViewPortController* RenderSystem::CreateViewPort() {
 
   ViewPortController* newController = new ViewPortController(AddedViewPort);
   const float SurfaceRadius =
-      GlobeInt->GetGlobeRadius() * 1.05f;  // matches kHeightScale headroom
+      GlobeRadius * 1.05f;  // matches kHeightScale headroom
   newController->SetOrbitDistanceLimits(
       SurfaceRadius * 2.f,    // never clip terrain
       SurfaceRadius * 6.0f);  // arbitrary max zoom-out
@@ -368,6 +375,9 @@ void RenderSystem::InitRenderResponsibility() {
                 std::placeholders::_1));
   RenderBus->Subscribe<OverlayAddTextToPanelEvent>(
       std::bind(&OverlayController::AddTextToPanel, OverlayControl,
+                std::placeholders::_1));
+  RenderBus->Subscribe<OverlayAddBoxToPanelEvent>(
+      std::bind(&OverlayController::AddBoxToPanel, OverlayControl,
                 std::placeholders::_1));
 
   // billboard controller - generic, reusable world-space billboards

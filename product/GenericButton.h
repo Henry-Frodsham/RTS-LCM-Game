@@ -10,7 +10,7 @@ class GenericButton {
  public:
   GenericButton(std::string ButtonName, std::string ButtonText,
                 std::vector<float> Position, InputDevice* DeviceToRespondTo,
-                std::function<void(EventQueue&)> PressCallback,
+                std::function<void(EventQueue&, float, float)> PressCallback,
                 EventQueue* QueueForCallBack, int ThreadId);
   void ChangeVisibility(bool Visible);
   void MaintainScaling();
@@ -22,7 +22,7 @@ class GenericButton {
 
   InputDevice* Device;
 
-  std::function<void(EventQueue&)> CallBackOnPress;
+  std::function<void(EventQueue&, float, float)> CallBackOnPress;
 
   EventQueue* CallBackQueue;
   int Id;

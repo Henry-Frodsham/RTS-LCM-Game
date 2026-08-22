@@ -77,6 +77,7 @@ void Application::Loop() {
         }));
 
     if (StateManager.CurrentState == AppState::GAME) {
+      Game.DebugSlider->MaintainScaling();
     } else if (StateManager.CurrentState == AppState::MENU) {
       Menu.PlayButton->MaintainScaling();
     } else if (StateManager.CurrentState == AppState::PAUSE) {

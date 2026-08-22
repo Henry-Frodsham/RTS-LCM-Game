@@ -9,13 +9,20 @@ struct OverlayInfo {
   bool Hovered;
   std::string OwnedByOverlay;
 
-  std::function<void(EventQueue&)> PressCallBack;
+  std::function<void(EventQueue&, float, float)> PressCallBack;
 
   EventQueue* CallQueue;
-  OverlayInfo(bool Press, bool Hvr, std::string OwnedOverlay)
+
+  // material to restore on release - defaults to "RED" to match the
+  // long-standing button convention (idle red/hover blue/press purple) for
+  // any element that doesn't specify its own, e.g. GenericButton's track
+  std::string BaseMaterial;
+  OverlayInfo(bool Press, bool Hvr, std::string OwnedOverlay,
+             std::string Base = "RED")
       : Pressed(Press),
         Hovered(Hvr),
         OwnedByOverlay(OwnedOverlay),
         PressCallBack(nullptr),
-        CallQueue(nullptr) {}
+        CallQueue(nullptr),
+        BaseMaterial(Base) {}
 };

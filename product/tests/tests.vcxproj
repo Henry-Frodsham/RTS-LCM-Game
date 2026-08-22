@@ -211,6 +211,26 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I</Command>
     <ClCompile Include="RenderSystemTests.cpp" />
     <ClCompile Include="TestsMain.cpp" />
     <ClCompile Include="ViewPortTests.cpp" />
+    <ClCompile Include="GenericButtonTests.cpp" />
+    <ClCompile Include="GenericSliderTests.cpp" />
+    <ClCompile Include="GenericLoadingProgressTests.cpp" />
+    <ClCompile Include="PlayerTests.cpp" />
+    <ClCompile Include="TileTests.cpp" />
+    <ClCompile Include="GlobeTests.cpp" />
+    <ClCompile Include="PathfinderExtraTests.cpp" />
+    <ClCompile Include="ErrorManifestTests.cpp" />
+    <ClCompile Include="GameActionTests.cpp" />
+    <ClCompile Include="TransformationMatrixEdgeTests.cpp" />
+    <ClCompile Include="EntityInteractionEvaluatorExtraTests.cpp" />
+    <ClCompile Include="ConfigManagerTests.cpp" />
+    <ClCompile Include="ComponentStructTests.cpp" />
+    <ClCompile Include="EventQueueEdgeTests.cpp" />
+    <ClCompile Include="EventBusExtraTests.cpp" />
+    <ClCompile Include="ErrorReporterExtraTests.cpp" />
+    <ClCompile Include="ViewPortExtraTests.cpp" />
+    <ClCompile Include="RenderSystemExtraTests.cpp" />
+    <ClCompile Include="ECSHelperComponentEventTests.cpp" />
+    <ClCompile Include="WorldManagerCombatTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\product.vcxproj">

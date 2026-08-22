@@ -8,7 +8,7 @@
 GenericButton::GenericButton(std::string ButtonName, std::string ButtonText,
                              std::vector<float> Position,
                              InputDevice* DeviceToRespondTo,
-                             std::function<void(EventQueue&)> PressCallback,
+                             std::function<void(EventQueue&, float, float)> PressCallback,
                              EventQueue* QueueForCallback, int ThreadID)
     : Name(ButtonName),
       Text(ButtonText),

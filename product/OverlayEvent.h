@@ -150,13 +150,36 @@ struct RegisterOnPressCallBackEvent {
   std::string OverlayName;
   std::string ObjectName;
 
-  std::function<void(EventQueue&)> Callback;
+  // mouse position (in the same normalised viewport space as
+  // ActionContext::MouseX/Y) is bundled in alongside the queue so a callback
+  // can react to where the press landed, e.g. GenericSlider using it to
+  // compute a value
+  std::function<void(EventQueue&, float, float)> Callback;
   EventQueue* CallQueue;
   RegisterOnPressCallBackEvent(std::string Overlay, std::string Object,
-                               std::function<void(EventQueue&)> Call,
+                               std::function<void(EventQueue&, float, float)> Call,
                                EventQueue* Queue)
       : OverlayName(Overlay),
         ObjectName(Object),
         Callback(Call),
         CallQueue(Queue) {}
+};
+
+// add a new box as a child of an existing panel, e.g. a slider fill rendered
+// on top of its track - same convention as OverlayAddTextToPanelEvent, but
+// for a plain coloured panel instead of text. position/dimensions are
+// relative to the parent panel's own box (GMM_RELATIVE), not the overlay
+struct OverlayAddBoxToPanelEvent {
+  std::string PanelName;
+  std::string BoxName;
+  std::string MaterialName;
+  std::vector<float> Position;
+  std::vector<float> Dimensions;
+  OverlayAddBoxToPanelEvent(std::string Pn, std::string Bn, std::string Mname,
+                            std::vector<float> Pos, std::vector<float> Dim)
+      : PanelName(Pn),
+        BoxName(Bn),
+        MaterialName(Mname),
+        Position(Pos),
+        Dimensions(Dim) {}
 };

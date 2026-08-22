@@ -35,6 +35,66 @@
     <ClCompile Include="PathfinderTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="GenericButtonTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GenericSliderTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GenericLoadingProgressTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TileTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobeTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="PathfinderExtraTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorManifestTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameActionTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformationMatrixEdgeTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityInteractionEvaluatorExtraTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigManagerTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentStructTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="EventQueueEdgeTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="EventBusExtraTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorReporterExtraTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewPortExtraTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderSystemExtraTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ECSHelperComponentEventTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldManagerCombatTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

@@ -5,7 +5,7 @@ void MenuState::Init() {
   // add the play button
   PlayButton = new GenericButton(
       "menu_play", "play", {0.5f, 0.5f}, nullptr,
-      [](EventQueue& queue) {
+      [](EventQueue& queue, float MouseX, float MouseY) {
         queue.Enqueue(ChangeStateEvent{AppState::GAME});
       },
       AppQueue, 1);

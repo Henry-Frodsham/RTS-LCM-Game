@@ -241,7 +241,45 @@ uint32_t Globe::FindTileAt(const Ogre::Vector3& directionFromCenter) const {
   return FindNearestTileFast(dir);
 }
 
-Ogre::MeshPtr Globe::BuildVisualMesh() {
+VisualMeshBufferData Globe::BuildVisualMeshData() const {
+  VisualMeshBufferData Result;
+
+  const size_t vertexCount = VisualMesh.Vertices.size();
+  const size_t indexCount = VisualMesh.Faces.size() * 3;
+  Result.VertexCount = vertexCount;
+
+  Result.VertexData.resize(vertexCount * 9);  // pos3 + normal3 + colour3
+  for (size_t i = 0; i < vertexCount; ++i) {
+    const Ogre::Vector3& dir = VisualMesh.Vertices[i];
+    const float elevation = Tiles[i].GetElevation();
+    const Ogre::Vector3 pos =
+        Center +
+        dir * (Radius * (1.f + std::max(0.f, elevation) * kHeightScale));
+    const Ogre::ColourValue colour = BiomeToColour(Tiles[i].GetBiome());
+
+    float* v = &Result.VertexData[i * 9];
+    v[0] = pos.x;
+    v[1] = pos.y;
+    v[2] = pos.z;
+    v[3] = dir.x;
+    v[4] = dir.y;
+    v[5] = dir.z;
+    v[6] = colour.r;
+    v[7] = colour.g;
+    v[8] = colour.b;
+  }
+
+  Result.IndexData.resize(indexCount);
+  for (size_t f = 0; f < VisualMesh.Faces.size(); ++f) {
+    Result.IndexData[f * 3 + 0] = VisualMesh.Faces[f][0];
+    Result.IndexData[f * 3 + 1] = VisualMesh.Faces[f][1];
+    Result.IndexData[f * 3 + 2] = VisualMesh.Faces[f][2];
+  }
+
+  return Result;
+}
+
+Ogre::MeshPtr Globe::BuildVisualMesh(const VisualMeshBufferData& BufferData) {
   const Ogre::String meshName = "GlobeMesh";
   auto& meshMgr = Ogre::MeshManager::getSingleton();
   if (meshMgr.resourceExists(meshName)) {
@@ -253,8 +291,8 @@ Ogre::MeshPtr Globe::BuildVisualMesh() {
   Ogre::SubMesh* sub = mesh->createSubMesh();
   sub->useSharedVertices = false;
 
-  const size_t vertexCount = VisualMesh.Vertices.size();
-  const size_t indexCount = VisualMesh.Faces.size() * 3;
+  const size_t vertexCount = BufferData.VertexCount;
+  const size_t indexCount = BufferData.IndexData.size();
 
   Ogre::VertexData* vertexData = new Ogre::VertexData();
   sub->vertexData = vertexData;
@@ -272,29 +310,8 @@ Ogre::MeshPtr Globe::BuildVisualMesh() {
       Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
           offset + Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3),
           vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-
-  std::vector<float> vertexBufferData(vertexCount *
-                                      9);  // pos3 + normal3 + colour3
-  for (size_t i = 0; i < vertexCount; ++i) {
-    const Ogre::Vector3& dir = VisualMesh.Vertices[i];
-    const float elevation = Tiles[i].GetElevation();
-    const Ogre::Vector3 pos =
-        Center +
-        dir * (Radius * (1.f + std::max(0.f, elevation) * kHeightScale));
-    const Ogre::ColourValue colour = BiomeToColour(Tiles[i].GetBiome());
-
-    float* v = &vertexBufferData[i * 9];
-    v[0] = pos.x;
-    v[1] = pos.y;
-    v[2] = pos.z;
-    v[3] = dir.x;
-    v[4] = dir.y;
-    v[5] = dir.z;
-    v[6] = colour.r;
-    v[7] = colour.g;
-    v[8] = colour.b;
-  }
-  vBuf->writeData(0, vBuf->getSizeInBytes(), vertexBufferData.data(), true);
+  vBuf->writeData(0, vBuf->getSizeInBytes(), BufferData.VertexData.data(),
+                  true);
   vertexData->vertexBufferBinding->setBinding(0, vBuf);
 
   sub->indexData->indexCount = indexCount;
@@ -302,14 +319,8 @@ Ogre::MeshPtr Globe::BuildVisualMesh() {
       Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
           Ogre::HardwareIndexBuffer::IT_32BIT, indexCount,
           Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-
-  std::vector<uint32_t> indexBufferData(indexCount);
-  for (size_t f = 0; f < VisualMesh.Faces.size(); ++f) {
-    indexBufferData[f * 3 + 0] = VisualMesh.Faces[f][0];
-    indexBufferData[f * 3 + 1] = VisualMesh.Faces[f][1];
-    indexBufferData[f * 3 + 2] = VisualMesh.Faces[f][2];
-  }
-  iBuf->writeData(0, iBuf->getSizeInBytes(), indexBufferData.data(), true);
+  iBuf->writeData(0, iBuf->getSizeInBytes(), BufferData.IndexData.data(),
+                  true);
   sub->indexData->indexBuffer = iBuf;
 
   mesh->_setBounds(Ogre::AxisAlignedBox(Center - Ogre::Vector3(Radius * 1.2f),

@@ -44,20 +44,40 @@ struct TileSpatialIndex {
   std::vector<std::vector<uint32_t>> Buckets;  // size LonBins * LatBins
 };
 
-
-struct GlobeCreationConfiguration {
-  unsigned int NumSubdivisions;
-  unsigned int CreationSeed;
-  GlobeCreationConfiguration(unsigned int NumSubDiv, unsigned int Seed)
-      : NumSubdivisions(NumSubDiv), CreationSeed(Seed) {}
+// Plain-data staging buffers for the globe's visual mesh, laid out exactly
+// as BuildVisualMesh() needs them for upload. Building this only touches
+// Globe/Tile state and plain containers - no Ogre resource managers - so
+// it can run on a worker thread. Handing it to the GPU (BuildVisualMesh)
+// still has to happen on the render thread.
+struct VisualMeshBufferData {
+  std::vector<float> VertexData;     // pos3 + normal3 + colour3 per vertex
+  std::vector<uint32_t> IndexData;   // 3 per face
+  size_t VertexCount = 0;
 };
+
 
 class Globe {
  public:
   Globe();
 
+  // Builds the tile/geometry data for the globe. Pure CPU work (no Ogre
+  // resource managers are touched), so this is safe to run off the render
+  // thread - e.g. on a worker thread while the render thread keeps ticking.
   void Generate(unsigned int subdivisionFreq, unsigned int seed);
-  Ogre::MeshPtr BuildVisualMesh();
+
+  // Prepares the visual mesh's vertex/index data as plain buffers. Reads
+  // only Globe/Tile state, so - like Generate() - this is safe to run off
+  // the render thread once Generate() has completed.
+  VisualMeshBufferData BuildVisualMeshData() const;
+
+  // Uploads BuildVisualMeshData()'s output into GPU-backed Ogre resources
+  // (MeshManager, HardwareBufferManager). This touches the render system
+  // and must be called on the render thread.
+  Ogre::MeshPtr BuildVisualMesh(const VisualMeshBufferData& BufferData);
+
+  // Convenience wrapper for callers that don't need the CPU/render-thread
+  // split - runs both stages back to back on the calling thread.
+  Ogre::MeshPtr BuildVisualMesh() { return BuildVisualMesh(BuildVisualMeshData()); }
 
   uint32_t GetTileCount() const { return static_cast<uint32_t>(Tiles.size()); }
   const Tile& GetTile(uint32_t id) const { return Tiles[id]; }

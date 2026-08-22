@@ -126,11 +126,15 @@ void ViewPortController::MoveCameraOrbitingPoint2DMotion(
 }
 void ViewPortController::MoveCameraDepth(float WheelDelta,
                                          Ogre::Vector3f OrbitPoint) {
-  constexpr Ogre::Real kTempZoomSensitivity =
-      0.1f;  // TODO: expose as configurable setting
+  // scaled off the actual orbit range (itself derived from the globe's
+  // radius, see RenderSystem::CreateViewPort) rather than a flat literal, so
+  // a wheel notch feels the same fraction of the zoom range on any planet
+  // size instead of being tuned only for a unit-radius globe
+  constexpr Ogre::Real kZoomSensitivityFraction = 0.1f;
+  const Ogre::Real ZoomSensitivity =
+      (mMaxOrbitDistance - mMinOrbitDistance) * kZoomSensitivityFraction;
 
-  Ogre::Real Delta =
-      -static_cast<Ogre::Real>(WheelDelta) * kTempZoomSensitivity;
+  Ogre::Real Delta = -static_cast<Ogre::Real>(WheelDelta) * ZoomSensitivity;
   ZoomOrbitingPoint(Delta);
 
   Ogre::Camera* Camera = ViewPort->getCamera();

@@ -3,6 +3,7 @@
 #include <OgreMeshManager.h>
 #include <OgrePrerequisites.h>
 
+#include "ConfigManager.h"
 #include "EventBus.h"
 #include "EventQueue.h"
 #include "Globe.h"
@@ -17,7 +18,9 @@ class GlobeInterface {
 
   void Update();
 
-  void GenerateGlobe(GlobeCreationConfiguration Config);
+  // reads NumSubdivisions, CreationSeed and PlanetRadius from
+  // config/default/GlobeSettings.json (see ConfigManager)
+  void GenerateGlobe();
 
   void ChangeGlobeVisibility(ChangeGlobeVisibilityEvent Event);
 
@@ -40,6 +43,8 @@ class GlobeInterface {
   Globe* CGlobe;
 
   ErrorReporter* GlobeReporter;
+
+  ConfigManager* GlobeConfig;
 
   Ogre::SceneNode* GlobeSceneNode;
   Ogre::Entity* GlobeEntity;

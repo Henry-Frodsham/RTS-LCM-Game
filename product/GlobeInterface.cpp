@@ -6,14 +6,26 @@ GlobeInterface::GlobeInterface()
     : CGlobe(nullptr),
       GlobeEntity(nullptr),
       GlobeSceneNode(nullptr),
-      GlobeReporter(nullptr) {}
+      GlobeReporter(nullptr),
+      GlobeConfig(nullptr) {}
 
-void GlobeInterface::Initialise() { GlobeReporter = new ErrorReporter(); }
+void GlobeInterface::Initialise() {
+  GlobeReporter = new ErrorReporter();
+  GlobeConfig = new ConfigManager("GlobeSettings", GlobeReporter);
+}
 
 void GlobeInterface::Update() { GlobeReporter->Dispatch(); }
-void GlobeInterface::GenerateGlobe(GlobeCreationConfiguration Config) {
+void GlobeInterface::GenerateGlobe() {
+  const unsigned int NumSubdivisions =
+      GlobeConfig->GetValueOrDefault<unsigned int>("NumSubdivisions");
+  const unsigned int CreationSeed =
+      GlobeConfig->GetValueOrDefault<unsigned int>("CreationSeed");
+  const float PlanetRadius =
+      GlobeConfig->GetValueOrDefault<float>("PlanetRadius");
+
   CGlobe = new Globe();
-  CGlobe->Generate(Config.NumSubdivisions, Config.CreationSeed);
+  CGlobe->SetTransform(Ogre::Vector3::ZERO, PlanetRadius);
+  CGlobe->Generate(NumSubdivisions, CreationSeed);
   Ogre::MeshPtr GlobeMesh = CGlobe->BuildVisualMesh();
   RenderSystem& RS = RenderSystem::GetInstance();
 

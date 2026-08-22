@@ -252,22 +252,28 @@ void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
       "interaction_wheel_A" + std::to_string(ThreadID),
-      [](EventQueue& queue) { queue.Enqueue(CallBackACommand{}); },
+      [](EventQueue& queue,float x, float y) { queue.Enqueue(CallBackACommand{}); },
       ForeignNotifQueue));
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
       "interaction_wheel_B" + std::to_string(ThreadID),
-      [](EventQueue& queue) { queue.Enqueue(CallBackBCommand{}); },
+      [](EventQueue& queue, float x, float y) {
+        queue.Enqueue(CallBackBCommand{});
+      },
       ForeignNotifQueue));
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
       "interaction_wheel_C" + std::to_string(ThreadID),
-      [](EventQueue& queue) { queue.Enqueue(CallBackCCommand{}); },
+      [](EventQueue& queue, float x, float y) {
+        queue.Enqueue(CallBackCCommand{});
+      },
       ForeignNotifQueue));
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
       "UI_Overlay_" + std::to_string(ThreadID),
       "interaction_wheel_D" + std::to_string(ThreadID),
-      [](EventQueue& queue) { queue.Enqueue(CallBackDCommand{}); },
+      [](EventQueue& queue, float x, float y) {
+        queue.Enqueue(CallBackDCommand{});
+      },
       ForeignNotifQueue));
 }
 

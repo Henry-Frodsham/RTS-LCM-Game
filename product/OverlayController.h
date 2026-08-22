@@ -42,6 +42,7 @@ class OverlayController {
 
   void AddText(OverlayAddTextEvent Event);
   void AddTextToPanel(OverlayAddTextToPanelEvent Event);
+  void AddBoxToPanel(OverlayAddBoxToPanelEvent Event);
   void EditPanel(OverlayEditPanelEvent Event);
 
   void EditText(OverlayEditTextEvent Event);
@@ -54,7 +55,8 @@ class OverlayController {
   void OverlayPressedCheck(PressActionCommand Cmd);
   void RegisterOnPressCallBack(RegisterOnPressCallBackEvent Event);
   void OverlayHovered(Ogre::OverlayElement* Element, OverlayInfo* Info);
-  void OverlayPressed(Ogre::OverlayElement* Element, OverlayInfo* Info);
+  void OverlayPressed(Ogre::OverlayElement* Element, OverlayInfo* Info,
+                      float MouseX, float MouseY);
   void OverlayReleased(Ogre::OverlayElement* Element, OverlayInfo* Info);
   void ParentUpdate();
 
