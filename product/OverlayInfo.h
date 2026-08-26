@@ -17,6 +17,11 @@ struct OverlayInfo {
   // long-standing button convention (idle red/hover blue/press purple) for
   // any element that doesn't specify its own, e.g. GenericButton's track
   std::string BaseMaterial;
+
+  // whether hover/press should recolour the element. false for things like a
+  // slider track, where the material carries meaning of its own
+  bool HighlightOnInteraction;
+
   OverlayInfo(bool Press, bool Hvr, std::string OwnedOverlay,
              std::string Base = "RED")
       : Pressed(Press),
@@ -24,5 +29,6 @@ struct OverlayInfo {
         OwnedByOverlay(OwnedOverlay),
         PressCallBack(nullptr),
         CallQueue(nullptr),
-        BaseMaterial(Base) {}
+        BaseMaterial(Base),
+        HighlightOnInteraction(true) {}
 };

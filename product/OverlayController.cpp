@@ -45,25 +45,20 @@ void OverlayController::AddBox(OverlayAddBoxEvent Event) {
                     Event.OverlayToUse)));
     return;
   }
-  RenderSystem& RS = RenderSystem::GetInstance();
   OverlayInfo* Info =
       new OverlayInfo(false, false, Event.OverlayToUse, Event.MaterialName);
-  ViewPortController* VPC = RS.GetPrimaryViewport();
-  std::vector<int> VPD = VPC->GetActualDimensions();
-  std::vector<float> WD = RS.GetRenderWindowDimensions();
 
   OverlayInfos.emplace(Event.Name, Info);
   Ogre::OverlayContainer* Panel = static_cast<Ogre::OverlayContainer*>(
       OverlayMngr->createOverlayElement("Panel", Event.Name));
 
-  // relative coordinate mode, avoids manual scaling with different screen sizes
-  float scaleX = WD[0] / static_cast<float>(VPD[0]);
-  float scaleY = WD[1] / static_cast<float>(VPD[1]);
-
+  // GMM_RELATIVE coordinates are already parametrics of the viewport the
+  // overlay is attached to, so they must be used verbatim. scaling them by
+  // window/viewport doubled every element's x in split screen and made the
+  // drawn box drift away from the caller's own coordinates
   Panel->setMetricsMode(Ogre::GMM_RELATIVE);
-  Panel->setPosition(Event.Position[0] * scaleX, Event.Position[1] * scaleY);
-  Panel->setDimensions(Event.Dimensions[0] * scaleX,
-                       Event.Dimensions[1] * scaleY);
+  Panel->setPosition(Event.Position[0], Event.Position[1]);
+  Panel->setDimensions(Event.Dimensions[0], Event.Dimensions[1]);
   try {
     Panel->setMaterialName(Event.MaterialName, "Overlay");
   } catch (const std::exception& e) {
@@ -298,19 +293,11 @@ void OverlayController::EditPanel(OverlayEditPanelEvent Event) {
                     Event.NameOfExisting, Event.OverlayToFindIn)));
     return;
   }
-  RenderSystem& RS = RenderSystem::GetInstance();
-  ViewPortController* VPC = RS.GetPrimaryViewport();
-  std::vector<int> VPD = VPC->GetActualDimensions();
-  std::vector<float> WD = RS.GetRenderWindowDimensions();
-
-  // relative coordinate mode, avoids manual scaling with different screen sizes
-  float scaleX = WD[0] / static_cast<float>(VPD[0]);
-  float scaleY = WD[1] / static_cast<float>(VPD[1]);
-
+  // see AddBox - GMM_RELATIVE values are viewport parametrics, never scaled
   FoundElement->setMetricsMode(Ogre::GMM_RELATIVE);
   if (Event.NewDimensions != std::vector<float>{-1.f, -1.f}) {
-    FoundElement->setDimensions(Event.NewDimensions[0] * scaleX,
-                                Event.NewDimensions[1] * scaleY);
+    FoundElement->setDimensions(Event.NewDimensions[0],
+                                Event.NewDimensions[1]);
   }
   if (Event.NewPosition != std::vector<float>{-1.f, -1.f}) {
     FoundElement->setPosition(Event.NewPosition[0], Event.NewPosition[1]);
@@ -425,29 +412,38 @@ void OverlayController::ChangeOverlayVisibility(
 
 void OverlayController::OverlayHovered(Ogre::OverlayElement* Element,
                                        OverlayInfo* Info) {
+  if (!Info->HighlightOnInteraction) {
+    return;
+  }
   Element->setMaterialName("BLUE", "Overlay");
 }
 void OverlayController::OverlayReleased(Ogre::OverlayElement* Element,
                                         OverlayInfo* Info) {
+  if (!Info->HighlightOnInteraction) {
+    return;
+  }
   Element->setMaterialName(Info->BaseMaterial, "Overlay");
 }
 void OverlayController::OverlayPressed(Ogre::OverlayElement* Element,
                                        OverlayInfo* Info, float MouseX,
                                        float MouseY) {
-  Element->setMaterialName("PURPLE", "Overlay");
+  if (Info->HighlightOnInteraction) {
+    Element->setMaterialName("PURPLE", "Overlay");
+  }
 
-  if (Info->PressCallBack != nullptr) {
+  if (Info->PressCallBack != nullptr && Info->CallQueue != nullptr) {
     Info->PressCallBack(*Info->CallQueue, MouseX, MouseY);
   }
 }
 void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
-  RenderSystem& RS = RenderSystem::GetInstance();
-  ViewPortController* EventVPC = RS.FindViewPortFromDevice(Event.Device);
-
   // find the overlay specific to the device being moved (as to not check
   // everything for each device)
   std::string OverlayName = "UI_Overlay_" + std::to_string(Event.ThreadNumber);
   Ogre::Overlay* SpecificOverlay = OverlayMngr->getByName(OverlayName);
+
+  if (SpecificOverlay == nullptr) {
+    return;
+  }
 
   Ogre::Overlay::OverlayContainerList ContainedElements =
       SpecificOverlay->get2DElements();
@@ -459,7 +455,13 @@ void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
     } catch (std::exception e) {
       OverlayErrorReporter.EnqueueError(
           ErrorDetail::CreateError(ErrorCode::OVERLAY_MISSING_INFO));
-      return;
+      continue;
+    }
+
+    // a purely decorative element (a progress bar track) has no callback and
+    // must not be recoloured by a cursor passing over it
+    if (!Info->PressCallBack) {
+      continue;
     }
 
     if (Element->findElementAt(Event.RelativeXY[0], Event.RelativeXY[1])) {
@@ -475,13 +477,14 @@ void OverlayController::OverlayCursorCheck(CursorMovementEvent Event) {
   }
 }
 void OverlayController::OverlayPressedCheck(PressActionCommand Cmd) {
-  RenderSystem& RS = RenderSystem::GetInstance();
   ActionContext Cntxt = Cmd.Context;
-  ViewPortController* EventVPC =
-      RS.FindViewPortFromDevice(Cntxt.ActioningDevice);
 
   std::string OverlayName = "UI_Overlay_" + std::to_string(Cntxt.ThreadId);
   Ogre::Overlay* SpecificOverlay = OverlayMngr->getByName(OverlayName);
+
+  if (SpecificOverlay == nullptr) {
+    return;
+  }
 
   Ogre::Overlay::OverlayContainerList ContainedElements =
       SpecificOverlay->get2DElements();
@@ -493,12 +496,16 @@ void OverlayController::OverlayPressedCheck(PressActionCommand Cmd) {
     } catch (std::exception e) {
       OverlayErrorReporter.EnqueueError(
           ErrorDetail::CreateError(ErrorCode::OVERLAY_MISSING_INFO));
-      return;
+      continue;
     }
 
+    // skip this element, never the rest of the overlay - an earlier
+    // callbackless element used to abort the whole check and swallow presses
+    // aimed at everything behind it
     if (!Info->PressCallBack) {
-      return;
+      continue;
     }
+
     if (Element->findElementAt(Cntxt.MouseX, Cntxt.MouseY) && !Cmd.Released) {
       Info->Pressed = true;
       OverlayPressed(Element, Info, Cntxt.MouseX, Cntxt.MouseY);
@@ -524,6 +531,7 @@ void OverlayController::RegisterOnPressCallBack(
 
   Info->PressCallBack = Event.Callback;
   Info->CallQueue = Event.CallQueue;
+  Info->HighlightOnInteraction = Event.Highlight;
 }
 
 void OverlayController::ParentUpdate() { OverlayErrorReporter.Dispatch(); }

@@ -1,106 +1,110 @@
 // Copyright (c) 2026 Henry Frodsham
+#include "GenericSlider.h"
+
 #include <algorithm>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
-#include "GenericSlider.h"
-// generic slider class
-// helper class that automatically defines a slider with a specified
-// behaviour - a black track with a red fill on top that scales to show the
-// pressed position, like a slider handle
-GenericSlider::GenericSlider(std::string ButtonName, std::string ButtonText,
-                             std::vector<float> Position,
-                             std::vector<float> SliderSize, float MaxSliderValue,
-                             float StepPerPixel,
-                             InputDevice* DeviceToRespondTo,
-                             std::function<void(EventQueue&, float, float)> ChangeCallback,
-                             EventQueue* QueueForCallback, int ThreadID)
-    : Name(ButtonName),
-      Text(ButtonText),
-      Pos(Position),
-      Size(SliderSize),
-      MaxValue(MaxSliderValue),
-      StepValue(StepPerPixel),
-      Device(DeviceToRespondTo),
-      CallbackOnValueChange(ChangeCallback),
-      CallBackQueue(QueueForCallback),
+GenericSlider::GenericSlider(
+    std::string SliderName, std::vector<float> Position,
+    std::vector<float> Dimensions, float MaxSliderValue,
+    InputDevice* DeviceToRespondTo,
+    std::function<void(EventQueue&, float)> ChangeCallback,
+    EventQueue* QueueForCallBack, int ThreadId)
+    : State(std::make_shared<SliderState>()) {
+  const std::string Suffix = "_" + std::to_string(ThreadId);
 
-      Id(ThreadID) {
+  State->TrackName = SliderName + Suffix;
+  State->FillName = SliderName + "_fill" + Suffix;
+  State->OverlayName = "UI_Overlay_" + std::to_string(ThreadId);
+  State->MaxValue = MaxSliderValue;
+  State->OnValueChange = std::move(ChangeCallback);
+
+  if (Position.size() >= 2) {
+    State->Pos = Position;
+  }
+  if (Dimensions.size() >= 2) {
+    State->Size = Dimensions;
+  }
+
   RenderSystem& RS = RenderSystem::GetInstance();
 
   RS.RenderQueue->Enqueue(
-      CreateOverlayEvent("UI_Overlay_" + std::to_string(Id), Device));
+      CreateOverlayEvent(State->OverlayName, DeviceToRespondTo));
+
+  RS.RenderQueue->Enqueue(OverlayAddBoxEvent(State->Pos, State->Size,
+                                             State->TrackName, "BLACK",
+                                             State->OverlayName));
 
   RS.RenderQueue->Enqueue(
-      OverlayAddBoxEvent(Pos, Size, Name + "_" + std::to_string(Id),
-                         "BLACK", "UI_Overlay_" + std::to_string(ThreadID)));
+      OverlayAddBoxToPanelEvent(State->TrackName, State->FillName, "RED",
+                                {0.f, 0.f}, {0.f, State->Size[1]}));
 
-  // the fill is a child of the track panel rather than its own top-level
-  // overlay element, so it renders on top of the track without being
-  // separately hover/press-checked by OverlayController (same convention as
-  // AddTextToPanel for button text). despite being a child, Ogre's
-  // GMM_RELATIVE dimensions are still fractions of the whole overlay/screen,
-  // not of the parent panel - only position is parent-relative - so the fill
-  // has to be sized in Size units to actually match the track, not [0,1].
-  // starts at zero width until the first press gives it a value
-  RS.RenderQueue->Enqueue(OverlayAddBoxToPanelEvent(
-      Name + "_" + std::to_string(Id), Name + "_fill_" + std::to_string(Id),
-      "RED", {0.f, 0.f}, {0.f, Size[1]}));
-
+  std::shared_ptr<SliderState> Captured = State;
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
-      "UI_Overlay_" + std::to_string(ThreadID), Name + "_" + std::to_string(Id),
-      [this](EventQueue& Queue, float MouseX, float MouseY) {
-        HandlePress(Queue, MouseX, MouseY);
+      State->OverlayName, State->TrackName,
+      [Captured](EventQueue& Queue, float MouseX, float MouseY) {
+        PressAt(Captured, Queue, MouseX);
       },
-      CallBackQueue));
+      QueueForCallBack, false));
 }
 
 void GenericSlider::ChangeVisibility(bool Visible) {
   RenderSystem& RS = RenderSystem::GetInstance();
 
-  RS.RenderQueue->Enqueue(
-      ChangeOverlayVisibilityEvent("UI_Overlay_" + std::to_string(Id),
-                                   Name + "_" + std::to_string(Id), Visible));
+  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      State->OverlayName, State->TrackName, Visible));
 
   RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
-      "UI_Overlay_" + std::to_string(Id), Name + "_fill_" + std::to_string(Id),
-      Visible));
+      State->OverlayName, State->FillName, Visible));
 }
 
 void GenericSlider::MaintainScaling() {
   RenderSystem& RS = RenderSystem::GetInstance();
-  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
-      Name + "_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
-      Size, {-1.f, -1.f}, "USE_OLD"));
 
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
-      Name + "_fill_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
-      {FillFraction() * Size[0], Size[1]}, {-1.f, -1.f}, "USE_OLD"));
+      State->TrackName, State->OverlayName, State->Size, State->Pos,
+      "USE_OLD"));
+
+  PushFill(*State, State->Fraction.load(std::memory_order_relaxed));
 }
 
-float GenericSlider::FillFraction() const {
-  if (MaxValue <= 0.f) {
-    return 0.f;
+float GenericSlider::GetValue() const {
+  return State->Fraction.load(std::memory_order_relaxed) * State->MaxValue;
+}
+
+void GenericSlider::SetValue(float NewValue) {
+  const float Fraction =
+      (State->MaxValue > 0.f)
+          ? std::clamp(NewValue / State->MaxValue, 0.f, 1.f)
+          : 0.f;
+
+  State->Fraction.store(Fraction, std::memory_order_relaxed);
+  PushFill(*State, Fraction);
+}
+
+void GenericSlider::PressAt(const std::shared_ptr<SliderState>& State,
+                            EventQueue& Queue, float MouseX) {
+  const float TrackWidth = State->Size[0];
+  const float Fraction =
+      (TrackWidth > 0.f)
+          ? std::clamp((MouseX - State->Pos[0]) / TrackWidth, 0.f, 1.f)
+          : 0.f;
+
+  State->Fraction.store(Fraction, std::memory_order_relaxed);
+  PushFill(*State, Fraction);
+
+  if (State->OnValueChange) {
+    State->OnValueChange(Queue, Fraction * State->MaxValue);
   }
-  return std::clamp(Value / MaxValue, 0.f, 1.f);
 }
 
-void GenericSlider::HandlePress(EventQueue& Queue, float MouseX,
-                                float MouseY) {
-  // Pos/MouseX are both in normalised 0-1 viewport space, but StepValue is
-  // defined per screen pixel, so convert the press's offset from the track's
-  // left edge into pixels before applying it
+void GenericSlider::PushFill(const SliderState& State, float Fraction) {
   RenderSystem& RS = RenderSystem::GetInstance();
-  float WindowWidth = RS.GetRenderWindowDimensions()[0];
-
-  float PixelOffset = (MouseX - Pos[0]) * WindowWidth;
-  Value = std::clamp(PixelOffset * StepValue, 0.f, MaxValue);
 
   RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
-      Name + "_fill_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
-      {FillFraction() * Size[0], Size[1]}, {-1.f, -1.f}, "USE_OLD"));
-
-  if (CallbackOnValueChange) {
-    CallbackOnValueChange(Queue, MouseX, MouseY);
-  }
+      State.FillName, State.OverlayName,
+      {Fraction * State.Size[0], State.Size[1]}, {-1.f, -1.f}, "USE_OLD"));
 }

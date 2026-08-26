@@ -452,6 +452,17 @@ void InputTranslator::TranslateRawCursor(RawCursorEvent Event) {
                                                Normalised.MouseY};
   RS.RenderQueue->Enqueue(CursorMovementEvent(CursorVec, RelativeCoordinates,
                                               ThreadNumber, ManagedDevice));
+
+  // while the button is held, re-run the overlay hit test at the new
+  // position on every move so a held UI element (e.g. a slider being
+  // dragged) keeps updating instead of only reacting to the initial press.
+  // deliberately RenderQueue-only, not ActionQueue - PlayerGeneralControl::
+  // OnPress listens for PressActionCommand on ActionQueue and fires a
+  // world raytrace/selection off it, which a held gameplay drag must not
+  // repeat every move frame
+  if (MouseButtonStates[SDL_BUTTON_LEFT]) {
+    RS.RenderQueue->Enqueue(PressActionCommand(Normalised, false));
+  }
 }
 
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event) {
@@ -585,6 +596,12 @@ void InputTranslator::Update(float DeltaTime) {
                                                    Normalised.MouseY};
       RS.RenderQueue->Enqueue(CursorMovementEvent(
           CursorPos, RelativeCoordinates, ThreadNumber, ManagedDevice));
+
+      // same continuous-update rationale as TranslateRawCursor's mouse path,
+      // for a held right trigger dragging the stick across a UI element
+      if (TriggerStates[RightTriggerSlot]) {
+        RS.RenderQueue->Enqueue(PressActionCommand(Normalised, false));
+      }
     }
 
     // orbit motion - driven directly by stick deflection at a fixed

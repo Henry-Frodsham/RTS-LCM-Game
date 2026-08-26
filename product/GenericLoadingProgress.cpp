@@ -1,67 +1,72 @@
 // Copyright (c) 2026 Henry Frodsham
+#include "GenericLoadingProgress.h"
+
 #include <algorithm>
 #include <string>
 #include <vector>
 
-#include "GenericLoadingProgress.h"
-// generic loading progress bar class
-// same track+fill visual as GenericSlider (a black track with a red fill
-// that scales to show progress), but the fill is driven by SetProgress()
-// rather than a press, so it never registers an input callback
-GenericLoadingProgress::GenericLoadingProgress(std::string BarName,
-                                               std::string BarText,
-                                               std::vector<float> Position,
-                                               InputDevice* DeviceToAttachTo,
-                                               int ThreadID)
-    : Name(BarName),
-      Text(BarText),
-      Pos(Position),
-      Device(DeviceToAttachTo),
-      Id(ThreadID) {
+GenericLoadingProgress::GenericLoadingProgress(
+    std::string BarName, std::vector<float> Position,
+    std::vector<float> Dimensions, InputDevice* DeviceToAttachTo,
+    int ThreadId) {
+  const std::string Suffix = "_" + std::to_string(ThreadId);
+
+  TrackName = BarName + Suffix;
+  FillName = BarName + "_fill" + Suffix;
+  OverlayName = "UI_Overlay_" + std::to_string(ThreadId);
+
+  if (Position.size() >= 2) {
+    Pos = Position;
+  }
+  if (Dimensions.size() >= 2) {
+    Size = Dimensions;
+  }
+
   RenderSystem& RS = RenderSystem::GetInstance();
 
-  RS.RenderQueue->Enqueue(
-      CreateOverlayEvent("UI_Overlay_" + std::to_string(Id), Device));
+  RS.RenderQueue->Enqueue(CreateOverlayEvent(OverlayName, DeviceToAttachTo));
 
   RS.RenderQueue->Enqueue(
-      OverlayAddBoxEvent(Pos, {kSize, kSize}, Name + "_" + std::to_string(Id),
-                         "BLACK", "UI_Overlay_" + std::to_string(ThreadID)));
+      OverlayAddBoxEvent(Pos, Size, TrackName, "BLACK", OverlayName));
 
-  // fill is a child of the track panel, same convention as GenericSlider -
-  // starts at zero width until SetProgress is first called
   RS.RenderQueue->Enqueue(OverlayAddBoxToPanelEvent(
-      Name + "_" + std::to_string(Id), Name + "_fill_" + std::to_string(Id),
-      "RED", {0.f, 0.f}, {0.f, 1.f}));
+      TrackName, FillName, "RED", {0.f, 0.f}, {0.f, Size[1]}));
 }
 
 void GenericLoadingProgress::ChangeVisibility(bool Visible) {
   RenderSystem& RS = RenderSystem::GetInstance();
 
   RS.RenderQueue->Enqueue(
-      ChangeOverlayVisibilityEvent("UI_Overlay_" + std::to_string(Id),
-                                   Name + "_" + std::to_string(Id), Visible));
+      ChangeOverlayVisibilityEvent(OverlayName, TrackName, Visible));
 
-  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
-      "UI_Overlay_" + std::to_string(Id), Name + "_fill_" + std::to_string(Id),
-      Visible));
+  RS.RenderQueue->Enqueue(
+      ChangeOverlayVisibilityEvent(OverlayName, FillName, Visible));
 }
 
 void GenericLoadingProgress::MaintainScaling() {
   RenderSystem& RS = RenderSystem::GetInstance();
-  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
-      Name + "_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
-      {kSize, kSize}, {-1.f, -1.f}, "USE_OLD"));
 
-  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
-      Name + "_fill_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
-      {Value, 1.f}, {-1.f, -1.f}, "USE_OLD"));
+  RS.RenderQueue->Enqueue(
+      OverlayEditPanelEvent(TrackName, OverlayName, Size, Pos, "USE_OLD"));
+
+  PushFill(Progress.load(std::memory_order_relaxed));
 }
 
 void GenericLoadingProgress::SetProgress(float Fraction) {
-  Value = std::clamp(Fraction, 0.f, 1.f);
+  const float Clamped = std::clamp(Fraction, 0.f, 1.f);
 
+  Progress.store(Clamped, std::memory_order_relaxed);
+  PushFill(Clamped);
+}
+
+float GenericLoadingProgress::GetProgress() const {
+  return Progress.load(std::memory_order_relaxed);
+}
+
+void GenericLoadingProgress::PushFill(float Fraction) const {
   RenderSystem& RS = RenderSystem::GetInstance();
-  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(
-      Name + "_fill_" + std::to_string(Id), "UI_Overlay_" + std::to_string(Id),
-      {Value, 1.f}, {-1.f, -1.f}, "USE_OLD"));
+
+  RS.RenderQueue->Enqueue(OverlayEditPanelEvent(FillName, OverlayName,
+                                                {Fraction * Size[0], Size[1]},
+                                                {-1.f, -1.f}, "USE_OLD"));
 }

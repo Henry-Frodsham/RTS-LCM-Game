@@ -156,13 +156,19 @@ struct RegisterOnPressCallBackEvent {
   // compute a value
   std::function<void(EventQueue&, float, float)> Callback;
   EventQueue* CallQueue;
+
+  // false leaves the element's material alone on hover/press, for controls
+  // whose colour already means something (a slider track)
+  bool Highlight;
+
   RegisterOnPressCallBackEvent(std::string Overlay, std::string Object,
                                std::function<void(EventQueue&, float, float)> Call,
-                               EventQueue* Queue)
+                               EventQueue* Queue, bool HighlightOnPress = true)
       : OverlayName(Overlay),
         ObjectName(Object),
         Callback(Call),
-        CallQueue(Queue) {}
+        CallQueue(Queue),
+        Highlight(HighlightOnPress) {}
 };
 
 // add a new box as a child of an existing panel, e.g. a slider fill rendered

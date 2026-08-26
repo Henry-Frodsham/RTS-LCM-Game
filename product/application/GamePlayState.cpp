@@ -12,10 +12,9 @@ void GameState::Init() {
   // the same convention MenuState's PlayButton uses, so presses from the
   // main device are actually routed to it
   DebugSlider = new GenericSlider(
-      "debug_slider", "debug", {0.5f, 0.9f}, {0.3f, 0.03f}, 100.f, 0.2f,
-      nullptr,
-      [](EventQueue& Queue, float MouseX, float MouseY) {
-        std::cout << "[debug slider] MouseX=" << MouseX << std::endl;
+      "debug_slider", {0.5f, 0.9f}, {0.3f, 0.03f}, 100.f, nullptr,
+      [](EventQueue& Queue, float Value) {
+        std::cout << "[debug slider] value=" << Value << std::endl;
       },
       AppQueue, 1);
 
