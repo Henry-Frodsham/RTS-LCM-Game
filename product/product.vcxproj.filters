@@ -257,6 +257,9 @@
     <ClInclude Include="ConfigManager.h">
       <Filter>Headers\Config</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigEvent.h">
+      <Filter>Event Templates</Filter>
+    </ClInclude>
     <ClInclude Include="WorldEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
@@ -381,6 +384,9 @@
       <Filter>Headers\UI</Filter>
     </ClInclude>
     <ClInclude Include="GenericLoadingProgress.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UIElement.h">
       <Filter>Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>

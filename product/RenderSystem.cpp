@@ -266,8 +266,9 @@ void RenderSystem::Init() {
 
   GlobeInt = new GlobeInterface();
 
+  // the globe is not built here - the settings behind it are still on an
+  // options page at this point, so it is built when the game is entered
   GlobeInt->Initialise();
-  GlobeInt->GenerateGlobe();
 
   OverlayControl = new OverlayController();
 
@@ -294,15 +295,6 @@ ViewPortController* RenderSystem::CreateViewPort() {
   Ogre::Camera* Camera =
       SceneManager->createCamera(std::to_string(CameraList.size()));
 
-  // clip planes are expressed as a fraction of the globe's radius rather
-  // than flat literals, so they stay correct however small/large the
-  // configured planet size is instead of assuming a unit-radius globe
-  constexpr float kNearClipRadiusFraction = 0.1f;
-  constexpr float kFarClipRadiusFraction = 1000.0f;
-  const float GlobeRadius = GlobeInt->GetGlobeRadius();
-  Camera->setNearClipDistance(GlobeRadius * kNearClipRadiusFraction);
-  Camera->setFarClipDistance(GlobeRadius * kFarClipRadiusFraction);
-
   Camera->setAutoAspectRatio(true);
 
   // configure a scene node for the camera to be able to be moved
@@ -316,19 +308,44 @@ ViewPortController* RenderSystem::CreateViewPort() {
       Camera, CameraList.size());  // temporary Z order
 
   ViewPortController* newController = new ViewPortController(AddedViewPort);
-  const float SurfaceRadius =
-      GlobeRadius * 1.05f;  // matches kHeightScale headroom
-  newController->SetOrbitDistanceLimits(
-      SurfaceRadius * 2.f,    // never clip terrain
-      SurfaceRadius * 6.0f);  // arbitrary max zoom-out
-  newController->InitOrbitCamera(GlobeInt->GetGlobeCentre(),
-                                 SurfaceRadius * 1.12f);  // low orbit
+
+  ConfigureViewPortForGlobe(newController);
 
   ViewPorts.push_back(newController);
 
   ScaleViewPorts();
 
   return newController;
+}
+
+// clip planes and orbit distances are expressed as a fraction of the globe's
+// radius rather than flat literals, so they stay correct however small/large
+// the configured planet size is instead of assuming a unit-radius globe
+void RenderSystem::ConfigureViewPortForGlobe(ViewPortController* Controller) {
+  constexpr float kNearClipRadiusFraction = 0.1f;
+  constexpr float kFarClipRadiusFraction = 1000.0f;
+
+  const float GlobeRadius = GlobeInt->GetGlobeRadius();
+
+  Controller->SetClipDistances(GlobeRadius * kNearClipRadiusFraction,
+                               GlobeRadius * kFarClipRadiusFraction);
+
+  const float SurfaceRadius =
+      GlobeRadius * 1.05f;  // matches kHeightScale headroom
+  Controller->SetOrbitDistanceLimits(
+      SurfaceRadius * 2.f,    // never clip terrain
+      SurfaceRadius * 6.0f);  // arbitrary max zoom-out
+  Controller->InitOrbitCamera(GlobeInt->GetGlobeCentre(),
+                              SurfaceRadius * 1.12f);  // low orbit
+}
+
+// every viewport that existed before the world did was sized against the globe
+// that would be built rather than the one that was, so they are all measured
+// again now there is something real to measure
+void RenderSystem::ConfigureViewPortsForGlobe(GlobeGeneratedEvent Event) {
+  for (ViewPortController* Controller : ViewPorts) {
+    ConfigureViewPortForGlobe(Controller);
+  }
 }
 
 void RenderSystem::ScaleViewPorts() {
@@ -356,6 +373,9 @@ void RenderSystem::InitRenderResponsibility() {
       &OverlayController::AddText, OverlayControl, std::placeholders::_1));
   RenderBus->Subscribe<OverlayEditPanelEvent>(std::bind(
       &OverlayController::EditPanel, OverlayControl, std::placeholders::_1));
+  RenderBus->Subscribe<OverlayFitPanelToTextEvent>(
+      std::bind(&OverlayController::FitPanelToText, OverlayControl,
+                std::placeholders::_1));
   RenderBus->Subscribe<OverlayEditTextEvent>(std::bind(
       &OverlayController::EditText, OverlayControl, std::placeholders::_1));
   RenderBus->Subscribe<CreateOverlayEvent>(
@@ -454,6 +474,40 @@ void RenderSystem::InitRenderResponsibility() {
   // globe events
   RenderBus->Subscribe<ChangeGlobeVisibilityEvent>(std::bind(
       &GlobeInterface::ChangeGlobeVisibility, GlobeInt, std::placeholders::_1));
+  RenderBus->Subscribe<GenerateGlobeEvent>(std::bind(
+      &GlobeInterface::BeginGeneration, GlobeInt, std::placeholders::_1));
+  RenderBus->Subscribe<GlobeGeneratedEvent>(std::bind(
+      &RenderSystem::ConfigureViewPortsForGlobe, this, std::placeholders::_1));
+
+  // config reloads. ogre is only safe to touch from the thread that drains
+  // this queue, so an options page announces on the application bus and the
+  // announcement is forwarded here rather than acted on where it was made
+  RenderBus->Subscribe<ConfigAppliedEvent>(std::bind(
+      &RenderSystem::ReloadConfiguration, this, std::placeholders::_1));
+}
+
+// a config file the render side reads has been rewritten. GlobeSettings belongs
+// to the globe interface this class owns, so it is passed along rather than
+// reached around
+//
+// VideoSettings is this class's own, and is only reread. the window is built
+// once, at startup, and every viewport, overlay and input translator in the
+// application is laid out against the size it was built at - resizing it from
+// under all of them mid session moves things nobody asked to move, so the new
+// size is what the next launch starts with
+void RenderSystem::ReloadConfiguration(ConfigAppliedEvent Event) {
+  if (Event.ConfigName == "GlobeSettings") {
+    if (GlobeInt) {
+      GlobeInt->ReloadConfiguration();
+    }
+    return;
+  }
+
+  if (Event.ConfigName != "VideoSettings") {
+    return;
+  }
+
+  RenderConfig->LoadOrReload();
 }
 
 // initialise the basic resources (not game textures and mats etc)

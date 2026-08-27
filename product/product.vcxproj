@@ -279,6 +279,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="CameraEvent.h" />
     <ClInclude Include="CityComponents.h" />
     <ClInclude Include="CommonGameObjectComponents.h" />
+    <ClInclude Include="ConfigEvent.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Cursor.h" />
     <ClInclude Include="CursorEvent.h" />
@@ -312,6 +313,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="OverlayController.h" />
     <ClInclude Include="OverlayEvent.h" />
     <ClInclude Include="OverlayInfo.h" />
+    <ClInclude Include="UIElement.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerConstructionInfo.h" />
     <ClInclude Include="PlayerControlEvent.h" />

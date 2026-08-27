@@ -26,6 +26,14 @@ GameInstance::GameInstance(ErrorReporter* ParentR, EventQueue* ParentQ,
       std::bind(&InputTranslator::ResizeViewPortDimensions, InstanceTranslator,
                 std::placeholders::_1));
 
+  // an options page rewrote a config file. the page runs on the application
+  // thread and the translator on this instance's, so the news arrives the same
+  // way a resize does - enqueued from outside onto LocalQueue and dispatched
+  // inside Run, on the thread that actually owns the values being replaced
+  LocalBus->Subscribe<ConfigAppliedEvent>(
+      std::bind(&InputTranslator::ReloadConfiguration, InstanceTranslator,
+                std::placeholders::_1));
+
   InstanceCursor = new Cursor(LocalBus, InstanceTranslator, InstanceNumber);
 
   PlayerControl = new PlayerGeneralControl(InstanceTranslator, UpstreamQueue,

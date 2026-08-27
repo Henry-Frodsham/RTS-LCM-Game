@@ -5,6 +5,7 @@
 #include <unordered_map>  // NOLINT(build/include_order)
 #include <vector>  // NOLINT(build/include_order)
 
+#include "ConfigEvent.h"
 #include "ECSHelper.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
@@ -27,6 +28,11 @@ class InstanceOverseer {
   EventQueue* InstanceQueue;
   void ReviseAndUpdate(float DeltaTime);
 
+  // instances only exist once their device has been plugged in, so anything
+  // that has to be built per instance - a split screen menu page, say - has to
+  // be able to see the list rather than be told about it up front
+  const std::vector<GameInstance*>& GetInstances() const;
+
  private:
   std::vector<GameInstance*> GameInstances;
 
@@ -39,6 +45,9 @@ class InstanceOverseer {
   ErrorReporter* InstanceReporter;
 
   void RegisterNewInstance(RegisterInstanceEvent Event);
+
+  // hand a config reload down to every instance, on their own threads
+  void ForwardConfigChange(ConfigAppliedEvent Event);
 
   void RecalculateViewPortSizes(RecheckViewPortSizeCommand Cmd);
 

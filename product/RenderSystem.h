@@ -13,10 +13,12 @@
 #include <vector>
 
 #include "BillboardController.h"
+#include "ConfigEvent.h"
 #include "ConfigManager.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
 #include "EventQueue.h"
+#include "GlobeEvent.h"
 #include "GlobeInterface.h"
 #include "HealthBarController.h"
 #include "OverlayController.h"
@@ -93,6 +95,14 @@ class RenderSystem {
 
   void ScaleViewPorts();
 
+  // give a viewport the clip planes and orbit distances that suit the globe.
+  // a viewport made before there is a globe is set up against the size one
+  // would be built at, and put right by ConfigureViewPortsForGlobe once the
+  // real one exists
+  void ConfigureViewPortForGlobe(ViewPortController* Controller);
+
+  void ConfigureViewPortsForGlobe(GlobeGeneratedEvent Event);
+
   void CreateSceneNodeFromEvent(CreateSceneNodeEvent Event);
 
   void CreateEntityFromEvent(CreateOgreEntityEvent Event);
@@ -128,6 +138,12 @@ class RenderSystem {
   void DestroyEntity(DestroyEntityEvent Event);
 
   void UpdatePathPreview(UpdatePathPreviewEvent Event);
+
+  // an options page rewrote VideoSettings or GlobeSettings - reread it, so a
+  // later read is current. nothing here is applied to the window on the spot:
+  // resizing it underneath the viewports, overlays and translators that are
+  // all laid out against its current size is what a restart is for
+  void ReloadConfiguration(ConfigAppliedEvent Event);
 
  public:
   static RenderSystem& GetInstance();

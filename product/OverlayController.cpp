@@ -307,6 +307,110 @@ void OverlayController::EditPanel(OverlayEditPanelEvent Event) {
   }
 }
 
+// ogre lays a caption out in the same relative space as the panel holding it,
+// so a string is as wide as its glyph advances scaled by the character height
+// and the viewport aspect - the same arithmetic TextAreaOverlayElement does
+// when it builds its geometry
+float OverlayController::MeasureCaptionWidth(
+    Ogre::TextAreaOverlayElement* TextArea) {
+  const Ogre::FontPtr& Font = TextArea->getFont();
+  const int ViewPortWidth = OverlayMngr->getViewportWidth();
+
+  // before the first frame is drawn there is no viewport to measure against
+  if (!Font || ViewPortWidth <= 0) {
+    return 0.f;
+  }
+
+  const float AspectCoefficient =
+      static_cast<float>(OverlayMngr->getViewportHeight()) /
+      static_cast<float>(ViewPortWidth);
+
+  float TotalAdvance = 0.f;
+  try {
+    // a space falls outside the range of glyphs the font generates, so ogre
+    // takes its width from a zero instead
+    const float SpaceAdvance = Font->getGlyphInfo('0').advance;
+
+    for (char Character : TextArea->getCaption()) {
+      TotalAdvance +=
+          (Character == ' ')
+              ? SpaceAdvance
+              : Font->getGlyphInfo(static_cast<unsigned char>(Character))
+                    .advance;
+    }
+  } catch (const std::exception& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::ELEMENT_NOT_FOUND,
+        fmt::format("{} contains a character the overlay font cannot draw",
+                    TextArea->getName())));
+    return 0.f;
+  }
+
+  return TotalAdvance * TextArea->getCharHeight() * AspectCoefficient;
+}
+
+void OverlayController::FitPanelToText(OverlayFitPanelToTextEvent Event) {
+  if (!OverlayMngr) {
+    OverlayErrorReporter.EnqueueError(
+        ErrorDetail::CreateError(ErrorCode::OVERLAY_UNITIALISED));
+    return;
+  }
+
+  try {
+    ManagedOverlays.at(Event.OverlayToFindIn);
+  } catch (const std::out_of_range& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::OVERLAY_NOT_FOUND,
+        fmt::format("the request to fit {} specified overlay {} which is not "
+                    "a managed overlay",
+                    Event.PanelName, Event.OverlayToFindIn)));
+    return;
+  }
+
+  Ogre::OverlayElement* FoundPanel = nullptr;
+  Ogre::OverlayElement* FoundText = nullptr;
+  try {
+    FoundPanel = OverlayMngr->getOverlayElement(Event.PanelName);
+    FoundText = OverlayMngr->getOverlayElement(Event.TextName);
+  } catch (std::exception& e) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::ELEMENT_NOT_FOUND,
+        fmt::format("the request to fit {} to {} failed since {} didnt "
+                    "contain both",
+                    Event.PanelName, Event.TextName, Event.OverlayToFindIn)));
+    return;
+  }
+
+  Ogre::TextAreaOverlayElement* TextArea =
+      dynamic_cast<Ogre::TextAreaOverlayElement*>(FoundText);
+  if (!TextArea) {
+    OverlayErrorReporter.EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::ELEMENT_NOT_FOUND,
+        fmt::format("{} exists but is not a TextArea", Event.TextName)));
+    return;
+  }
+
+  const float CharHeight = TextArea->getCharHeight();
+  const float PanelWidth =
+      MeasureCaptionWidth(TextArea) + (Event.Padding[0] * 2.f);
+  const float PanelHeight = CharHeight + (Event.Padding[1] * 2.f);
+
+  // see AddBox - GMM_RELATIVE values are viewport parametrics, never scaled.
+  // setting the metrics mode of the TextArea as well would throw away the
+  // character height it was created with, so only the panel is touched
+  FoundPanel->setMetricsMode(Ogre::GMM_RELATIVE);
+  FoundPanel->setDimensions(PanelWidth, PanelHeight);
+  FoundPanel->setPosition(Event.Centre[0] - (PanelWidth * 0.5f),
+                          Event.Centre[1] - (PanelHeight * 0.5f));
+
+  // a child is offset from its parent's corner rather than scaled by its box,
+  // and a centred TextArea grows either side of its own position, so half the
+  // panel width puts the caption in the middle of it
+  TextArea->setAlignment(Ogre::TextAreaOverlayElement::Center);
+  TextArea->setPosition(PanelWidth * 0.5f, Event.Padding[1]);
+  TextArea->setDimensions(PanelWidth, PanelHeight);
+}
+
 void OverlayController::EditText(OverlayEditTextEvent Event) {
   if (!OverlayMngr) {
     OverlayErrorReporter.EnqueueError(

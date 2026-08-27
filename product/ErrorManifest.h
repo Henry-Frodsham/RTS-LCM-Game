@@ -61,6 +61,8 @@ enum ErrorCode : uint32_t {
   ATTACK_LOGIC_FAILED = 4024,
   PATH_INVALID_TILE = 4025,
   PATH_DESTINATION_UNREACHABLE = 4026,
+  CONFIG_VALUE_OUT_OF_RANGE = 4027,
+  GLOBE_GENERATION_FAILED = 4028,
   // fatal
   OGRE_NO_AVAILABLE_RENDER_SYSTEM = 5001,
   SDL_FAILED_INIT = 5002,
@@ -247,6 +249,17 @@ const std::unordered_map<ErrorCode, Error> ErrorManifest = {
      {ErrorCode::PATH_DESTINATION_UNREACHABLE, ErrorLevel::ERR,
       "Exhausted the search without finding a path to the destination",
       "Pathfinding"}},
+    {ErrorCode::CONFIG_VALUE_OUT_OF_RANGE,
+     {ErrorCode::CONFIG_VALUE_OUT_OF_RANGE, ErrorLevel::ERR,
+      "a config value was read successfully but is not one that can be "
+      "applied, so the setting has been left as it was",
+      "ConfigManager"}},
+    {ErrorCode::GLOBE_GENERATION_FAILED,
+     {ErrorCode::GLOBE_GENERATION_FAILED, ErrorLevel::ERR,
+      "the worker building the globe did not finish, so there is no world to "
+      "enter",
+      "GlobeInterface"}},
+
     // fatal
     {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM,
      {ErrorCode::OGRE_NO_AVAILABLE_RENDER_SYSTEM, ErrorLevel::FATAL,

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "ActionCommand.h"
+#include "ConfigEvent.h"
 #include "ConfigManager.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"
@@ -81,6 +82,11 @@ class InputTranslator {
 
   void ResizeViewPortDimensions(ResizedViewPortEvent Event);
 
+  // this instance's settings file has been rewritten - drop every cached copy
+  // of it and read it again. published to this translator's own bus by its
+  // GameInstance, so it runs on the instance thread that owns these values
+  void ReloadConfiguration(ConfigAppliedEvent Event);
+
   std::vector<float> GetViewPortDimensions();
   std::vector<float> GetScreenDimensions();
 
@@ -120,6 +126,7 @@ class InputTranslator {
   void BuildKeyBindings();
   void RebuildPadButtonBindings();
   void CreateReconnectPrompt();
+  void RefreshReconnectPrompt();
   std::string PromptOverlayName() const;
   std::string PromptBorderName() const;
   std::string PromptTextName() const;

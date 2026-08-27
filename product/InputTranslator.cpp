@@ -48,6 +48,12 @@ InputTranslator::InputTranslator(InputDevice* Device, float VPWidth,
   InputEvents->Subscribe<ReconnectControllerSuccessEvent>(std::bind(
       &InputTranslator::HideReconnectPrompt, this, std::placeholders::_1));
 
+  InputEvents->Subscribe<ConfigAppliedEvent>(std::bind(
+      &InputTranslator::ReloadConfiguration, this, std::placeholders::_1));
+
+  InputConfig = new ConfigManager("InputSettings", TranslationErrorReporter,
+                                  std::to_string(ThreadNumber));
+
   LoadConfiguration();
   BuildKeyBindings();
   RebuildPadButtonBindings();
@@ -71,14 +77,10 @@ InputTranslator::~InputTranslator() {
 // constructor. they live in config/default/InputSettings.json now, and each
 // instance can override them with config/custom/InputSettings<N>.json
 void InputTranslator::LoadConfiguration() {
-  InputConfig = new ConfigManager("InputSettings", TranslationErrorReporter,
-                                  std::to_string(ThreadNumber));
-
   CursorSensitivity =
       InputConfig->GetValueOrDefault<float>("CursorSensitivity");
   ControllerOrbitSensitivity =
       InputConfig->GetValueOrDefault<float>("ControllerOrbitSensitivity");
-  JoystickDeadzone = InputConfig->GetValueOrDefault<float>("JoystickDeadzone");
   JoystickDeadzone = InputConfig->GetValueOrDefault<float>("JoystickDeadzone");
   TriggerThreshold = InputConfig->GetValueOrDefault<float>("TriggerThreshold");
   RelativeMotionScale =
@@ -125,6 +127,30 @@ void InputTranslator::LoadConfiguration() {
   if (PromptTextMaterial.empty()) {
     PromptTextMaterial = "WHITE";
   }
+}
+
+// an options page has written this instance's settings file. every value read
+// in LoadConfiguration is a cached copy of what was in that file, so all of
+// them are stale and all of them are read again - along with the bindings and
+// the prompt, which are built out of the same file
+//
+// this arrives on the input bus rather than being called directly, because the
+// page runs on the application thread and this object runs on its instance's.
+// GameInstance puts it on the queue that Update drains, so by the time it gets
+// here it is on the one thread that owns these members
+void InputTranslator::ReloadConfiguration(ConfigAppliedEvent Event) {
+  // every instance's file is announced the same way, so a page belonging to
+  // somebody else's split screen is not this translator's business
+  if (Event.ConfigName != "InputSettings" ||
+      Event.InstanceName != std::to_string(ThreadNumber)) {
+    return;
+  }
+
+  InputConfig->LoadOrReload();
+
+  LoadConfiguration();
+  BuildKeyBindings();
+  RefreshReconnectPrompt();
 }
 
 // key names are the SDL names ("E", "Q", "Space", "Left Shift"), see
@@ -222,6 +248,23 @@ void InputTranslator::CreateReconnectPrompt() {
 
   Rs.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
       PromptOverlayName(), PromptBorderName(), false));
+}
+
+// the prompt is already on screen by the time its layout can be changed, so a
+// reload edits the elements rather than making them again - creating them a
+// second time would collide with the names the first set still holds
+void InputTranslator::RefreshReconnectPrompt() {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+
+  Rs.RenderQueue->Enqueue(
+      OverlayEditPanelEvent(PromptBorderName(), PromptOverlayName(),
+                            PromptDimensions, PromptPosition,
+                            PromptBorderMaterial));
+
+  Rs.RenderQueue->Enqueue(OverlayEditTextEvent(PromptTextName(),
+                                               PromptOverlayName(),
+                                               {-1.f, -1.f}, {-1.f, -1.f},
+                                               PromptTextMaterial));
 }
 
 bool InputTranslator::HasAction(GameAction Action) {

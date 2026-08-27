@@ -6,15 +6,16 @@
 
 #include "InputDevice.h"
 #include "RenderSystem.h"
+#include "UIElement.h"
 
-class GenericLoadingProgress {
+class GenericLoadingProgress : public UIElement {
  public:
   GenericLoadingProgress(std::string BarName, std::vector<float> Position,
                          std::vector<float> Dimensions,
                          InputDevice* DeviceToAttachTo, int ThreadId);
 
-  void ChangeVisibility(bool Visible);
-  void MaintainScaling();
+  void ChangeVisibility(bool Visible) override;
+  void MaintainScaling() override;
 
   void SetProgress(float Fraction);
   float GetProgress() const;

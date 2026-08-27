@@ -75,19 +75,45 @@ Ogre::ColourValue BiomeToColour(BiomeType biome) {
 constexpr float kHeightScale =
     0.05f;  // max visual displacement, as a fraction of Radius
 
+// a build reports its progress in stages, and a caller that does not care
+// hands in nothing at all, so every report goes through here rather than each
+// stage repeating the same check
+void Report(const Globe::ProgressCallback& OnProgress, float Fraction) {
+  if (OnProgress) {
+    OnProgress(Fraction);
+  }
+}
+
+// what each stage of Generate is worth, as a share of the whole. the
+// subdivision walk dominates at any usable frequency, so the bar is not left
+// sitting still through it while the cheap stages each take a quarter
+constexpr float kSubdivisionShare = 0.55f;
+constexpr float kTilingShare = 0.2f;
+constexpr float kSpatialIndexShare = 0.05f;
+
 }  // namespace
 
 Globe::Globe() : Center(Ogre::Vector3::ZERO), Radius(1.f) {}
 
-void Globe::Generate(unsigned int subdivisionFreq, unsigned int seed) {
-  VisualMesh = BuildSubdividedIcosahedron(subdivisionFreq);
+void Globe::Generate(unsigned int subdivisionFreq, unsigned int seed,
+                     const ProgressCallback& OnProgress) {
+  VisualMesh = BuildSubdividedIcosahedron(
+      subdivisionFreq, [&OnProgress](float Stage) {
+        Report(OnProgress, Stage * kSubdivisionShare);
+      });
+
   BuildTilesFromMesh(VisualMesh);
+  Report(OnProgress, kSubdivisionShare + kTilingShare);
+
   BuildTileSpatialIndex();
+  Report(OnProgress, kSubdivisionShare + kTilingShare + kSpatialIndexShare);
+
   AssignElevationAndBiome(seed);
+  Report(OnProgress, 1.f);
 }
 
 GeodesicMesh Globe::BuildSubdividedIcosahedron(
-    unsigned int subdivisionFreq) const {
+    unsigned int subdivisionFreq, const ProgressCallback& OnProgress) const {
   GeodesicMesh mesh;
   const unsigned int freq = std::max(1u, subdivisionFreq);
 
@@ -117,6 +143,7 @@ GeodesicMesh Globe::BuildSubdividedIcosahedron(
   }};
 
   VertexCache cache;
+  unsigned int FacesWalked = 0;
   for (const auto& face : baseFaces) {
     const Ogre::Vector3& v0 = baseVerts[face[0]];
     const Ogre::Vector3& v1 = baseVerts[face[1]];
@@ -147,6 +174,10 @@ GeodesicMesh Globe::BuildSubdividedIcosahedron(
         }
       }
     }
+
+    FacesWalked++;
+    Report(OnProgress, static_cast<float>(FacesWalked) /
+                           static_cast<float>(baseFaces.size()));
   }
 
   // The barycentric walk above doesn't guarantee consistent winding, so
@@ -241,7 +272,8 @@ uint32_t Globe::FindTileAt(const Ogre::Vector3& directionFromCenter) const {
   return FindNearestTileFast(dir);
 }
 
-VisualMeshBufferData Globe::BuildVisualMeshData() const {
+VisualMeshBufferData Globe::BuildVisualMeshData(
+    const ProgressCallback& OnProgress) const {
   VisualMeshBufferData Result;
 
   const size_t vertexCount = VisualMesh.Vertices.size();
@@ -269,12 +301,16 @@ VisualMeshBufferData Globe::BuildVisualMeshData() const {
     v[8] = colour.b;
   }
 
+  Report(OnProgress, 0.5f);
+
   Result.IndexData.resize(indexCount);
   for (size_t f = 0; f < VisualMesh.Faces.size(); ++f) {
     Result.IndexData[f * 3 + 0] = VisualMesh.Faces[f][0];
     Result.IndexData[f * 3 + 1] = VisualMesh.Faces[f][1];
     Result.IndexData[f * 3 + 2] = VisualMesh.Faces[f][2];
   }
+
+  Report(OnProgress, 1.f);
 
   return Result;
 }

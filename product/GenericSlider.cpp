@@ -7,9 +7,15 @@
 #include <utility>
 #include <vector>
 
+namespace {
+// how far above the track's top edge the label's own top sits - a character
+// height plus a little clear space, so the two never touch
+constexpr float LabelOffset = 0.033f;
+}  // namespace
+
 GenericSlider::GenericSlider(
-    std::string SliderName, std::vector<float> Position,
-    std::vector<float> Dimensions, float MaxSliderValue,
+    std::string SliderName, std::string LabelText, std::vector<float> Position,
+    std::vector<float> Dimensions, float MinSliderValue, float MaxSliderValue,
     InputDevice* DeviceToRespondTo,
     std::function<void(EventQueue&, float)> ChangeCallback,
     EventQueue* QueueForCallBack, int ThreadId)
@@ -18,7 +24,9 @@ GenericSlider::GenericSlider(
 
   State->TrackName = SliderName + Suffix;
   State->FillName = SliderName + "_fill" + Suffix;
+  State->LabelName = SliderName + "_label" + Suffix;
   State->OverlayName = "UI_Overlay_" + std::to_string(ThreadId);
+  State->MinValue = MinSliderValue;
   State->MaxValue = MaxSliderValue;
   State->OnValueChange = std::move(ChangeCallback);
 
@@ -42,6 +50,15 @@ GenericSlider::GenericSlider(
       OverlayAddBoxToPanelEvent(State->TrackName, State->FillName, "RED",
                                 {0.f, 0.f}, {0.f, State->Size[1]}));
 
+  // a child is offset from its parent's corner, so a negative y lifts the
+  // label clear of the track it names
+  RS.RenderQueue->Enqueue(OverlayAddTextToPanelEvent{State->TrackName,
+                                                     State->LabelName,
+                                                     LabelText,
+                                                     "WHITE",
+                                                     {0.f, -LabelOffset},
+                                                     State->Size});
+
   std::shared_ptr<SliderState> Captured = State;
   RS.RenderQueue->Enqueue(RegisterOnPressCallBackEvent(
       State->OverlayName, State->TrackName,
@@ -59,6 +76,9 @@ void GenericSlider::ChangeVisibility(bool Visible) {
 
   RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
       State->OverlayName, State->FillName, Visible));
+
+  RS.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
+      State->OverlayName, State->LabelName, Visible));
 }
 
 void GenericSlider::MaintainScaling() {
@@ -72,17 +92,26 @@ void GenericSlider::MaintainScaling() {
 }
 
 float GenericSlider::GetValue() const {
-  return State->Fraction.load(std::memory_order_relaxed) * State->MaxValue;
+  return ValueForFraction(*State,
+                          State->Fraction.load(std::memory_order_relaxed));
 }
 
 void GenericSlider::SetValue(float NewValue) {
+  const float Span = State->MaxValue - State->MinValue;
   const float Fraction =
-      (State->MaxValue > 0.f)
-          ? std::clamp(NewValue / State->MaxValue, 0.f, 1.f)
-          : 0.f;
+      (Span > 0.f) ? std::clamp((NewValue - State->MinValue) / Span, 0.f, 1.f)
+                   : 0.f;
 
   State->Fraction.store(Fraction, std::memory_order_relaxed);
   PushFill(*State, Fraction);
+}
+
+void GenericSlider::SetLabelText(std::string NewText) const {
+  RenderSystem& RS = RenderSystem::GetInstance();
+
+  RS.RenderQueue->Enqueue(OverlayEditTextEvent(
+      State->LabelName, State->OverlayName, {-1.f, -1.f}, {-1.f, -1.f},
+      "USE_OLD", std::move(NewText)));
 }
 
 void GenericSlider::PressAt(const std::shared_ptr<SliderState>& State,
@@ -97,8 +126,15 @@ void GenericSlider::PressAt(const std::shared_ptr<SliderState>& State,
   PushFill(*State, Fraction);
 
   if (State->OnValueChange) {
-    State->OnValueChange(Queue, Fraction * State->MaxValue);
+    State->OnValueChange(Queue, ValueForFraction(*State, Fraction));
   }
+}
+
+// a fraction of the way along the track is a value somewhere between the two
+// ends of the range, not a fraction of the top one
+float GenericSlider::ValueForFraction(const SliderState& State,
+                                      float Fraction) {
+  return State.MinValue + (Fraction * (State.MaxValue - State.MinValue));
 }
 
 void GenericSlider::PushFill(const SliderState& State, float Fraction) {

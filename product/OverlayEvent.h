@@ -189,3 +189,26 @@ struct OverlayAddBoxToPanelEvent {
         Position(Pos),
         Dimensions(Dim) {}
 };
+
+// resize a panel so the text it already holds fits inside it, with Padding
+// left clear on each edge, then centre the pair on Centre. only the render
+// side knows the font and the viewport it is measured against, so an element
+// asks for a fit rather than guessing a box size for its own caption
+struct OverlayFitPanelToTextEvent {
+  std::string PanelName;
+  std::string TextName;
+  std::string OverlayToFindIn;
+
+  std::vector<float> Centre;
+  std::vector<float> Padding;
+
+  OverlayFitPanelToTextEvent(std::string Panel, std::string Text,
+                             std::string OverlayToUse,
+                             std::vector<float> CentredOn,
+                             std::vector<float> EdgePadding)
+      : PanelName(Panel),
+        TextName(Text),
+        OverlayToFindIn(OverlayToUse),
+        Centre(CentredOn),
+        Padding(EdgePadding) {}
+};

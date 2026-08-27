@@ -248,7 +248,14 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ApplicationStateManager.cpp" />
+    <ClCompile Include="BaseOptionState.cpp" />
+    <ClCompile Include="BaseState.cpp" />
     <ClCompile Include="GamePlayState.cpp" />
+    <ClCompile Include="GlobeOptionState.cpp" />
+    <ClCompile Include="InstanceMenuState.cpp" />
+    <ClCompile Include="InstanceOptionState.cpp" />
+    <ClCompile Include="LoadingState.cpp" />
+    <ClCompile Include="MainOptionState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="PausedState.cpp" />
@@ -259,11 +266,20 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\ConfigEvent.h" />
     <ClInclude Include="..\StateEvent.h" />
+    <ClInclude Include="..\UIElement.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="ApplicationStateManager.h" />
     <ClInclude Include="AppState.h" />
+    <ClInclude Include="BaseOptionState.h" />
+    <ClInclude Include="BaseState.h" />
     <ClInclude Include="GamePlayState.h" />
+    <ClInclude Include="GlobeOptionState.h" />
+    <ClInclude Include="InstanceMenuState.h" />
+    <ClInclude Include="InstanceOptionState.h" />
+    <ClInclude Include="LoadingState.h" />
+    <ClInclude Include="MainOptionState.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="PausedState.h" />
   </ItemGroup>

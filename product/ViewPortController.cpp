@@ -79,6 +79,13 @@ std::vector<int> ViewPortController::GetActualDimensions() {
                             ViewPort->getActualHeight()};
 }
 
+void ViewPortController::SetClipDistances(Ogre::Real NearDistance,
+                                          Ogre::Real FarDistance) {
+  Ogre::Camera* Camera = ViewPort->getCamera();
+  Camera->setNearClipDistance(NearDistance);
+  Camera->setFarClipDistance(FarDistance);
+}
+
 void ViewPortController::SetOrbitDistanceLimits(Ogre::Real MinDistance,
                                                 Ogre::Real MaxDistance) {
   mMinOrbitDistance = MinDistance;

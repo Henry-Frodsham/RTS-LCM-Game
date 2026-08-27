@@ -33,6 +33,8 @@ class OverlayController {
 
   Ogre::OverlayManager* OverlayMngr;
 
+  float MeasureCaptionWidth(Ogre::TextAreaOverlayElement* TextArea);
+
  public:
   // handlers for OverlayEvents on the renderQueue
 
@@ -44,6 +46,7 @@ class OverlayController {
   void AddTextToPanel(OverlayAddTextToPanelEvent Event);
   void AddBoxToPanel(OverlayAddBoxToPanelEvent Event);
   void EditPanel(OverlayEditPanelEvent Event);
+  void FitPanelToText(OverlayFitPanelToTextEvent Event);
 
   void EditText(OverlayEditTextEvent Event);
 

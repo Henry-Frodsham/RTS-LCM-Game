@@ -1,18 +1,17 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
+#include "BaseState.h"
 #include "GenericButton.h"
-#include "StateEvent.h"
 
-class MenuState {
- private:
-  EventQueue* AppQueue;
-
+class MenuState : public BaseState {
  public:
   explicit MenuState(EventQueue* CallBacksQueue);
-  ~MenuState() {}
 
+ protected:
+  void OnInit() override;
+
+ private:
   GenericButton* PlayButton;
-
-  void Init();
-  void OnChangeState(ChangeStateEvent Event);
+  GenericButton* OptionButton;
+  GenericButton* WorldGenerationButton;
 };

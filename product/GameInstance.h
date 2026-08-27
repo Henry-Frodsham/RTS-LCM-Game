@@ -1,5 +1,6 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
+#include "ConfigEvent.h"
 #include "Cursor.h"
 #include "ErrorReporter.h"
 #include "EventBus.h"

@@ -66,6 +66,11 @@ class ViewPortController {
   std::vector<float> GetViewPortDimensions();
   std::vector<int> GetActualDimensions();
 
+  // the near and far planes are a fraction of whatever the camera is looking
+  // at, so they are set from outside rather than fixed at construction - a
+  // camera made before the globe was built has to be told again afterwards
+  void SetClipDistances(Ogre::Real NearDistance, Ogre::Real FarDistance);
+
   void InitOrbitCamera(const Ogre::Vector3& OrbitPoint, Ogre::Real Distance);
   void SetOrbitDistanceLimits(Ogre::Real MinDistance, Ogre::Real MaxDistance);
   void ZoomOrbitingPoint(Ogre::Real Delta);

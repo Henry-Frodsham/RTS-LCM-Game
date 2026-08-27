@@ -1,24 +1,20 @@
 // Copyright (c) 2025 Henry Frodsham
 #pragma once
-
+#include "BaseState.h"
 #include "GenericButton.h"
 #include "GenericSlider.h"
-#include "StateEvent.h"
 #include "GlobeEvent.h"
 #include "RenderSystem.h"
 
-class GameState {
- private:
-  EventQueue* AppQueue;
-
+class GameState : public BaseState {
  public:
-  GameState(EventQueue* CallBacksQueue);
-  ~GameState() {}
+  explicit GameState(EventQueue* CallBacksQueue);
 
-  // dev-only control, not tied to any gameplay value yet - exists so a value
-  // can be tweaked live at runtime while debugging
-  GenericSlider* DebugSlider;
+ protected:
+  void OnInit() override;
+  void OnEnter() override;
+  void OnExit() override;
 
-  void Init();
-  void OnChangeState(ChangeStateEvent Event);
+ private:
+  void SetGlobeVisible(bool Visible);
 };

@@ -7,6 +7,7 @@
 #include <OGRE/OgreRay.h>
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <vector>
 
 #include "Tile.h"
@@ -58,17 +59,24 @@ struct VisualMeshBufferData {
 
 class Globe {
  public:
+  // reports how far through a stage the build is, as a fraction of that
+  // stage. called from whichever thread the build is running on, so a
+  // handler has to be safe to call from a worker
+  using ProgressCallback = std::function<void(float)>;
+
   Globe();
 
   // Builds the tile/geometry data for the globe. Pure CPU work (no Ogre
   // resource managers are touched), so this is safe to run off the render
   // thread - e.g. on a worker thread while the render thread keeps ticking.
-  void Generate(unsigned int subdivisionFreq, unsigned int seed);
+  void Generate(unsigned int subdivisionFreq, unsigned int seed,
+                const ProgressCallback& OnProgress = {});
 
   // Prepares the visual mesh's vertex/index data as plain buffers. Reads
   // only Globe/Tile state, so - like Generate() - this is safe to run off
   // the render thread once Generate() has completed.
-  VisualMeshBufferData BuildVisualMeshData() const;
+  VisualMeshBufferData BuildVisualMeshData(
+      const ProgressCallback& OnProgress = {}) const;
 
   // Uploads BuildVisualMeshData()'s output into GPU-backed Ogre resources
   // (MeshManager, HardwareBufferManager). This touches the render system
@@ -106,7 +114,8 @@ class Globe {
   GlobeRayHit CastRay(const Ogre::Ray& LocalRay) const;
 
  private:
-  GeodesicMesh BuildSubdividedIcosahedron(unsigned int subdivisionFreq) const;
+  GeodesicMesh BuildSubdividedIcosahedron(
+      unsigned int subdivisionFreq, const ProgressCallback& OnProgress) const;
   void BuildTilesFromMesh(const GeodesicMesh& mesh);
   void AssignElevationAndBiome(unsigned int seed);
   Ogre::Vector3 GetDisplacedVertexPosition(uint32_t VertexIndex) const;

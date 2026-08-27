@@ -19,6 +19,21 @@ InstanceOverseer::InstanceOverseer(InputListener* ParentListener,  //NOLINT [whi
   InstanceBus->Subscribe<RecheckViewPortSizeCommand>(
       std::bind(&InstanceOverseer::RecalculateViewPortSizes, this,
                 std::placeholders::_1));
+  InstanceBus->Subscribe<ConfigAppliedEvent>(std::bind(
+      &InstanceOverseer::ForwardConfigChange, this, std::placeholders::_1));
+}
+
+// a config file has been rewritten, and the instances that read it are all off
+// on their own threads. every one of them is told, because an instance is the
+// only thing that knows whether a given file is one it reads - the overseer
+// would have to know what each of them keeps to decide that for them
+//
+// forwarding rather than calling: LocalQueue is drained inside the instance's
+// own Run, so the reload lands on the thread that owns the values it replaces
+void InstanceOverseer::ForwardConfigChange(ConfigAppliedEvent Event) {
+  for (GameInstance* Instance : GameInstances) {
+    Instance->LocalQueue->Enqueue(Event);
+  }
 }
 
 void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
@@ -66,6 +81,10 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
   VP->RegisterControllingDevice(Event.InstanceDevice);
 
   InstanceQueue->Enqueue(RecheckViewPortSizeCommand());
+}
+
+const std::vector<GameInstance*>& InstanceOverseer::GetInstances() const {
+  return GameInstances;
 }
 
 void InstanceOverseer::RecalculateViewPortSizes(

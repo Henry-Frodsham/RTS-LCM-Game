@@ -10,12 +10,58 @@ ConfigManager::ConfigManager(std::string BaseName,
                              std::string InstanceName)
     : ConfigName(BaseName),
       Reporter(ParentReporter),
-      NameExtension(InstanceName) {
+      NameExtension(InstanceName),
+      StagedValues(nlohmann::json::object()) {
   CustomPath = std::filesystem::path(std::filesystem::current_path()) /
                "config" / "custom" / (ConfigName + NameExtension + ".json");
   DefaultPath = std::filesystem::path(std::filesystem::current_path()) /
                 "config" / "default" / (ConfigName + ".json");
   LoadOrReload();
+}
+
+bool ConfigManager::HasStagedValues() const {
+  return StagedValues.is_object() && !StagedValues.empty();
+}
+
+// staged edits are an override of an override, so they are merged over the
+// custom values rather than replacing them - a page only ever stages the
+// handful of keys it actually has controls for
+void ConfigManager::ApplyStagedValues() {
+  if (!HasStagedValues()) {
+    return;
+  }
+
+  // the first edit a config ever gets is what makes its custom file, so the
+  // file is brought into existence here rather than being expected to already
+  // be there
+  EnsureCustomFileExists();
+
+  if (!CustomValues.is_object()) {
+    CustomValues = nlohmann::json::object();
+  }
+
+  CustomValues.merge_patch(StagedValues);
+  StagedValues = nlohmann::json::object();
+
+  SaveFiles();
+}
+
+void ConfigManager::DiscardStagedValues() {
+  StagedValues = nlohmann::json::object();
+}
+
+// a key is real if either file knows about it. the default file is the one
+// that defines what settings exist, and the custom file only ever overrides
+// some of them, so a key missing from the custom file is not a missing key
+bool ConfigManager::KeyExists(const std::string& Key) const {
+  return (CustomValues.is_object() && CustomValues.contains(Key)) ||
+         (DefaultValues.is_object() && DefaultValues.contains(Key));
+}
+
+const std::string& ConfigManager::GetConfigName() const { return ConfigName; }
+
+const std::string& ConfigManager::GetInstanceName() const {
+  return NameExtension;
 }
 
 void ConfigManager::LoadOrReload() {
@@ -70,64 +116,78 @@ nlohmann::json ConfigManager::OpenAndParse(std::filesystem::path JsonPath) {
   return Data;
 }
 
+// only the custom file is ever written. the default file is the record of what
+// a setting is supposed to be and what settings exist at all, so it stays
+// exactly as it shipped - it is the thing a broken custom file falls back to,
+// and it is no use as that if saving can overwrite it
 void ConfigManager::SaveFiles() {
-  try {
-    if (!CustomPath.parent_path().empty()) {
-      std::filesystem::create_directories(CustomPath.parent_path());
-    }
-
-    if (!DefaultPath.parent_path().empty()) {
-      std::filesystem::create_directories(DefaultPath.parent_path());
-    }
-  } catch (const std::filesystem::filesystem_error& e) {
-    Reporter->EnqueueError(ErrorDetail::CreateError(
-        ErrorCode::JSON_WRITE_ERROR,
-        fmt::format("failed to create directories for config files \n original "
-                    "error: {}",
-                    e.what())));
+  if (CustomValues.is_null() || CustomValues.empty()) {
     return;
   }
 
-  if (!CustomValues.empty() && !CustomValues.is_null()) {
-    try {
-      std::ofstream CustomFile(CustomPath);
-      if (!CustomFile.is_open()) {
-        Reporter->EnqueueError(ErrorDetail::CreateError(
-            ErrorCode::JSON_UNOPENED_FILE,
-            fmt::format("unable to open custom config file {} for writing",
-                        CustomPath.string())));
-      } else {
-        // viewable format with 4 space indents
-        CustomFile << CustomValues.dump(4);
-        CustomFile.close();
-      }
-    } catch (const std::exception& e) {
-      Reporter->EnqueueError(ErrorDetail::CreateError(
-          ErrorCode::JSON_WRITE_ERROR,
-          fmt::format(
-              "failed to write custom config file {} \n original error: {}",
-              CustomPath.string(), e.what())));
-    }
+  if (!EnsureCustomDirectory()) {
+    return;
   }
 
-  if (!DefaultValues.empty() && !DefaultValues.is_null()) {
-    try {
-      std::ofstream DefaultFile(DefaultPath);
-      if (!DefaultFile.is_open()) {
-        Reporter->EnqueueError(ErrorDetail::CreateError(
-            ErrorCode::JSON_UNOPENED_FILE,
-            fmt::format("unable to open default config file {} for writing",
-                        DefaultPath.string())));
-      } else {
-        DefaultFile << DefaultValues.dump(4);
-        DefaultFile.close();
-      }
-    } catch (const std::exception& e) {
+  try {
+    std::ofstream CustomFile(CustomPath);
+    if (!CustomFile.is_open()) {
       Reporter->EnqueueError(ErrorDetail::CreateError(
-          ErrorCode::JSON_WRITE_ERROR,
-          fmt::format(
-              "failed to write default config file {} \n original error: {}",
-              DefaultPath.string(), e.what())));
+          ErrorCode::JSON_UNOPENED_FILE,
+          fmt::format("unable to open custom config file {} for writing",
+                      CustomPath.string())));
+      return;
     }
+
+    // viewable format with 4 space indents
+    CustomFile << CustomValues.dump(4);
+    CustomFile.close();
+  } catch (const std::exception& e) {
+    Reporter->EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::JSON_WRITE_ERROR,
+        fmt::format(
+            "failed to write custom config file {} \n original error: {}",
+            CustomPath.string(), e.what())));
   }
+}
+
+// a config only has a custom file once something has been changed, so the
+// first save has to make one. it is seeded with a full copy of the defaults
+// rather than the single key that was edited, so what lands in config/custom
+// is a complete, readable settings file somebody can open and edit by hand
+// instead of a fragment that only makes sense next to the default
+//
+// a key still missing from it - one added to the default file by a later
+// version - carries on falling back to the default, so seeding does not
+// freeze a config at the shape it had the first time it was written
+void ConfigManager::EnsureCustomFileExists() {
+  if (std::filesystem::exists(CustomPath)) {
+    return;
+  }
+
+  if (!CustomValues.is_object() || CustomValues.empty()) {
+    CustomValues = DefaultValues.is_object() ? DefaultValues
+                                             : nlohmann::json::object();
+  }
+
+  SaveFiles();
+}
+
+bool ConfigManager::EnsureCustomDirectory() {
+  if (CustomPath.parent_path().empty()) {
+    return true;
+  }
+
+  try {
+    std::filesystem::create_directories(CustomPath.parent_path());
+  } catch (const std::filesystem::filesystem_error& e) {
+    Reporter->EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::JSON_WRITE_ERROR,
+        fmt::format("failed to create the custom config directory {} \n "
+                    "original error: {}",
+                    CustomPath.parent_path().string(), e.what())));
+    return false;
+  }
+
+  return true;
 }
