@@ -16,6 +16,12 @@ namespace {
 // most effectively at the front" gets real balancing
 constexpr float kFrontArcCosHalfAngle = 0.f;
 
+// how long a unit keeps showing its health bar and facing arrow after it
+// was last in a fight. long enough to read a bar that is being chipped away
+// and to see which way an attacker is pointing, short enough that a quiet map
+// is a clean one
+constexpr float kCombatIndicatorSeconds = 3.f;
+
 // secondary check performed only at attack time, alongside (not instead of)
 // RangeCacheComponent's sphere-based membership check - a target can be a
 // valid, in-range enemy without being in front of the attacker
@@ -70,6 +76,7 @@ void WorldManager::update(float DT) {
   AdvancePathRequests();
   AdvancePathPreviewRequests();
   AdvanceMovingEntities(DT);
+  RefreshUnitIndicators(DT);
 }
 
 void WorldManager::AdvancePathRequests() {
@@ -286,19 +293,20 @@ void WorldManager::EvaluateTickerComponents(float DT) {
           Rs.RenderQueue->Enqueue(DestroyNodeEvent(EntOgre.EntityNode));
 
           Registry.destroy(EntInRange);
-        } else if (HealthBarComponent* EntHealthBar =
-                       Registry.try_get<HealthBarComponent>(EntInRange)) {
-          // Fill may still be null for a frame or two while the render
-          // thread catches up to a just-spawned unit's CreateHealthBarEvent
-          if (EntHealthBar->Fill != nullptr) {
-            const int CurrentDecile = static_cast<int>(std::round(
-                (EntHealth.Health / EntHealth.MaxHealth) * 10.f));
-            if (CurrentDecile != EntHealthBar->LastSyncedDecile) {
-              EntHealthBar->LastSyncedDecile = CurrentDecile;
-              Rs.RenderQueue->Enqueue(UpdateHealthBarEvent(
-                  EntHealthBar->Fill, CurrentDecile / 10.f));
-            }
-          }
+        } else {
+          // nothing is pushed to the render side from here any more. landing
+          // a hit only opens the window during which these two are worth
+          // showing indicators for - what those indicators then say is read
+          // straight off HealthComponent by RefreshUnitIndicators, so there
+          // is no second copy of anybody's health to keep in step.
+          //
+          // both sides, not just the one being hit: the attacker's facing is
+          // exactly what a player needs to see while it is swinging, since
+          // facing is what IsTargetWithinFrontArc above gates the hit on
+          Registry.emplace_or_replace<InCombatComponent>(
+              EntInRange, kCombatIndicatorSeconds);
+          Registry.emplace_or_replace<InCombatComponent>(
+              Entity, kCombatIndicatorSeconds);
         }
       }
 
@@ -307,5 +315,84 @@ void WorldManager::EvaluateTickerComponents(float DT) {
             ErrorDetail::CreateError(ErrorCode::ATTACK_LOGIC_FAILED));
       }
     }
+  }
+}
+
+void WorldManager::RefreshUnitIndicators(float DT) {
+  RenderSystem& Rs = RenderSystem::GetInstance();
+
+  // age out the combat windows first, so a unit whose window closed this tick
+  // is already gone by the time the snapshot below is built
+  std::vector<entt::entity> Expired;
+  auto CombatView = Registry.view<InCombatComponent>();
+  for (auto [Entity, Combat] : CombatView.each()) {
+    Combat.Remaining -= DT;
+    if (Combat.Remaining <= 0.f) {
+      Expired.push_back(Entity);
+    }
+  }
+  for (entt::entity Entity : Expired) {
+    Registry.remove<InCombatComponent>(Entity);
+  }
+
+  // health bars. the anchor is the top of the unit's mesh in world space,
+  // which is where the bar wants to sit once it has been projected onto the
+  // screen - measuring the mesh rather than guessing an offset is the one
+  // thing the old billboard bar got right and is worth keeping
+  std::vector<UnitIndicatorEntry> Snapshot;
+  auto BarView = Registry.view<HealthComponent, OgreComponent, MeshComponent>();
+  for (auto [Entity, Health, OgreComp, MeshComp] : BarView.each()) {
+    if (!OgreComp.EntityNode || !MeshComp.Entity || Health.MaxHealth <= 0.f) {
+      continue;
+    }
+
+    const SelectedComponent* Selected =
+        Registry.try_get<SelectedComponent>(Entity);
+    const bool Fighting = Registry.all_of<InCombatComponent>(Entity);
+    if (!Selected && !Fighting) {
+      continue;
+    }
+
+    // local rather than derived transforms: a unit's node is a direct child
+    // of the root, so the two are the same thing, and the local pair is a
+    // plain read where _getDerivedPosition can walk up the tree recomputing
+    // cached state - not something to do from this thread while the render
+    // thread is drawing. same reads AdvanceMovingEntities already makes
+    const float UnitTop = MeshComp.Entity->getBoundingBox().getMaximum().y;
+    const Ogre::Vector3 Anchor =
+        OgreComp.EntityNode->getPosition() +
+        (OgreComp.EntityNode->getOrientation() *
+         Ogre::Vector3(0.f, UnitTop, 0.f));
+
+    // a unit that is both selected and in a fight is public - a fight is not
+    // a secret, and it would be odd for the same bar to be private to one
+    // player only while nobody happens to be hitting it
+    const int Exclusive = Fighting ? 0 : Selected->PlayerID;
+
+    Snapshot.emplace_back(Anchor, Health.Health / Health.MaxHealth, Exclusive);
+  }
+
+  // sent unconditionally, empty included - an empty snapshot is how the last
+  // bar left on screen gets taken off it
+  Rs.RenderQueue->Enqueue(SyncUnitIndicatorsEvent(std::move(Snapshot)));
+
+  // facing arrows. these are real scene nodes rather than pooled screen
+  // space panels, so unlike the bars they are only touched on a change -
+  // FacingArrowComponent::Shown is what the render side was last told
+  auto ArrowView = Registry.view<FacingArrowComponent>();
+  for (auto [Entity, Arrow] : ArrowView.each()) {
+    if (!Arrow.ArrowNode) {
+      continue;
+    }
+
+    const bool ShouldShow = Registry.all_of<SelectedComponent>(Entity) ||
+                            Registry.all_of<InCombatComponent>(Entity);
+    if (ShouldShow == Arrow.Shown) {
+      continue;
+    }
+
+    Arrow.Shown = ShouldShow;
+    Rs.RenderQueue->Enqueue(
+        ChangeFacingArrowVisibilityEvent(Arrow.ArrowNode, ShouldShow));
   }
 }

@@ -30,8 +30,6 @@ ECSHelper::ECSHelper(entt::registry* Registry, ErrorReporter* Reporter)
                 std::placeholders::_1));
   FactoryBus->Subscribe<AddHealthEvent>(std::bind(
       &ECSHelper::CreateandAddHealthComponent, this, std::placeholders::_1));
-  FactoryBus->Subscribe<AddHealthBarComponentEvent>(std::bind(
-      &ECSHelper::CreateAndAddHealthBarComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddFacingComponentEvent>(std::bind(
       &ECSHelper::CreateAndAddFacingComponent, this, std::placeholders::_1));
   FactoryBus->Subscribe<AddFacingArrowComponentEvent>(
@@ -112,31 +110,6 @@ void ECSHelper::CreateandAddHealthComponent(AddHealthEvent Event) {
   auto& Component = RegistryToUse->emplace<HealthComponent>(
       *Event.Entity, Event.Health, Event.Health);
 }
-void ECSHelper::CreateAndAddHealthBarComponent(
-    AddHealthBarComponentEvent Event) {
-  RenderSystem& Rs = RenderSystem::GetInstance();
-  try {
-    OgreComponent& EntOgreComp =
-        RegistryToUse->get<OgreComponent>(*Event.Entity);
-    MeshComponent& EntMeshComp =
-        RegistryToUse->get<MeshComponent>(*Event.Entity);
-
-    // same ordering issue as CreateAndAddOwnerShipComponent - the scene
-    // node this bar parents to, and the mesh entity it measures itself
-    // against, may not exist yet on the first run, so retry until both do
-    if (EntOgreComp.EntityNode != nullptr && EntMeshComp.Entity != nullptr) {
-      auto& Component = RegistryToUse->emplace<HealthBarComponent>(
-          *Event.Entity, nullptr, nullptr, 10);
-
-      Rs.RenderQueue->Enqueue(CreateHealthBarEvent(
-          std::ref(Component.BarSet), std::ref(Component.Fill),
-          EntOgreComp.EntityNode, EntMeshComp.Entity));
-    } else {
-      FactoryQueue->Enqueue(Event);
-    }
-  } catch (std::exception e) {
-  }
-}
 void ECSHelper::CreateAndAddFacingComponent(AddFacingComponentEvent Event) {
   RegistryToUse->emplace<FacingComponent>(
       *Event.Entity, Event.SurfaceNormal.perpendicular().normalisedCopy());
@@ -150,7 +123,7 @@ void ECSHelper::CreateAndAddFacingArrowComponent(
     MeshComponent& EntMeshComp =
         RegistryToUse->get<MeshComponent>(*Event.Entity);
 
-    // same ordering issue as CreateAndAddHealthBarComponent - retry until
+    // same ordering issue as CreateAndAddOwnerShipComponent - retry until
     // both the scene node and mesh entity this arrow parents/anchors to
     // exist
     if (EntOgreComp.EntityNode != nullptr && EntMeshComp.Entity != nullptr) {
@@ -286,11 +259,13 @@ void ECSHelper::ValidateEntitySelection(TrySelectEntityEvent Event) {
     Rs.RenderQueue->Enqueue(
         ChangeEntMaterialEvent(MeshComp->Entity, "RED_UNIT"));
 
-    if (FacingArrowComponent* Arrow =
-            RegistryToUse->try_get<FacingArrowComponent>(Event.Entity)) {
-      Rs.RenderQueue->Enqueue(
-          ChangeFacingArrowVisibilityEvent(Arrow->ArrowNode, true));
-    }
+    // the indicators are deliberately not touched here. being selected is one
+    // of two reasons a unit shows a health bar and an arrow, and the other
+    // (having recently been damaged) is not visible from this function - so
+    // the answer is left to the one pass that can see both, and all this does
+    // is record who did the selecting
+    RegistryToUse->emplace_or_replace<SelectedComponent>(Event.Entity,
+                                                        OComp->PlayerID);
     Event.Respond();
   }
 }
@@ -399,11 +374,11 @@ void ECSHelper::TryUnselectEntity(TryUnselectEntityEvent Event) {
   RenderSystem& Rs = RenderSystem::GetInstance();
   Rs.RenderQueue->Enqueue(ChangeEntMaterialEvent(MeshComp->Entity, "WHITE"));
 
-  if (FacingArrowComponent* Arrow =
-          RegistryToUse->try_get<FacingArrowComponent>(Event.Entity)) {
-    Rs.RenderQueue->Enqueue(
-        ChangeFacingArrowVisibilityEvent(Arrow->ArrowNode, false));
-  }
+  // dropping the component is all that happens here - see
+  // ValidateEntitySelection. a unit deselected mid fight keeps its indicators
+  // until the damage window runs out, which is the behaviour you want and not
+  // something this function is in a position to decide
+  RegistryToUse->remove<SelectedComponent>(Event.Entity);
 }
 
 void ECSHelper::TryDestroyEntity(TryDestroyEntityEvent Event) {

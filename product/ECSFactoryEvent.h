@@ -79,14 +79,6 @@ struct AddHealthEvent {
   AddHealthEvent(std::shared_ptr<entt::entity> Ent, float H)
       : Entity(Ent), Health(H) {}
 };
-// event to add a health bar render component to entity. must run after the
-// entity's OgreComponent scene node exists - see
-// ECSHelper::CreateAndAddHealthBarComponent for the retry pattern
-struct AddHealthBarComponentEvent {
-  std::shared_ptr<entt::entity> Entity;
-  explicit AddHealthBarComponentEvent(std::shared_ptr<entt::entity> Ent)
-      : Entity(Ent) {}
-};
 // event to add a facing comp to entity. Forward starts as an arbitrary
 // tangent of SurfaceNormal, since a freshly placed unit has no movement
 // history yet to derive a real direction from

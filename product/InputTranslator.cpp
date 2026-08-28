@@ -87,6 +87,8 @@ void InputTranslator::LoadConfiguration() {
       InputConfig->GetValueOrDefault<float>("RelativeMotionScale");
   RightDragThresholdPixels =
       InputConfig->GetValueOrDefault<float>("RightDragThresholdPixels");
+  SelectDragThresholdPixels =
+      InputConfig->GetValueOrDefault<float>("SelectDragThresholdPixels");
   RightClickOpensContextWheel =
       InputConfig->GetValueOrDefault<bool>("RightClickOpensContextWheel");
   // LB/RB "held button" zoom speed, expressed as scroll wheel notches per
@@ -114,6 +116,10 @@ void InputTranslator::LoadConfiguration() {
   }
   if (ShoulderZoomNotchesPerSecond <= 0.f) {
     ShoulderZoomNotchesPerSecond = 6.f;
+  }
+  // a zero here would make every click a box drag over the whole viewport
+  if (SelectDragThresholdPixels <= 0.f) {
+    SelectDragThresholdPixels = 6.f;
   }
   if (PromptPosition.size() < 2) {
     PromptPosition = {0.2f, 0.3f};
@@ -178,6 +184,40 @@ void InputTranslator::BuildKeyBindings() {
     }
 
     KeyBindings[Code] = Action;
+  }
+
+  // the add-to-selection modifier isnt a GameAction - it has no command of its
+  // own, it only colours the meaning of a select gesture - so it is resolved
+  // here into its own latch rather than going through KeyBindings
+  AdditiveSelectKeys.clear();
+  AdditiveSelectKeyHeld = false;
+
+  const std::string ModifierName =
+      InputConfig->GetValueOrDefault<std::string>("KeyBindAddToSelection");
+  const SDL_Keycode ModifierCode = SDL_GetKeyFromName(ModifierName.c_str());
+
+  if (ModifierCode == SDLK_UNKNOWN) {
+    TranslationErrorReporter->EnqueueError(ErrorDetail::CreateError(
+        ErrorCode::UNRECOGNISED,
+        fmt::format("\"{}\" is not a key SDL recognises, add-to-selection has "
+                    "fallen back to either shift key",
+                    ModifierName)));
+    AdditiveSelectKeys = {SDLK_LSHIFT, SDLK_RSHIFT};
+    return;
+  }
+
+  AdditiveSelectKeys.push_back(ModifierCode);
+
+  // binding one shift binds the other. nobody means "the left one only" when
+  // they write "Left Shift", and the same goes for ctrl and alt
+  switch (ModifierCode) {
+    case SDLK_LSHIFT: AdditiveSelectKeys.push_back(SDLK_RSHIFT); break;
+    case SDLK_RSHIFT: AdditiveSelectKeys.push_back(SDLK_LSHIFT); break;
+    case SDLK_LCTRL: AdditiveSelectKeys.push_back(SDLK_RCTRL); break;
+    case SDLK_RCTRL: AdditiveSelectKeys.push_back(SDLK_LCTRL); break;
+    case SDLK_LALT: AdditiveSelectKeys.push_back(SDLK_RALT); break;
+    case SDLK_RALT: AdditiveSelectKeys.push_back(SDLK_LALT); break;
+    default: break;
   }
 }
 
@@ -351,12 +391,80 @@ void InputTranslator::PublishPressCommand(bool Released) {
   ActionQueue->Enqueue(Action);
 }
 
+// ---- select gesture ----------------------------------------------------
+// opened by the select verb going down (left mouse, right trigger). the
+// origin is where it went down, and the modifier is latched here so a shift
+// let go of halfway through a drag cant turn a replace into an add
+void InputTranslator::BeginSelectDrag() {
+  SelectDragOrigin = CursorPos;
+  SelectDragActive = true;
+  SelectDragExceeded = false;
+  SelectDragAdditive = HoldingAdditiveSelect();
+
+  PublishSelectDragCommand(DragPhase::Begin);
+}
+
+// the cursor moved. only meaningful while a gesture is open, and only worth
+// publishing once it has become a box - a click that wobbles a pixel is
+// still a click and nothing downstream needs to hear about it
+void InputTranslator::UpdateSelectDrag() {
+  if (!SelectDragActive) {
+    return;
+  }
+
+  if (!SelectDragExceeded) {
+    const float DX = CursorPos[0] - SelectDragOrigin[0];
+    const float DY = CursorPos[1] - SelectDragOrigin[1];
+    if ((DX * DX + DY * DY) <=
+        SelectDragThresholdPixels * SelectDragThresholdPixels) {
+      return;
+    }
+    SelectDragExceeded = true;
+  }
+
+  PublishSelectDragCommand(DragPhase::Update);
+}
+
+// closed by the verb coming back up. the End phase is published whether or
+// not the gesture ever became a box, because thats the edge a plain click
+// acts on
+void InputTranslator::EndSelectDrag(bool Cancelled) {
+  if (!SelectDragActive) {
+    return;
+  }
+
+  PublishSelectDragCommand(Cancelled ? DragPhase::Cancel : DragPhase::End);
+
+  SelectDragActive = false;
+  SelectDragExceeded = false;
+  SelectDragAdditive = false;
+}
+
+void InputTranslator::PublishSelectDragCommand(DragPhase Phase) {
+  const float OriginX =
+      (ViewPortWidth > 0.f) ? SelectDragOrigin[0] / ViewPortWidth : 0.f;
+  const float OriginY =
+      (ViewPortHeight > 0.f) ? SelectDragOrigin[1] / ViewPortHeight : 0.f;
+
+  ActionQueue->Enqueue(DragSelectCommand(
+      MakeContext(Phase == DragPhase::Begin), OriginX, OriginY, Phase,
+      SelectDragAdditive, SelectDragExceeded));
+}
+
 void InputTranslator::TranslateRawKB(RawKBEvent Event) {
   const SDL_Keycode Key = Event.Key.keysym.sym;
 
   auto Bound = KeyBindings.find(Key);
   if (Bound != KeyBindings.end()) {
     ApplyDigitalAction(Bound->second, !Event.KeyUp);
+  }
+
+  // held modifier, not an action - see the AdditiveSelectKeys comment in
+  // BuildKeyBindings. SDL repeats a held key, so this is written as an
+  // assignment rather than a counter
+  if (std::find(AdditiveSelectKeys.begin(), AdditiveSelectKeys.end(), Key) !=
+      AdditiveSelectKeys.end()) {
+    AdditiveSelectKeyHeld = !Event.KeyUp;
   }
 
   // sdl2 not case sensitive by default so check the state of shift and capslock
@@ -400,8 +508,15 @@ void InputTranslator::TranslateRawMouseButton(RawMouseButtonEvent Event) {
 
   switch (Button) {
     case SDL_BUTTON_LEFT:
-      // select / interact, mirrors the right trigger on a pad
+      // select / interact, mirrors the right trigger on a pad. the press
+      // command is what the overlay hit test reads; the select gesture is
+      // what the world reads
       PublishPressCommand(Event.Released);
+      if (Pressed) {
+        BeginSelectDrag();
+      } else {
+        EndSelectDrag();
+      }
       break;
 
     case SDL_BUTTON_RIGHT:
@@ -438,6 +553,11 @@ void InputTranslator::TranslateRawTriggerEvent(RawTriggerEvent Event) {
       // Released is !Pressed. the old code passed false on both edges, so a
       // trigger release arrived at OverlayController as a second press
       PublishPressCommand(!Pressed);
+      if (Pressed) {
+        BeginSelectDrag();
+      } else {
+        EndSelectDrag();
+      }
     }
     return;
   }
@@ -499,13 +619,15 @@ void InputTranslator::TranslateRawCursor(RawCursorEvent Event) {
   // while the button is held, re-run the overlay hit test at the new
   // position on every move so a held UI element (e.g. a slider being
   // dragged) keeps updating instead of only reacting to the initial press.
-  // deliberately RenderQueue-only, not ActionQueue - PlayerGeneralControl::
-  // OnPress listens for PressActionCommand on ActionQueue and fires a
-  // world raytrace/selection off it, which a held gameplay drag must not
-  // repeat every move frame
+  // deliberately RenderQueue-only, not ActionQueue - nothing on the world
+  // side wants a press repeated on every move frame. the world side of a
+  // held drag is the select gesture below, which is a different command
+  // precisely so the two can never be confused for one another
   if (MouseButtonStates[SDL_BUTTON_LEFT]) {
     RS.RenderQueue->Enqueue(PressActionCommand(Normalised, false));
   }
+
+  UpdateSelectDrag();
 }
 
 void InputTranslator::TranslateRawAxis(RawAxisEvent Event) {
@@ -598,6 +720,12 @@ void InputTranslator::HideReconnectPrompt(
   TriggerStates.fill(false);
   JoyStickStates = {0.f, 0.f};
 
+  // the trigger that opened a select gesture is never going to report its
+  // release, so close it here rather than leaving a rubber band on screen.
+  // cancelled rather than ended - the player never let go of anything, so
+  // there is no order in it to carry out
+  EndSelectDrag(/*Cancelled=*/true);
+
   RenderSystem& Rs = RenderSystem::GetInstance();
   Rs.RenderQueue->Enqueue(ChangeOverlayVisibilityEvent(
       PromptOverlayName(), PromptBorderName(), false));
@@ -645,6 +773,8 @@ void InputTranslator::Update(float DeltaTime) {
       if (TriggerStates[RightTriggerSlot]) {
         RS.RenderQueue->Enqueue(PressActionCommand(Normalised, false));
       }
+
+      UpdateSelectDrag();
     }
 
     // orbit motion - driven directly by stick deflection at a fixed
@@ -679,6 +809,28 @@ bool InputTranslator::IsMouseButtonDown(Uint8 SdlButton) const {
 
 bool InputTranslator::HoldingRMBorLT() const {
   return MouseButtonStates[SDL_BUTTON_RIGHT] || TriggerStates[LeftTriggerSlot];
+}
+
+// shift on a keyboard, Y on a pad. Y is read straight out of ButtonStates for
+// the same reason LB/RB are (see IsShoulderHeld) - every raw button that is
+// down is tracked there whether or not a GameAction claims it, and nothing
+// claims Y
+bool InputTranslator::HoldingAdditiveSelect() const {
+  if (AdditiveSelectKeyHeld) {
+    return true;
+  }
+
+  if (ManagedDevice == nullptr ||
+      ManagedDevice->InputType != InputDeviceType::CONTROLLER) {
+    return false;
+  }
+
+  const int FaceY = ManagedDevice->Bindings.FaceButtonY;
+  if (FaceY < 0) {
+    return false;
+  }
+
+  return ButtonStates.contains(static_cast<Uint8>(FaceY));
 }
 
 // ButtonStates tracks every raw pad button thats currently down regardless of

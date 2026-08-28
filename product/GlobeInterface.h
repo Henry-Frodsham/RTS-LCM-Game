@@ -56,6 +56,19 @@ class GlobeInterface {
 
   GlobeRayHit CastRayFromWorld(const Ogre::Ray& WorldRay) const;
 
+  // whether the planet itself stands between Viewer and Point. the horizon
+  // test for a sphere: a point is visible from a viewer outside the sphere
+  // exactly when it lies in front of the plane the viewer's horizon circle
+  // sits in, which reduces to one dot product against the radius squared.
+  // exact for a point on the surface, which is where every unit stands
+  //
+  // anything that works out what a camera can actually see needs this - a box
+  // select drawn near the limb would otherwise reach through the planet, and
+  // a screen space health bar would float over the horizon attached to a unit
+  // nobody can see. answers false when there is no globe to be hidden behind
+  bool IsPointBeyondHorizon(const Ogre::Vector3& Viewer,
+                            const Ogre::Vector3& Point) const;
+
   const Globe* GetGlobe() const { return CGlobe; }
 
   // world<->tile helpers for pathfinding/movement, mirroring the same

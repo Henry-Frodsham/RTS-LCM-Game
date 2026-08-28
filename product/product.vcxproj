@@ -251,7 +251,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="GenericSlider.cpp" />
     <ClCompile Include="Globe.cpp" />
     <ClCompile Include="GlobeInterface.cpp" />
-    <ClCompile Include="HealthBarController.cpp" />
+    <ClCompile Include="UnitIndicatorController.cpp" />
     <ClCompile Include="InputAnalyser.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
@@ -264,8 +264,10 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClCompile Include="PlayerUI.cpp" />
     <ClCompile Include="Pathfinder.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="SelectionBox.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TransformationMatrix.cpp" />
+    <ClCompile Include="UnitSelection.cpp" />
     <ClCompile Include="ViewPortController.cpp" />
     <ClCompile Include="ViewPortUpdateListener.cpp" />
     <ClCompile Include="WorldManager.cpp" />
@@ -298,7 +300,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="Globe.h" />
     <ClInclude Include="GlobeEvent.h" />
     <ClInclude Include="GlobeInterface.h" />
-    <ClInclude Include="HealthBarController.h" />
+    <ClInclude Include="UnitIndicatorController.h" />
     <ClInclude Include="InputAnalyser.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="InputEvent.h" />
@@ -325,6 +327,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="RenderEvent.h" />
     <ClInclude Include="RenderQueryFlags.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="SelectionBox.h" />
     <ClInclude Include="ResizeEvent.h" />
     <ClInclude Include="SharedInputEvent.h" />
     <ClInclude Include="ShareInfoEvent.h" />
@@ -333,6 +336,7 @@ xcopy "$(SolutionDir)config\*.*" "$(SolutionDir)\$(Platform)\$(configuration)\co
     <ClInclude Include="TraversalComponents.h" />
     <ClInclude Include="UIEvent.h" />
     <ClInclude Include="UnitComponents.h" />
+    <ClInclude Include="UnitSelection.h" />
     <ClInclude Include="ViewPortController.h" />
     <ClInclude Include="ViewPortUpdateEvent.h" />
     <ClInclude Include="ViewPortUpdateListener.h" />

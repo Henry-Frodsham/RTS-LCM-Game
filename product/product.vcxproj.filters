@@ -31,7 +31,7 @@
     <ClCompile Include="BillboardController.cpp">
       <Filter>Source\Render</Filter>
     </ClCompile>
-    <ClCompile Include="HealthBarController.cpp">
+    <ClCompile Include="UnitIndicatorController.cpp">
       <Filter>Source\Render</Filter>
     </ClCompile>
     <ClCompile Include="InputAnalyser.cpp">
@@ -67,6 +67,9 @@
     <ClCompile Include="PlayerGeneralControl.cpp">
       <Filter>Source\Player</Filter>
     </ClCompile>
+    <ClCompile Include="UnitSelection.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
     <ClCompile Include="GenericButton.cpp">
       <Filter>Source\UI</Filter>
     </ClCompile>
@@ -92,6 +95,9 @@
       <Filter>Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="InteractionWheel.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectionBox.cpp">
       <Filter>Source\UI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -242,7 +248,7 @@
     <ClInclude Include="BillboardController.h">
       <Filter>Headers\Render</Filter>
     </ClInclude>
-    <ClInclude Include="HealthBarController.h">
+    <ClInclude Include="UnitIndicatorController.h">
       <Filter>Headers\Render</Filter>
     </ClInclude>
     <ClInclude Include="OverlayEvent.h">
@@ -302,6 +308,9 @@
     <ClInclude Include="InteractionWheel.h">
       <Filter>Headers\UI</Filter>
     </ClInclude>
+    <ClInclude Include="SelectionBox.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
     <ClInclude Include="UIEvent.h">
       <Filter>Event Templates</Filter>
     </ClInclude>
@@ -318,6 +327,9 @@
       <Filter>Event Templates</Filter>
     </ClInclude>
     <ClInclude Include="PlayerGeneralControl.h">
+      <Filter>Headers\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitSelection.h">
       <Filter>Headers\Player</Filter>
     </ClInclude>
     <ClInclude Include="PlayerControlEvent.h">

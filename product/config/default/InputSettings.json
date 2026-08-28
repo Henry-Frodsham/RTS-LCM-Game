@@ -4,6 +4,7 @@
   "TriggerThreshold": 0.1,
   "RelativeMotionScale": 100.0,
   "RightDragThresholdPixels": 4.0,
+  "SelectDragThresholdPixels": 6.0,
   "RightClickOpensContextWheel": false,
   "ShoulderZoomNotchesPerSecond": 25,
   "ControllerOrbitSensitivity": 5,
@@ -11,6 +12,7 @@
   "KeyBindUse": "E",
   "KeyBindBack": "Q",
   "KeyBindContext": "R",
+  "KeyBindAddToSelection": "Left Shift",
 
   "PromptPosition": [0.2, 0.3],
   "PromptDimensions": [0.24, 0.03],

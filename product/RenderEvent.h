@@ -5,6 +5,8 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 #include <unordered_set>
 #include <entt/entt.hpp>
 
@@ -86,42 +88,48 @@ struct AddOwnerShipToEntEvent {
       : Node(N), OwnershipId(Id) {}
 };
 
-// creates a unit's health bar (background + fill billboard), parented to
-// its scene node so it inherits position/orientation for free. handled by
-// HealthBarController, which builds it out of BillboardController's
-// generic billboard primitives. OutSet/OutFill mirror the
-// reference_wrapper out-param convention used by CreateSceneNodeEvent etc.
-// UnitEntity is the unit's own mesh - HealthBarController measures its
-// bounding box to anchor the bar above the model instead of guessing at an
-// offset (see HealthBarController::CreateHealthBar for why)
-struct CreateHealthBarEvent {
-  std::reference_wrapper<Ogre::BillboardSet*> OutSet;
-  std::reference_wrapper<Ogre::Billboard*> OutFill;
-  Ogre::SceneNode* ParentNode;
-  Ogre::Entity* UnitEntity;
-  CreateHealthBarEvent(Ogre::BillboardSet*& OutS, Ogre::Billboard*& OutF,
-                       Ogre::SceneNode* Parent, Ogre::Entity* UnitEnt)
-      : OutSet(OutS), OutFill(OutF), ParentNode(Parent), UnitEntity(UnitEnt) {}
+// one entry in the per-frame unit indicator snapshot. carries a world
+// position rather than the SceneNode it came from on purpose: the snapshot is
+// built on the world thread and read on the render thread a frame later, and
+// a node that has been destroyed in between would be a dangling pointer where
+// a stale position is merely a stale position
+struct UnitIndicatorEntry {
+  // where the bar is anchored - the top of the unit's mesh in world space
+  Ogre::Vector3 WorldAnchor;
+  // 0-1, full precision. the old billboard bar was quantised to deciles to
+  // keep one render event per unit per damage tick off the queue; the whole
+  // snapshot is a single event now, so there is nothing left to throttle
+  float HealthRatio;
+  // 0 means every viewport shows this bar - a unit in combat is public
+  // information. otherwise the one player whose selection is holding it open
+  int ExclusiveToPlayerID;
+
+  UnitIndicatorEntry(Ogre::Vector3 Anchor, float Ratio, int Exclusive)
+      : WorldAnchor(Anchor),
+        HealthRatio(Ratio),
+        ExclusiveToPlayerID(Exclusive) {}
 };
 
-// resizes a unit's health bar fill billboard to Ratio (0-1) of max health.
-// pushed from WorldManager's combat loop, throttled to ~1/10th-of-max-health
-// steps rather than every damage tick - see HealthBarComponent
-struct UpdateHealthBarEvent {
-  Ogre::Billboard* Fill;
-  float Ratio;
-  UpdateHealthBarEvent(Ogre::Billboard* F, float R) : Fill(F), Ratio(R) {}
+// the complete set of units that should be showing a health bar this frame,
+// replacing whatever the render side was holding. sent once per world tick
+// rather than one event per unit, and sent even when empty - an empty
+// snapshot is how the last bar on screen gets taken off it
+struct SyncUnitIndicatorsEvent {
+  std::vector<UnitIndicatorEntry> Entries;
+  explicit SyncUnitIndicatorsEvent(std::vector<UnitIndicatorEntry> Es)
+      : Entries(std::move(Es)) {}
 };
 
-// creates a unit's facing-direction arrow: a small flat triangle, built once
-// in the arrow node's own local space (tip along local +Z) and parented to
-// the unit's node so it inherits position for free. Handled directly by
-// RenderSystem, same as the path preview ribbon, since like that ribbon it's
-// a ManualObject rather than a billboard. WorldForward/WorldUp give the
-// arrow's initial world orientation - see RenderSystem::ComputeFacingOrientation
-// for why this can't just inherit the parent node's orientation. Starts
-// hidden - only shown while the unit is selected (see
-// ChangeFacingArrowVisibilityEvent)
+// creates a unit's facing arrow: a solid extruded arrow protruding out of the
+// side of the unit, built once in the node's own local space (pointing along
+// local +Z, extruded along local +Y) and parented to the unit's node so it
+// inherits position for free. It has volume rather than being a flat shape,
+// so it keeps a silhouette from any viewing angle. Handled directly by RenderSystem, same as the
+// path preview ribbon, since like that ribbon it's a ManualObject rather than
+// a billboard. WorldForward/WorldUp give its initial world orientation - see
+// RenderSystem::ComputeFacingOrientation for why this can't just inherit the
+// parent node's orientation. Starts hidden - shown only while the unit is
+// selected or has recently been damaged (see ChangeFacingArrowVisibilityEvent)
 struct CreateFacingArrowEvent {
   std::reference_wrapper<Ogre::SceneNode*> OutNode;
   std::reference_wrapper<Ogre::ManualObject*> OutObject;

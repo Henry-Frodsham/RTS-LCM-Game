@@ -20,7 +20,7 @@
 #include "EventQueue.h"
 #include "GlobeEvent.h"
 #include "GlobeInterface.h"
-#include "HealthBarController.h"
+#include "UnitIndicatorController.h"
 #include "OverlayController.h"
 #include "OverlayEvent.h"
 #include "RayTraceEvent.h"
@@ -51,6 +51,10 @@ class RenderSystem {
 
   Ogre::RaySceneQuery* RaySceneQuery;
 
+  // rubber band select. made once alongside RaySceneQuery for the same reason
+  // - a scene query is not free to build, and only ever one is in flight
+  Ogre::PlaneBoundedVolumeListSceneQuery* BoxSceneQuery;
+
   SDL_Window* SDLWindow;
 
   Ogre::OverlaySystem* OverlaySystem;
@@ -59,7 +63,7 @@ class RenderSystem {
 
   BillboardController* BillboardControl;
 
-  HealthBarController* HealthBarControl;
+  UnitIndicatorController* IndicatorControl;
 
   Ogre::RenderWindow* PrimaryWindow;
 
@@ -93,6 +97,11 @@ class RenderSystem {
 
   void UpdateExclusiveHandlers();
 
+  // re-pins every on screen unit indicator to where its unit now projects to.
+  // separate from UpdateExclusiveHandlers because it has to run after the
+  // render queue is drained, not before it
+  void UpdateUnitIndicators();
+
   void ScaleViewPorts();
 
   // give a viewport the clip planes and orbit distances that suit the globe.
@@ -113,6 +122,8 @@ class RenderSystem {
   void AttachEntityToNodeFromEvent(AttachEntityToScenNodeEvent Event);
 
   void AssembleRayTraceEvent(StartRayTraceEvent Event);
+
+  void AssembleBoxSelectEvent(StartBoxSelectEvent Event);
 
   void ScaleEntityFromEvent(ScaleEntityEvent Event);
 

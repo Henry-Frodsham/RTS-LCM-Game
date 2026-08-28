@@ -78,7 +78,11 @@ void InstanceOverseer::RegisterNewInstance(RegisterInstanceEvent Event) {
   GameInstances.push_back(NewInstance);
   InstanceViewports.emplace(NewInstance, VP);
 
-  VP->RegisterControllingDevice(Event.InstanceDevice);
+  // the same number the translator, wheel and player were given above - the
+  // viewport needs it too so per player screen space UI drawn over it can
+  // name its overlay after the right player
+  VP->RegisterControllingDevice(Event.InstanceDevice,
+                                static_cast<int>(GameInstances.size()));
 
   InstanceQueue->Enqueue(RecheckViewPortSizeCommand());
 }

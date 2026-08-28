@@ -231,6 +231,11 @@ xcopy "$(SolutionDir)config\*.*" "$(OutDir)config\" /E /Y /I</Command>
     <ClCompile Include="RenderSystemExtraTests.cpp" />
     <ClCompile Include="ECSHelperComponentEventTests.cpp" />
     <ClCompile Include="WorldManagerCombatTests.cpp" />
+    <ClCompile Include="UnitSelectionTests.cpp" />
+    <ClCompile Include="SelectionBoxTests.cpp" />
+    <ClCompile Include="UnitIndicatorTests.cpp" />
+    <ClCompile Include="UnitIndicatorPolicyTests.cpp" />
+    <ClCompile Include="FacingArrowTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\product.vcxproj">

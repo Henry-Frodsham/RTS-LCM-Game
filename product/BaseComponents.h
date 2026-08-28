@@ -32,30 +32,27 @@ struct MeshComponent {
       : Entity(Ent), MeshName(MeshN), EntityName(EntN) {}
 };
 
-// render handle for a unit's health bar billboard, plus render-sync
-// throttle bookkeeping. HealthComponent::Health/MaxHealth stay the single
-// source of truth - LastSyncedDecile just tracks the last health/maxHealth
-// tenth the render side was told about, so combat doesn't enqueue a render
-// event every tick
-struct HealthBarComponent {
-  Ogre::BillboardSet* BarSet;
-  Ogre::Billboard* Fill;
-  int LastSyncedDecile;
+// there is deliberately no health bar component any more. a bar used to be a
+// pair of billboards living in the scene next to the unit, which meant every
+// unit carried render handles for a thing that is on screen perhaps one
+// second in sixty. bars are drawn in screen space now, off a per-frame
+// snapshot built by WorldManager::RefreshUnitIndicators, so a unit needs no
+// per-unit render state for one at all - see UnitIndicatorController
 
-  HealthBarComponent(Ogre::BillboardSet* Set, Ogre::Billboard* F, int Decile)
-      : BarSet(Set), Fill(F), LastSyncedDecile(Decile) {}
-};
-
-// render handle for a unit's facing-direction arrow. ArrowNode is a child of
-// the unit's own SceneNode with inherited position but NOT inherited
-// orientation (see RenderSystem::CreateFacingArrow) - it needs its own
-// explicit world orientation, decoupled from the arbitrary twist
-// RotateEntToSurfaceNormalEvent leaves around the unit's local up axis.
-// Hidden by default, only shown while the unit is selected
+// render handle for a unit's facing arrow. ArrowNode is a child of the
+// unit's own SceneNode with inherited position but NOT inherited orientation
+// (see RenderSystem::CreateFacingArrow) - it needs its own explicit world
+// orientation, decoupled from the arbitrary twist RotateEntToSurfaceNormal
+// leaves around the unit's local up axis.
+//
+// hidden by default. Shown mirrors what the render side was last told, so the
+// per-frame visibility pass only enqueues an event when the answer actually
+// changes rather than once a frame forever
 struct FacingArrowComponent {
   Ogre::SceneNode* ArrowNode;
   Ogre::ManualObject* ArrowObject;
+  bool Shown;
 
   FacingArrowComponent(Ogre::SceneNode* Node, Ogre::ManualObject* Obj)
-      : ArrowNode(Node), ArrowObject(Obj) {}
+      : ArrowNode(Node), ArrowObject(Obj), Shown(false) {}
 };

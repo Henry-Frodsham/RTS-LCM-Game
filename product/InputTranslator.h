@@ -45,6 +45,13 @@ class InputTranslator {
   // the "hold to orbit the camera" modifier, right mouse or left trigger
   bool HoldingRMBorLT() const;
 
+  // the "add to the current selection rather than replacing it" modifier.
+  // shift on a keyboard (either one, bound by name through
+  // KeyBindAddToSelection) and the Y face button on a pad - Y being the one
+  // face button no GameAction claims, so nothing had to be rebound to make
+  // room for it
+  bool HoldingAdditiveSelect() const;
+
   // current cursor position in normalised 0-1 viewport space, same
   // convention as ActionContext::MouseX/Y (see MakeContext) - lets a caller
   // build a StartRayTraceEvent for the current frame without waiting on a
@@ -90,6 +97,11 @@ class InputTranslator {
   std::vector<float> GetViewPortDimensions();
   std::vector<float> GetScreenDimensions();
 
+  // which split screen instance this translator belongs to. everything on the
+  // instance side names its overlays after it, so anything building one needs
+  // to be able to ask rather than being handed the number separately
+  int GetThreadNumber() const { return ThreadNumber; }
+
   EventQueue* WaitingEvents;
 
   InputDevice* ManagedDevice;
@@ -118,6 +130,18 @@ class InputTranslator {
   void ApplyDigitalAction(GameAction Action, bool Pressed);
   void PublishActionCommand(GameAction Action, const ActionContext& Context);
   void PublishPressCommand(bool Released);
+
+  // ---- select gesture ----
+  // left mouse and the right trigger are the same verb, so both drive the one
+  // gesture below rather than each growing their own click handling. a press
+  // opens it, cursor movement while its open extends it, a release closes it.
+  // see DragSelectCommand for why a click and a box drag are one gesture
+  void BeginSelectDrag();
+  void UpdateSelectDrag();
+  // Cancelled closes the gesture without picking anything, for when the
+  // control that opened it goes away instead of being let go of
+  void EndSelectDrag(bool Cancelled = false);
+  void PublishSelectDragCommand(DragPhase Phase);
   // every consumer of ActionContext works in normalised 0-1 viewport space
   ActionContext MakeContext(bool JustPressed) const;
 
@@ -173,6 +197,11 @@ class InputTranslator {
   float TriggerThreshold = 0.1f;
   float RelativeMotionScale = 100.f;
   float RightDragThresholdPixels = 4.f;
+  // how far the cursor has to travel from where the select verb went down
+  // before the gesture counts as a box rather than a click. deliberately
+  // looser than RightDragThresholdPixels - a click that picks a unit is worth
+  // being forgiving about, an orbit that opens the wheel is not
+  float SelectDragThresholdPixels = 6.f;
 
 
   bool RightClickOpensContextWheel = true;
@@ -200,6 +229,23 @@ class InputTranslator {
   // counts as a context action if the cursor didnt travel while it was held
   std::vector<float> RightDragOrigin{0.f, 0.f};
   bool RightButtonDragged = false;
+
+  // the open select gesture, if there is one. origin is kept in pixels so the
+  // threshold is a real screen distance rather than a fraction of whatever
+  // this viewport happens to be sized at, and normalised only when published
+  std::vector<float> SelectDragOrigin{0.f, 0.f};
+  bool SelectDragActive = false;
+  bool SelectDragExceeded = false;
+  bool SelectDragAdditive = false;
+
+  // shift, tracked as its own latch rather than read off a keysym modifier
+  // mask - the mask only arrives with a key event, and the modifier has to be
+  // readable at the moment a mouse button goes down
+  bool AdditiveSelectKeyHeld = false;
+  // the two keycodes KeyBindAddToSelection resolved to. a bind of "Left Shift"
+  // deliberately answers to the right one as well, the way every other game
+  // treats the pair
+  std::vector<SDL_Keycode> AdditiveSelectKeys;
 
   float ScrollWheelY = 0.f;
 

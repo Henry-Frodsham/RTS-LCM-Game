@@ -25,6 +25,13 @@ class ECSHelper {
   ECSHelper(entt::registry* Registry, ErrorReporter* Reporter);
   ECSHelper() = default;
 
+  // entt::registry::try_get is only defined for a handle the registry still
+  // knows about, so anything holding entity handles across frames (a unit
+  // selection, say) has to be able to ask before it reaches for a component
+  bool IsValidEntity(entt::entity Entity) const {
+    return RegistryToUse != nullptr && RegistryToUse->valid(Entity);
+  }
+
   template <typename T>
   T* TryGetComponent(entt::entity entity) {
     return RegistryToUse->try_get<T>(entity);
@@ -42,7 +49,7 @@ class ECSHelper {
 
   ErrorReporter* ParentReporter;
 
-  entt::registry* RegistryToUse;
+  entt::registry* RegistryToUse = nullptr;
 
   void CreateAndAddEntity(CreateEntityEvent Event);
 
@@ -57,8 +64,6 @@ class ECSHelper {
   void CreateandAddAttackComponent(AddMeleeAttackEvent Event);
 
   void CreateandAddHealthComponent(AddHealthEvent Event);
-
-  void CreateAndAddHealthBarComponent(AddHealthBarComponentEvent Event);
 
   void CreateAndAddFacingComponent(AddFacingComponentEvent Event);
 

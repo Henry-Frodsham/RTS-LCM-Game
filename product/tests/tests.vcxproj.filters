@@ -95,6 +95,21 @@
     <ClCompile Include="WorldManagerCombatTests.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="UnitSelectionTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectionBoxTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitIndicatorTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitIndicatorPolicyTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="FacingArrowTests.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

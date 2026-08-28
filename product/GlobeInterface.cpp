@@ -167,6 +167,25 @@ float GlobeInterface::GetGlobeRadius() const {
   return CGlobe ? CGlobe->GetRadius() : DefaultRadius;
 }
 
+bool GlobeInterface::IsPointBeyondHorizon(const Ogre::Vector3& Viewer,
+                                          const Ogre::Vector3& Point) const {
+  const float Radius = GetGlobeRadius();
+  if (Radius <= 0.f) {
+    return false;
+  }
+
+  const Ogre::Vector3 Centre(GetGlobeCentre());
+  const Ogre::Vector3 ToViewer = Viewer - Centre;
+  const Ogre::Vector3 ToPoint = Point - Centre;
+
+  // a viewer inside the planet has no horizon to be beyond
+  if (ToViewer.squaredLength() <= Radius * Radius) {
+    return false;
+  }
+
+  return ToViewer.dotProduct(ToPoint) < Radius * Radius;
+}
+
 GlobeRayHit GlobeInterface::CastRayFromWorld(const Ogre::Ray& WorldRay) const {
   if (!CGlobe) {
     return GlobeRayHit();

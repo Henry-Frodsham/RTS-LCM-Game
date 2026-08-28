@@ -1,6 +1,7 @@
 // Copyright (c) 2025 Henry Frodsham
 #include "ViewPortController.h"
 
+#include <algorithm>
 #include <vector>
 
 // constructor
@@ -13,8 +14,10 @@ void ViewPortController::setOverlaysEnabled(bool Val) {
   ViewPort->setOverlaysEnabled(Val);
 }
 
-void ViewPortController::RegisterControllingDevice(InputDevice* Device) {
+void ViewPortController::RegisterControllingDevice(InputDevice* Device,
+                                                   int InstanceNumber) {
   ControllingDevice = Device;
+  ControllingInstanceNumber = InstanceNumber;
 }
 
 bool ViewPortController::IsControllerByDevice(InputDevice* Device) {
@@ -67,6 +70,57 @@ std::vector<float> ViewPortController::GetCameraAngle() {
 Ogre::Ray ViewPortController::GetWorldRayForDevice(StartRayTraceEvent Event) {
   Ogre::Camera* RayC = ViewPort->getCamera();
   return RayC->getCameraToViewportRay(Event.Point[0], Event.Point[1]);
+}
+
+// the four planes enclosing what the rectangle covers, left open ended at the
+// far end so distance never silently drops a unit out of a box the player
+// clearly drew around it. corners are normalised here rather than by the
+// caller, so a drag in any direction works without every call site
+// remembering to sort them
+Ogre::PlaneBoundedVolume ViewPortController::GetWorldVolumeForRect(
+    float Left, float Top, float Right, float Bottom) {
+  Ogre::Camera* RectC = ViewPort->getCamera();
+  return RectC->getCameraToViewportBoxVolume(
+      std::min(Left, Right), std::min(Top, Bottom), std::max(Left, Right),
+      std::max(Top, Bottom), false);
+}
+
+Ogre::Vector3 ViewPortController::GetCameraPosition() const {
+  return ViewPort->getCamera()->getDerivedPosition();
+}
+
+// the inverse of GetWorldRayForDevice - a point in the world turned back into
+// the place on screen it appears at, so screen space UI can be pinned to
+// something in the scene
+bool ViewPortController::ProjectToViewport(const Ogre::Vector3& WorldPos,
+                                           float* OutX, float* OutY) const {
+  if (!OutX || !OutY) {
+    return false;
+  }
+
+  Ogre::Camera* ProjC = ViewPort->getCamera();
+
+  // an ogre camera looks down its own -Z, so anything at or behind z == 0 is
+  // behind the viewer. this has to be caught before the projection: the
+  // perspective divide flips the sign of a point behind the camera and lands
+  // it back on screen, mirrored, looking perfectly valid
+  const Ogre::Vector3 EyeSpace = ProjC->getViewMatrix(true) * WorldPos;
+  if (EyeSpace.z >= 0.f) {
+    return false;
+  }
+
+  // Matrix4 * Vector3 does the perspective divide itself, so this is already
+  // normalised device coordinates, -1 to 1 on both axes
+  const Ogre::Vector3 Ndc = ProjC->getProjectionMatrix() * EyeSpace;
+  if (Ndc.x < -1.f || Ndc.x > 1.f || Ndc.y < -1.f || Ndc.y > 1.f) {
+    return false;
+  }
+
+  // ndc y climbs upwards, every screen space coordinate in the project falls
+  // downwards, hence the flip rather than the same mapping on both axes
+  *OutX = (Ndc.x * 0.5f) + 0.5f;
+  *OutY = 0.5f - (Ndc.y * 0.5f);
+  return true;
 }
 
 // get the dimensions of a specific split screen instance

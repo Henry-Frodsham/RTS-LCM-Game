@@ -1,6 +1,7 @@
 // Copyright (c) 2025 Henry Frodsham
 #include "RenderSystem.h"
 
+#include <algorithm>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -96,15 +97,48 @@ void AppendPathPreviewRibbon(Ogre::ManualObject* Obj,
 }
 
 // facing arrow dimensions, as fractions of globe radius - same convention as
-// kPathPreviewHalfWidthFraction/kHealthBarWidthFraction, so it stays
-// proportionate if the globe is ever resized. visual placeholders - tune
-// once seen in-engine
-constexpr float kFacingArrowLengthFraction = 0.025f;
-constexpr float kFacingArrowHalfWidthFraction = 0.006f;
-// vertical clearance above the unit's own measured mesh height, as a
-// fraction of that height - same anchoring trick as
-// kHealthBarClearanceFraction in HealthBarController.cpp
-constexpr float kFacingArrowClearanceFraction = 0.2f;
+// kPathPreviewHalfWidthFraction, so it stays proportionate if the globe is
+// ever resized.
+//
+// the arrow is a solid extruded prism, not a flat shape, and that is the
+// whole point of it. two earlier versions were flat: a triangle standing up
+// above the unit's head, and a chevron lying down on the ground at its feet.
+// a flat shape has no thickness to see, so how much of it reaches the screen
+// depends entirely on the angle it is being looked at from - edge on it
+// collapses to a line - and on a globe under an orbit camera only the one
+// unit directly beneath the camera is ever seen square on. giving the arrow
+// volume is what makes it read the same wherever it is on the planet and
+// wherever the camera is
+constexpr float kFacingArrowLengthFraction = 0.09f;
+// the head, measured back from the tip. the rest is shaft
+constexpr float kFacingArrowHeadLengthFraction = 0.035f;
+constexpr float kFacingArrowHeadHalfWidthFraction = 0.022f;
+constexpr float kFacingArrowShaftHalfWidthFraction = 0.008f;
+// how thick the prism is through its extruded axis - the surface normal. this
+// is the measurement a flat arrow did not have, and the reason this one keeps
+// a silhouette when the camera drops towards the horizon
+constexpr float kFacingArrowThicknessFraction = 0.009f;
+// where the arrow is mounted on the unit, as a fraction of the unit's own
+// measured mesh height. half way up puts it through the middle of the body,
+// so it reads as protruding out of the unit rather than balanced on top of it
+// or painted on the ground underneath it
+constexpr float kFacingArrowMountFraction = 0.5f;
+
+// emits both triangles of a quad, corners given in order around its edge.
+// winding is deliberately not maintained: FACING_ARROW.material draws with
+// cull_hardware none and no lighting, so the arrow is a solid silhouette seen
+// from every side and has no back face to get the wrong way round
+void AddArrowQuad(Ogre::ManualObject* Obj, const Ogre::Vector3& A,
+                  const Ogre::Vector3& B, const Ogre::Vector3& C,
+                  const Ogre::Vector3& D) {
+  Obj->position(A);
+  Obj->position(B);
+  Obj->position(C);
+
+  Obj->position(A);
+  Obj->position(C);
+  Obj->position(D);
+}
 
 // builds the world orientation that points local +Z at Forward while
 // keeping local +Y aligned to Up. used for the facing arrow, which needs an
@@ -120,9 +154,16 @@ Ogre::Quaternion ComputeFacingOrientation(Ogre::Vector3f Forward,
     Fwd = Up.perpendicular();
   }
   Fwd.normalise();
-  Ogre::Vector3f Right = Fwd.crossProduct(Up);
+
+  // ogre is right handed, so the three axes have to come out satisfying
+  // X = Y cross Z and Y = Z cross X. taking them the other way round produces
+  // a mirrored basis with a determinant of -1, which is not a rotation at
+  // all: Quaternion::FromAxes assumes it has been handed a proper rotation
+  // matrix, and given a reflection it returns nonsense - for a unit facing
+  // straight along +Z it collapsed all the way to the identity
+  Ogre::Vector3f Right = Up.crossProduct(Fwd);
   Right.normalise();
-  Up = Right.crossProduct(Fwd);
+  Up = Fwd.crossProduct(Right);
 
   Ogre::Quaternion Orientation;
   Orientation.FromAxes(Right, Up, Fwd);
@@ -137,13 +178,14 @@ RenderSystem::RenderSystem()
       OverlaySystem(nullptr),
       OverlayControl(nullptr),
       BillboardControl(nullptr),
-      HealthBarControl(nullptr),
+      IndicatorControl(nullptr),
       DefaultViewPort(nullptr),
       SDLWindow(nullptr),
       ViewPortListener(nullptr),
       GlobeInt(nullptr),
       PathPreviewLine(nullptr),
       RaySceneQuery(nullptr),
+      BoxSceneQuery(nullptr),
       ViewPorts(NULL),
       RenderErrorReporter(ErrorReporter()) {
   RenderBus = new EventBus();
@@ -184,6 +226,7 @@ void RenderSystem::RenderFrame() {
     Ogre::WindowEventUtilities::messagePump();
     RenderQueue->Dispatch();
     GlobeInt->Update();
+    UpdateUnitIndicators();
 
     OgreRoot->renderOneFrame();
   } else {
@@ -274,7 +317,8 @@ void RenderSystem::Init() {
 
   BillboardControl = new BillboardController(SceneManager);
 
-  HealthBarControl = new HealthBarController(BillboardControl, GlobeInt);
+  IndicatorControl = new UnitIndicatorController(
+      Ogre::OverlayManager::getSingletonPtr(), GlobeInt);
 
   DefaultViewPort = CreateViewPort();
 
@@ -282,6 +326,9 @@ void RenderSystem::Init() {
 
   RaySceneQuery = SceneManager->createRayQuery(Ogre::Ray());
   RaySceneQuery->setSortByDistance(true);
+
+  BoxSceneQuery = SceneManager->createPlaneBoundedVolumeQuery(
+      Ogre::PlaneBoundedVolumeList());
 
   InitRenderResponsibility();
   IsInit = true;
@@ -417,12 +464,10 @@ void RenderSystem::InitRenderResponsibility() {
       std::bind(&BillboardController::ChangeBillboardSetVisibility,
                 BillboardControl, std::placeholders::_1));
 
-  // health bar controller - built on top of BillboardController
-  RenderBus->Subscribe<CreateHealthBarEvent>(
-      std::bind(&HealthBarController::CreateHealthBar, HealthBarControl,
-                std::placeholders::_1));
-  RenderBus->Subscribe<UpdateHealthBarEvent>(
-      std::bind(&HealthBarController::UpdateHealthBar, HealthBarControl,
+  // screen space unit indicators. one snapshot event per world tick rather
+  // than one event per unit, see SyncUnitIndicatorsEvent
+  RenderBus->Subscribe<SyncUnitIndicatorsEvent>(
+      std::bind(&UnitIndicatorController::SyncIndicators, IndicatorControl,
                 std::placeholders::_1));
 
   // core Ogre interactions
@@ -436,6 +481,8 @@ void RenderSystem::InitRenderResponsibility() {
       &RenderSystem::AttachEntityToNodeFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<StartRayTraceEvent>(std::bind(
       &RenderSystem::AssembleRayTraceEvent, this, std::placeholders::_1));
+  RenderBus->Subscribe<StartBoxSelectEvent>(std::bind(
+      &RenderSystem::AssembleBoxSelectEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<ScaleEntityEvent>(std::bind(
       &RenderSystem::ScaleEntityFromEvent, this, std::placeholders::_1));
   RenderBus->Subscribe<SetEntPositionEvent>(std::bind(
@@ -548,6 +595,16 @@ void RenderSystem::InitBasicResourceGroups() {
 }
 
 void RenderSystem::UpdateExclusiveHandlers() { OverlayControl->ParentUpdate(); }
+
+// the bars have to be re-pinned every frame, not only when the units change -
+// an orbiting camera moves every unit on screen without the world knowing
+// anything happened. called after RenderQueue is drained so this frame's
+// snapshot, and any destruction that came with it, has already landed
+void RenderSystem::UpdateUnitIndicators() {
+  if (IndicatorControl) {
+    IndicatorControl->Update(ViewPorts);
+  }
+}
 float RenderSystem::GetDeltaTime() { return DeltaTime; }
 SDL_Window* RenderSystem::GetSDLWindow() { return SDLWindow; }
 
@@ -680,28 +737,85 @@ void RenderSystem::EntityRangeCheck(RevalEntityRangeEvent Event) {
 void RenderSystem::CreateFacingArrow(CreateFacingArrowEvent Event) {
   const float Radius = GlobeInt->GetGlobeRadius();
   const float Length = Radius * kFacingArrowLengthFraction;
-  const float HalfWidth = Radius * kFacingArrowHalfWidthFraction;
+  const float HeadHalfWidth = Radius * kFacingArrowHeadHalfWidthFraction;
+  const float ShaftHalfWidth = Radius * kFacingArrowShaftHalfWidthFraction;
+  const float HalfThickness =
+      Radius * kFacingArrowThicknessFraction * 0.5f;
+  // where the shaft stops and the head starts. clamped so a badly tuned head
+  // length can shorten the shaft to nothing but never invert the arrow
+  const float ShaftEnd =
+      std::max(0.f, Length - (Radius * kFacingArrowHeadLengthFraction));
 
-  // anchor above the unit mesh's own measured bounding box, same reasoning
-  // as HealthBarController::CreateHealthBar - a fixed globe-radius-relative
-  // offset would land inside some unit meshes and floating above others
+  // mounted half way up the unit's own measured mesh, so the arrow comes out
+  // through the side of the body. measuring the mesh rather than picking a
+  // globe-relative offset is what keeps this right across unit meshes of
+  // different sizes, the same reason the health bar anchor measures it too
   const float UnitTop = Event.UnitEntity->getBoundingBox().getMaximum().y;
-  const Ogre::Vector3 LocalOffset(
-      0.f, UnitTop * (1.f + kFacingArrowClearanceFraction), 0.f);
+  const Ogre::Vector3 LocalOffset(0.f, UnitTop * kFacingArrowMountFraction,
+                                  0.f);
 
-  Ogre::SceneNode* ArrowNode = Event.ParentNode->createChildSceneNode(LocalOffset);
+  Ogre::SceneNode* ArrowNode =
+      Event.ParentNode->createChildSceneNode(LocalOffset);
   // position still inherits from ParentNode, but orientation is fully our
-  // own - see ComputeFacingOrientation for why
+  // own - see ComputeFacingOrientation for why. nothing here is ever
+  // recomputed against the camera: the arrow is world space geometry with a
+  // fixed orientation, so it holds the same shape and the same place on the
+  // unit however the viewer moves
   ArrowNode->setInheritOrientation(false);
   ArrowNode->setOrientation(
       ComputeFacingOrientation(Event.WorldForward, Event.WorldUp));
 
   Ogre::ManualObject* Arrow = SceneManager->createManualObject();
   Arrow->begin("FACING_ARROW", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-  // a simple triangle pointing along local +Z, flat in the local XZ plane
-  Arrow->position(-HalfWidth, 0.f, 0.f);
-  Arrow->position(HalfWidth, 0.f, 0.f);
-  Arrow->position(0.f, 0.f, Length);
+
+  // the arrow outline in the local XZ plane, pointing along +Z, walked once
+  // around its edge. local +Y is the surface normal, so extruding along Y
+  // stands the prism up off the ground:
+  //
+  //   +--------------------------------------+
+  //   |               tip (0, L)             |
+  //   |                  /  |                |
+  //   |    (-HW, ShaftEnd) -+- (HW, ShaftEnd)|
+  //   |            (-SW, ShaftEnd)           |
+  //   |                 |   |                |
+  //   |            (-SW, 0) +  (SW, 0)       |
+  //   +--------------------------------------+
+  const Ogre::Vector2 Outline[] = {
+      {-ShaftHalfWidth, 0.f},       {ShaftHalfWidth, 0.f},
+      {ShaftHalfWidth, ShaftEnd},   {HeadHalfWidth, ShaftEnd},
+      {0.f, Length},                {-HeadHalfWidth, ShaftEnd},
+      {-ShaftHalfWidth, ShaftEnd}};
+  constexpr std::size_t OutlineCount =
+      sizeof(Outline) / sizeof(Outline[0]);
+
+  // the outline lifted to each face of the prism
+  auto At = [HalfThickness](const Ogre::Vector2& Point, float Side) {
+    return Ogre::Vector3(Point.x, HalfThickness * Side, Point.y);
+  };
+
+  // the two flat faces. the outline is concave where the head overhangs the
+  // shaft, so it is cut into the shaft rectangle plus the head triangle
+  // rather than fanned from a single vertex
+  for (const float Side : {1.f, -1.f}) {
+    AddArrowQuad(Arrow, At(Outline[0], Side), At(Outline[1], Side),
+                 At(Outline[2], Side), At(Outline[6], Side));
+
+    Arrow->position(At(Outline[3], Side));
+    Arrow->position(At(Outline[4], Side));
+    Arrow->position(At(Outline[5], Side));
+  }
+
+  // and the wall joining them, one quad per outline edge. this is the part a
+  // flat arrow does not have, and the part that is still there to be seen
+  // when the camera drops towards the horizon
+  for (std::size_t Index = 0; Index < OutlineCount; ++Index) {
+    const Ogre::Vector2& From = Outline[Index];
+    const Ogre::Vector2& To = Outline[(Index + 1) % OutlineCount];
+
+    AddArrowQuad(Arrow, At(From, 1.f), At(To, 1.f), At(To, -1.f),
+                 At(From, -1.f));
+  }
+
   Arrow->end();
 
   // same per-section custom param unit materials read off SubEntity (see
@@ -739,6 +853,7 @@ void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
 
   RayPickResult Pick;
   Pick.Terrain = Hit;
+  Pick.Additive = Event.Additive;
 
   RaySceneQuery->setRay(WorldRay);
   RaySceneQuery->setQueryMask(RenderQueryFlags::kSelectableUnit);
@@ -770,6 +885,62 @@ void RenderSystem::AssembleRayTraceEvent(StartRayTraceEvent Event) {
   }
 
   Event.Callback(Event.CallQueue, RayPickResult(Pick));
+}
+
+// the rubber band half of picking. a ray asks "what is under this point and
+// which of them is nearest"; a box asks "what is inside this shape", so there
+// is no sorting and no single winner - every entity the volume touches is
+// reported and the caller decides what to do with them
+//
+// no per-entity RefineHit pass here, deliberately. RefineHit exists to stop a
+// ray winning against an entity it only clipped the bounding box of, which
+// matters when one click has to choose between overlapping units. a box has
+// no such choice to make, and a player who drew a rectangle around a unit
+// means that unit whether or not the rectangle also crossed its mesh
+void RenderSystem::AssembleBoxSelectEvent(StartBoxSelectEvent Event) {
+  BoxPickResult Pick;
+  Pick.Additive = Event.Additive;
+
+  ViewPortController* BoxVPC = FindViewPortFromDevice(Event.Device);
+  if (!BoxVPC || Event.Origin.size() < 2 || Event.Corner.size() < 2) {
+    Event.Callback(Event.CallQueue, BoxPickResult(Pick));
+    return;
+  }
+
+  Ogre::PlaneBoundedVolumeList Volumes;
+  Volumes.push_back(BoxVPC->GetWorldVolumeForRect(
+      Event.Origin[0], Event.Origin[1], Event.Corner[0], Event.Corner[1]));
+
+  BoxSceneQuery->setVolumes(Volumes);
+  BoxSceneQuery->setQueryMask(RenderQueryFlags::kSelectableUnit);
+  Ogre::SceneQueryResult& Results = BoxSceneQuery->execute();
+
+  const Ogre::Vector3 CameraPos = BoxVPC->GetCameraPosition();
+
+  for (Ogre::MovableObject* Movable : Results.movables) {
+    Ogre::Entity* Candidate = dynamic_cast<Ogre::Entity*>(Movable);
+    if (!Candidate) continue;
+
+    Ogre::SceneNode* Node = Candidate->getParentSceneNode();
+    if (!Node || !Node->isInSceneGraph()) continue;
+
+    // a volume drawn on screen carries on straight through the planet, so
+    // without this a box dragged over the limb would quietly pick up
+    // everything standing on the far side of the world
+    const Ogre::Vector3 NodePos = Node->_getDerivedPosition();
+    if (GlobeInt && GlobeInt->IsPointBeyondHorizon(CameraPos, NodePos)) {
+      continue;
+    }
+
+    const Ogre::Any& Stored =
+        Candidate->getUserObjectBindings().getUserAny("EnttHandle");
+    if (!Stored.has_value()) continue;
+
+    Pick.Entities.push_back(
+        static_cast<entt::entity>(Ogre::any_cast<uint32_t>(Stored)));
+  }
+
+  Event.Callback(Event.CallQueue, BoxPickResult(Pick));
 }
 
 ViewPortController* RenderSystem::FindViewPortFromDevice(InputDevice* Device) {

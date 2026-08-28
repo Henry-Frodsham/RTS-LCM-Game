@@ -6,14 +6,16 @@
 
 #include "EntityConstructionTemplates.h"
 InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
-                                   ECSHelper* Interactor, Player* Play) {
+                                   ECSHelper* Interactor, Player* Play)
+    // the selection needs the factory to validate through and the player to
+    // validate against, so it is built here rather than assigned below
+    : Selection(Interactor, Play) {
   DeviceState = Device;
   ThreadID = ThreadNum;
   Factory = Interactor;
   RenderSystem& RS = RenderSystem::GetInstance();
   ForeignNotifBus = new EventBus();
   ForeignNotifQueue = new EventQueue(ForeignNotifBus);
-  SelectedEntity = entt::null;
   GamePlayer = Play;
   Position = Ogre::Vector3f();
   SurfaceNormal = Ogre::Vector3f();
@@ -28,6 +30,9 @@ InteractionWheel::InteractionWheel(InputTranslator* Device, int ThreadNum,
       &InteractionWheel::CommitPathPreview, this, std::placeholders::_1));
   ForeignNotifBus->Subscribe<SelectEntitySuccessEvent>(
       std::bind(&InteractionWheel::SucessfulEntitySelection, this,
+                std::placeholders::_1));
+  ForeignNotifBus->Subscribe<NotifyBoxSelectResult>(
+      std::bind(&InteractionWheel::ReceiveBoxSelectResult, this,
                 std::placeholders::_1));
 
   ForeignNotifBus->Subscribe<CallBackACommand>(std::bind(
@@ -117,37 +122,67 @@ void InteractionWheel::UpdateAndWarmupContext() {
   ForeignNotifQueue->Dispatch();
 }
 
+// a click landed on an entity. what happens to the selection depends on whose
+// entity it is and whether the add-to-selection modifier was held: somebody
+// else's clears the set, one of yours joins it or replaces it, and one thats
+// already in it is taken back out
 void InteractionWheel::ShareInfoSelectedEntReceive(NotifyEntityResult Event) {
+  Selection.PruneDestroyed();
+
   // the friendly check ECSHelper::ValidateEntitySelection would otherwise do
   // is done here first, synchronously, so a click on an enemy (or ownerless)
   // entity can fall through to a deselect - ValidateEntitySelection has no
   // failure path back to us, only a success one
+  if (!Factory->IsValidEntity(Event.Entity)) {
+    DeselectOnMiss(Event.Additive);
+    return;
+  }
+
   OwnershipComponent* OComp =
       Factory->TryGetComponent<OwnershipComponent>(Event.Entity);
   if (!OComp || OComp->GamePlayer != GamePlayer) {
-    DeselectCurrent();
+    DeselectOnMiss(Event.Additive);
     return;
   }
 
-  Factory->FactoryQueue->Enqueue(TrySelectEntityEvent(
-      Event.Entity, GamePlayer, [Queue = ForeignNotifQueue](entt::entity Ent) {
-        Queue->Enqueue(SelectEntitySuccessEvent(Ent));
-      }));
+  // shift-clicking something already selected takes it back out, which is the
+  // only way to drop one unit out of a group without rebuilding the group
+  if (Event.Additive && Selection.Contains(Event.Entity)) {
+    Selection.Remove(Event.Entity);
+    return;
+  }
+
+  if (!Event.Additive) {
+    Selection.Clear();
+  }
+  Selection.Request(Event.Entity, ForeignNotifQueue);
 }
+
+// a finished rubber band. the entities inside it havent been checked for
+// ownership yet - each goes through the same validation a clicked one does,
+// and anything belonging to somebody else simply never answers
+void InteractionWheel::ReceiveBoxSelectResult(NotifyBoxSelectResult Event) {
+  Selection.PruneDestroyed();
+
+  // an empty box over open ground is a deliberate "select nothing", so the
+  // clear happens on the modifier alone and not on whether anything was found
+  if (!Event.Additive) {
+    Selection.Clear();
+  }
+
+  Selection.RequestMany(Event.Entities, ForeignNotifQueue);
+}
+
 void InteractionWheel::SucessfulEntitySelection(
     SelectEntitySuccessEvent Event) {
-  if (SelectedEntity != entt::null && SelectedEntity != Event.Entity) {
-    Factory->FactoryQueue->Enqueue(TryUnselectEntityEvent(SelectedEntity));
-  }
-  SelectedEntity = Event.Entity;
+  Selection.Confirm(Event.Entity);
 }
 
-void InteractionWheel::DeselectCurrent() {
-  if (SelectedEntity == entt::null) {
+void InteractionWheel::DeselectOnMiss(bool Additive) {
+  if (Additive) {
     return;
   }
-  Factory->FactoryQueue->Enqueue(TryUnselectEntityEvent(SelectedEntity));
-  SelectedEntity = entt::null;
+  Selection.Clear();
 }
 
 void InteractionWheel::ReceiveRayResult(NotifyRayResult Event) {
@@ -159,11 +194,18 @@ void InteractionWheel::ReceiveRayResult(NotifyRayResult Event) {
     // not mid hold-to-preview drag, so this is a genuine click (LMB / right
     // trigger) landing on empty ground rather than a drag-hover tick -
     // same "didn't click a friendly unit" case as ShareInfoSelectedEntReceive
-    DeselectCurrent();
+    DeselectOnMiss(Event.Additive);
     return;
   }
 
-  if (SelectedEntity == entt::null) {
+  Selection.PruneDestroyed();
+
+  // one line is drawn for the group, from whichever unit leads it. every
+  // selected unit is going to the same tile, and the render side has a single
+  // shared preview object (RenderSystem::PathPreviewLine), so drawing a
+  // second would only overwrite the first
+  const entt::entity PreviewFor = Selection.Lead();
+  if (PreviewFor == entt::null) {
     return;
   }
 
@@ -176,7 +218,7 @@ void InteractionWheel::ReceiveRayResult(NotifyRayResult Event) {
   LastPreviewedTile = HoveredTile;
 
   Factory->FactoryQueue->Enqueue(RequestPathPreviewEvent(
-      SelectedEntity, Position, SelectedBiome, GamePlayer));
+      PreviewFor, Position, SelectedBiome, GamePlayer));
 }
 
 void InteractionWheel::SetPreviewActive(bool Active) {
@@ -191,10 +233,17 @@ void InteractionWheel::SetPreviewActive(bool Active) {
   }
 }
 
+// the preview only ever showed the lead unit's route, but the order was given
+// to the whole group, so every selected unit is sent. each is validated and
+// pathed on its own by ECSHelper::ValidateEntityMovement, so anything in the
+// set that cant make the trip - a city, a land unit sent to sea - simply
+// doesnt move rather than spoiling the order for the rest
 void InteractionWheel::CommitPathPreview(CommitPathPreviewEvent Event) {
-  if (SelectedEntity != entt::null) {
+  Selection.PruneDestroyed();
+
+  for (entt::entity Selected : Selection.Entities()) {
     Factory->FactoryQueue->Enqueue(TryMoveEntityEvent(
-        SelectedEntity, Position, SurfaceNormal, SelectedBiome, GamePlayer));
+        Selected, Position, SurfaceNormal, SelectedBiome, GamePlayer));
   }
 }
 void InteractionWheel::OnContextActionCommand(ContextActionCommand Cmd) {
@@ -305,9 +354,16 @@ void InteractionWheel::CallBackButtonA(CallBackACommand Cmd) {
 }
 void InteractionWheel::CallBackButtonB(CallBackBCommand Cmd) {
   // destroy
-  if (SelectedEntity != entt::null) {
-    Factory->FactoryQueue->Enqueue(TryDestroyEntityEvent(SelectedEntity));
+  Selection.PruneDestroyed();
+
+  for (entt::entity Selected : Selection.Entities()) {
+    Factory->FactoryQueue->Enqueue(TryDestroyEntityEvent(Selected));
   }
+
+  // the handles are about to stop being valid, and an unselect on a destroyed
+  // entity has nothing left to put a material back on, so the set is emptied
+  // here rather than left to PruneDestroyed to notice later
+  Selection.Reset();
 }
 void InteractionWheel::CallBackButtonC(CallBackCCommand Cmd) {
   // boat

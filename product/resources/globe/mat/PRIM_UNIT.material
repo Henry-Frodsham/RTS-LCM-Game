@@ -1,0 +1,74 @@
+// Material for the procedurally generated placeholder shapes built by
+// PrimitiveMeshFactory. Same ownership-aware plumbing as WHITE/RED_UNIT -
+// ViewerParams gives the viewport its viewingPlayerID and custom param 0
+// carries the object's ownerID (set in RenderSystem::AddOwnerShipToEnt), so a
+// unit is drawn white for its owner and dark red for everyone else.
+//
+// Two things differ from WHITE.material:
+//  - cull_hardware none. These are closed solids assembled in code, and a
+//    face quietly wound the wrong way round should show up as a shape that
+//    looks slightly wrong, not one you can see straight through.
+//  - the programs are declared again under their own names. Material scripts
+//    are parsed in no particular order, so a program declared over in
+//    WHITE.material is not guaranteed to exist yet when this file is read.
+
+vertex_program PrimUnitVP glsl
+{
+    source unit_vp.glsl
+}
+
+fragment_program PrimUnitFP glsl
+{
+    source unit_fp.glsl
+}
+
+fragment_program PrimUnitSelectedFP glsl
+{
+    source unit_selected_fp.glsl
+}
+
+material PRIM_UNIT
+{
+    technique
+    {
+        pass
+        {
+            cull_hardware none
+            depth_check on
+            depth_write on
+
+            vertex_program_ref PrimUnitVP
+            {
+                param_named_auto worldViewProj worldviewproj_matrix
+            }
+            fragment_program_ref PrimUnitFP
+            {
+                shared_params_ref ViewerParams
+                param_named_auto ownerID custom 0
+            }
+        }
+    }
+}
+
+material PRIM_UNIT_SELECTED
+{
+    technique
+    {
+        pass
+        {
+            cull_hardware none
+            depth_check on
+            depth_write on
+
+            vertex_program_ref PrimUnitVP
+            {
+                param_named_auto worldViewProj worldviewproj_matrix
+            }
+            fragment_program_ref PrimUnitSelectedFP
+            {
+                shared_params_ref ViewerParams
+                param_named_auto ownerID custom 0
+            }
+        }
+    }
+}

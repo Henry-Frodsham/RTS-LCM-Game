@@ -19,6 +19,8 @@ class ViewPortController {
   Ogre::Real mOrbitDistance = 0.f;
   Ogre::Real mMinOrbitDistance = 0.f;
   Ogre::Real mMaxOrbitDistance = 0.f;
+
+  int ControllingInstanceNumber = 0;
  public:
   bool ToggleAutomaticRendering(bool Val);
 
@@ -49,11 +51,37 @@ class ViewPortController {
   void MoveCameraOrbitingPoint2DMotion(Ogre::Vector2f RelativeMotion,
                                        Ogre::Vector3f OrbitPoint);
   void MoveCameraDepth(float WheelDelta, Ogre::Vector3f OrbitPoint);
-  void RegisterControllingDevice(InputDevice* Device);
+  // InstanceNumber is the split screen instance (and player id) this viewport
+  // belongs to, or 0 while it is still the unclaimed menu viewport. anything
+  // drawing per-player screen space UI over this viewport needs it to name
+  // its overlay, because ViewPortUpdateListener::preViewportUpdate reads the
+  // player id off the last character of an overlay's name
+  void RegisterControllingDevice(InputDevice* Device, int InstanceNumber = 0);
+
+  int GetInstanceNumber() const { return ControllingInstanceNumber; }
 
   bool IsControllerByDevice(InputDevice* Device);
 
   Ogre::Ray GetWorldRayForDevice(StartRayTraceEvent Event);
+
+  // the world space frustum wedge behind an on-screen rectangle, for a rubber
+  // band select. the counterpart to GetWorldRayForDevice - same normalised
+  // 0-1 viewport space, an area instead of a point, and the same division of
+  // labour where this builds the geometry and RenderSystem runs the query
+  Ogre::PlaneBoundedVolume GetWorldVolumeForRect(float Left, float Top,
+                                                 float Right, float Bottom);
+
+  // where the camera is in world space. needed by anything that has to work
+  // out what this viewport can actually see, e.g. rejecting a box select hit
+  // sitting on the far side of the globe
+  Ogre::Vector3 GetCameraPosition() const;
+
+  // world space to this viewport's normalised 0-1 screen space, the same
+  // coordinates ActionContext::MouseX/Y and every overlay element use.
+  // returns false when the point has no place on screen at all - behind the
+  // camera, or outside the frustum - in which case the outputs are untouched
+  bool ProjectToViewport(const Ogre::Vector3& WorldPos, float* OutX,
+                         float* OutY) const;
   // Copy constructor - required for vector storage
   ViewPortController(const ViewPortController&) = default;
   // Move constructor

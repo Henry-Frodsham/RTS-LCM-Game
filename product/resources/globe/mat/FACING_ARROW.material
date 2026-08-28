@@ -1,7 +1,17 @@
-// Unit facing-direction arrow, shown only while a unit is selected. Same
-// ViewerParams/ownerID discard plumbing as PATH_PREVIEW.material - a unit's
-// facing arrow should only ever be visible on the selecting player's own
-// viewport (see RenderSystem::AddOwnerShipToEnt).
+// Unit facing arrow, a solid extruded arrow protruding out of the side of
+// the unit, shown only while that unit is selected or has recently been in a
+// fight.
+// Same ViewerParams/ownerID discard plumbing as PATH_PREVIEW.material - a
+// unit's facing should only ever be visible on its own player's viewport
+// (see RenderSystem::AddOwnerShipToEnt), since one of the two things that
+// puts it on screen is that player's own private selection.
+//
+// depth_check is OFF, so the arrow is never cut into by terrain, by its own
+// unit, or by anything standing in front of it. That is not a shortcut: how
+// much of a depth-tested shape survives to the screen depends on what happens
+// to be between it and the camera, which changes as the camera moves, and the
+// one thing this indicator has to do is look the same from everywhere. It
+// draws in full or not at all.
 
 fragment_program FacingArrowFP glsl
 {
